@@ -35,7 +35,7 @@
 
 - 공개 DB의 높은 정확도는 **평가 분할 설계**에 따라 크게 달라짐 → 수동 소나 표적 식별 AI도 해역 · 장비 · 녹음 조건을 분리한 시험평가가 필요.
 - 생물 소음을 신호 유형으로 먼저 가르는 구조는 수동 소나의 **생물 소음 vs 표적 신호 판별(오경보 저감)** 에 그대로 쓸 수 있음.
-- 측면주사 소나(SSS) 기뢰유사물체 탐지 연구(Side B)에서도 같은 평가 원칙을 적용함.
+- 측면주사 소나(SSS) 기뢰유사물체 탐지 연구 [sss-mine-detection-benchmark](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark)(Side B)에서도 같은 평가 원칙을 적용함.
 
 ---
 
