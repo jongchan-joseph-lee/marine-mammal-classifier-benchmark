@@ -1,0 +1,20 @@
+# data and large outputs stay out of git
+*.flac
+*.wav
+*.webm
+*.npz
+*.npy
+*.bin
+*.pptx
+*.pdf
+*.zip
+audio/
+audio_core/
+work/
+pkg_in/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+tools/.root
+03_web/results_page/pub/

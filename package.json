@@ -1,0 +1,13 @@
+{
+  "name": "watkins-screening-tools",
+  "private": true,
+  "description": "Node helpers: slide deck (pptxgenjs), icons (react-icons + sharp), page screenshots (playwright)",
+  "dependencies": {
+    "pptxgenjs": "^3.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-icons": "^5.3.0",
+    "sharp": "^0.33.5",
+    "playwright": "^1.47.0"
+  }
+}

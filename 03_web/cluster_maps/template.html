@@ -1,0 +1,439 @@
+<title>Watkins 군집 지도</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one working surface. Tabs on top, controls in one row above the map, legend and cut detail beside it, numbers below. */
+:root{
+  --bg:#f3f6f6; --surface:#ffffff; --ink:#0f1f1f; --ink2:#465958; --ink3:#748584; --line:#d7e0df; --line2:#e8eeed;
+  --accent:#0d5c63; --accent-ink:#ffffff; --accent-soft:#e0eeee;
+  --warn-bg:#fff0c7; --warn-ink:#553a00; --warn-line:#e2bd55;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --s6:#008300; --s7:#6250d6; --s8:#e34948;
+  --s9:#0f6e73; --s10:#9a6324; --s11:#9aa3e0; --s12:#a3cc4e;
+  --other:#bcc6c5; --dim:#dfe5e4; --hi:#0f1f1f;
+  --o1:#9ec5f4; --o2:#86b6ef; --o3:#5598e7; --o4:#3987e5; --o5:#256abf; --o6:#184f95; --o7:#0d366b;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#101615; --surface:#182120; --ink:#ecf1f0; --ink2:#b4c2c0; --ink3:#84938f; --line:#2c3837; --line2:#222d2c;
+  --accent:#5fc4c9; --accent-ink:#06201f; --accent-soft:#1d3536;
+  --warn-bg:#3a2d08; --warn-ink:#f6dc94; --warn-line:#7a611c;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --s9:#2aa3a8; --s10:#b9803d; --s11:#aab2ee; --s12:#a8cf55;
+  --other:#4d5958; --dim:#2a3534; --hi:#ecf1f0;
+  --o1:#184f95; --o2:#1c5cab; --o3:#256abf; --o4:#3987e5; --o5:#6da7ec; --o6:#9ec5f4; --o7:#cde2fb; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#101615; --surface:#182120; --ink:#ecf1f0; --ink2:#b4c2c0; --ink3:#84938f; --line:#2c3837; --line2:#222d2c;
+  --accent:#5fc4c9; --accent-ink:#06201f; --accent-soft:#1d3536;
+  --warn-bg:#3a2d08; --warn-ink:#f6dc94; --warn-line:#7a611c;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#008300; --s7:#9085e9; --s8:#e66767;
+  --s9:#2aa3a8; --s10:#b9803d; --s11:#aab2ee; --s12:#a8cf55;
+  --other:#4d5958; --dim:#2a3534; --hi:#ecf1f0;
+  --o1:#184f95; --o2:#1c5cab; --o3:#256abf; --o4:#3987e5; --o5:#6da7ec; --o6:#9ec5f4; --o7:#cde2fb; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.6}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:20px 56px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
+h2{font-size:16px;font-weight:600;margin:0;text-wrap:balance}
+h3{font-size:13px;font-weight:600;margin:0}
+p{margin:0}
+.lede{color:var(--ink2);max-width:72ch}
+.mono,.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.mock{background:var(--warn-bg);color:var(--warn-ink);border:1px solid var(--warn-line);border-radius:6px;padding:10px 14px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.mock b{font-weight:600}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;font-weight:500;color:var(--ink2);background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;cursor:pointer;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button .num{color:var(--ink3);font-size:12px;margin-left:4px}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{display:flex;flex-direction:column;gap:16px}
+.controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ctl>span{font-size:11px;color:var(--ink3);letter-spacing:.04em}
+.seg{display:flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:13px;color:var(--ink2);background:none;border:0;border-right:1px solid var(--line);padding:5px 10px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+select{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:5px 8px;max-width:100%}
+.checks{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--ink2);padding:5px 0}
+.checks label{display:flex;gap:5px;align-items:center;cursor:pointer}
+.stage{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px;align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:minmax(0,1fr)}}
+.mapbox{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.mapbox canvas{display:block;width:100%;height:auto;aspect-ratio:4/3;touch-action:none;cursor:crosshair}
+.mapbox.sq canvas{aspect-ratio:1/1}
+.mapcap{position:absolute;left:10px;bottom:8px;font-size:11px;color:var(--ink3);pointer-events:none}
+.reset{position:absolute;right:8px;top:8px;font:inherit;font-size:12px;color:var(--ink2);background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:2px 8px;cursor:pointer}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;line-height:1.45;padding:6px 8px;border-radius:5px;max-width:240px;z-index:3}
+.side{display:flex;flex-direction:column;gap:16px;min-width:0}
+.legend{display:flex;flex-direction:column;gap:3px;font-size:13px}
+.legend .row{display:flex;gap:8px;align-items:center;min-width:0}
+.legend .sw{width:10px;height:10px;border-radius:50%;flex:none}
+.legend .nm{flex:1;min-width:0;overflow-wrap:anywhere;color:var(--ink)}
+.legend .ct{color:var(--ink3);font-size:12px}
+.note{font-size:12px;color:var(--ink3)}
+.detail{border-top:1px solid var(--line);padding-top:12px;font-size:13px}
+.detail dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;margin:6px 0 0}
+.detail dt{color:var(--ink3)}.detail dd{margin:0;overflow-wrap:anywhere}
+.block{display:flex;flex-direction:column;gap:8px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line2);vertical-align:top}
+th{font-weight:500;color:var(--ink3);font-size:12px;border-bottom-color:var(--line);white-space:nowrap}
+td.num,th.num{text-align:right}
+tr.on td{background:var(--accent-soft)}
+.bar{position:relative;height:10px;background:var(--line2);border-radius:0 4px 4px 0;min-width:120px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--s1);border-radius:0 4px 4px 0}
+.bar u{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--ink)}
+.barcell{display:grid;grid-template-columns:minmax(120px,1fr) 3.2em;gap:8px;align-items:center}
+.quad{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.quad{grid-template-columns:minmax(0,1fr)}}
+.fig{display:flex;flex-direction:column;gap:6px;min-width:0}
+.fig .how{font-size:12px;color:var(--ink2);min-height:3.2em}
+.fig .val{font-size:12px;color:var(--ink2)}
+.fig .val b{font-family:var(--mono);font-weight:500;color:var(--ink);font-size:14px}
+.say{border-left:3px solid var(--accent);padding:2px 0 2px 12px;color:var(--ink);max-width:80ch}
+.guide td:first-child{white-space:nowrap;font-weight:500}
+.guide td{max-width:60ch}
+@media (max-width:600px){.guide td:first-child{white-space:normal}}
+</style>
+
+<div class="wrap">
+  <header class="block">
+    <h1>Watkins 군집 지도</h1>
+    <p class="lede" id="lede"></p>
+  </header>
+  <div class="mock" id="mock" hidden><b>지금 보이는 점과 수치는 모의 자료(synthetic data)입니다.</b> 컷 수와 구성만 실제에 맞췄고, 특징값은 난수로 만들었으며 종·출처 이름도 가짜입니다. Watkins 자료의 결과가 아닙니다. 화면 구성과 계산 흐름을 확인하는 용도이고, 특징표를 받으면 같은 프로그램으로 실제 결과로 바꿉니다.</div>
+  <nav class="tabs" role="tablist" id="tabs"></nav>
+
+  <section class="panel" id="p-full"></section>
+  <section class="panel" id="p-sample" hidden></section>
+
+  <section class="panel" id="p-sup" hidden>
+    <div class="block">
+      <h2>종 라벨을 알려 주고 그린 UMAP 은 얼마나 믿을 수 있는가</h2>
+      <p class="lede">종 지도 UMAP(supervised UMAP)은 같은 종의 컷을 서로 끌어당기도록 계산합니다. 그래서 문헌 그림처럼 종별로 깔끔하게 갈라져 보입니다. 아래 네 그림은 같은 표본, 같은 특징으로 그렸고 계산 방식만 다릅니다. 색은 종이고, 컷이 많은 12종에 색을 주었습니다(Cominelli 외 2024 의 그림 3 과 같은 구성).</p>
+    </div>
+    <div class="controls">
+      <div class="ctl"><span>표현 (REPRESENTATION)</span><div class="seg" id="sup-rep"></div></div>
+      <div class="ctl"><span>한 종만 강조</span><select id="sup-focus"></select></div>
+    </div>
+    <div class="legend" id="sup-legend" style="flex-direction:row;flex-wrap:wrap;gap:4px 16px"></div>
+    <div class="quad" id="sup-quad"></div>
+    <p class="say" id="sup-say"></p>
+    <div class="block">
+      <h3>표현별 요약: 2D 그림에서 가까운 15컷이 같은 종인 정도</h3>
+      <p class="note">값은 균형정확도(balanced accuracy, 종별 적중률의 평균)입니다. 1 에 가까울수록 그림에서 종이 갈라져 보입니다. 그림의 겉보기 분리를 재는 값이고 분류기의 성능이 아닙니다.</p>
+      <div class="scroll"><table id="sup-table"></table></div>
+    </div>
+  </section>
+
+  <section class="panel" id="p-guide" hidden>
+    <div class="block"><h2>읽는 법</h2>
+      <div class="scroll"><table class="guide" id="guide-terms"></table></div></div>
+    <div class="block"><h2>이 화면으로 말할 수 있는 것과 없는 것</h2>
+      <div class="scroll"><table class="guide" id="guide-claims"></table></div></div>
+    <div class="block" id="guide-check-wrap" hidden><h2>GPT 가 저장한 결과와 대조</h2>
+      <p class="note">GPT 묶음의 특징값을 받아 이웃과 군집을 여기서 따로 다시 계산한 뒤, GPT 가 저장해 둔 이웃 목록·군집과 견준 값입니다. 이웃이 1 에 가까우면 전처리와 거리 계산이 같다는 뜻입니다. 군집 일치도는 KMeans 의 시작점에 따라 달라지므로 1 이 아니어도 오류가 아닙니다. 특징값 자체는 다시 뽑지 않았습니다(원음이 여기 없습니다).</p>
+      <div class="scroll"><table class="guide" id="guide-check"></table></div></div>
+    <div class="block"><h2>계산 설정</h2>
+      <p class="note">문헌에서 가져온 값이 아니라 이 화면을 만들며 정한 값입니다. 바꾸면 그림의 모양이 달라집니다.</p>
+      <div class="scroll"><table class="guide" id="guide-cfg"></table></div></div>
+  </section>
+</div>
+
+<script id="payload" type="application/json">__DATA__</script>
+<script>
+(() => {
+const D = JSON.parse(document.getElementById('payload').textContent);
+const $ = (s, r = document) => r.querySelector(s);
+const el = (h) => { const t = document.createElement('template'); t.innerHTML = h.trim(); return t.content.firstChild; };
+const fmt = (n) => n.toLocaleString('ko-KR');
+const f2 = (v) => v == null ? '계산 불가' : v.toFixed(2);
+const cache = new Map();
+const dec = (s, T) => { if (cache.has(s)) return cache.get(s); const b = atob(s), u = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); const a = new T(u.buffer); cache.set(s, a); return a; };
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const C = D.cuts, N = D.n;
+const ST_NAME = { eval: '평가 대상', hold: '보류', excluded: '제외' };
+const nSample = C.smp.reduce((a, b) => a + b, 0);
+const nEval = C.st.filter(v => v === 0).length;
+const nMap = C.feat.filter(v => v === 0).length;
+
+/* ── 색 기준 (what a color can mean) ─────────────────────────────── */
+const VARS = {
+  tx:   { label: '분류군', arr: C.tx, cats: D.cats.tx },
+  st:   { label: '포함 상태', arr: C.st, cats: D.cats.st.map(k => ST_NAME[k] || k), keep: true },
+  smp:  { label: '표본 여부', arr: C.smp.map(v => v ? 0 : 1), cats: ['표본 ' + fmt(nSample) + '컷', '표본 밖'], keep: true },
+  fsf:  { label: '샘플링률 계열', arr: C.fsf, cats: D.cats.fsf, ord: true },
+  ty:   { label: '형태 (노트 기반 약한 라벨)', arr: C.ty, cats: D.cats.ty, none: '형태 라벨 없음' },
+  sp:   { label: '종', arr: C.sp, cats: D.cats.sp, max: 12 },
+  site: { label: '출처', arr: C.site, cats: D.cats.site },
+  km:   { label: '군집 KMeans', cluster: 'km' },
+  hdb:  { label: '군집 HDBSCAN', cluster: 'hdb' },
+};
+// 색은 범주를 따라간다: 전체 자료에서 컷이 많은 순서로 8개까지 고정 배정하고 나머지는 회색.
+for (const v of Object.values(VARS)) { if (!v.arr) continue;
+  const n = new Array(v.cats.length).fill(0); for (const c of v.arr) if (c >= 0) n[c]++;
+  v.rank = v.keep || v.ord ? v.cats.map((_, i) => i) : v.cats.map((_, i) => i).sort((a, b) => n[b] - n[a]);
+  v.slot = new Array(v.cats.length).fill(-1); v.rank.slice(0, v.ord ? 7 : (v.max || 8)).forEach((c, i) => v.slot[c] = i); }
+
+function colorSpec(key, rows, blk, focus) {
+  const v = VARS[key], n = rows.length, code = new Int16Array(n);
+  let cats, slot, ord = !!v.ord, none = v.none || '라벨 없음';
+  if (v.cluster) { const a = dec(blk[v.cluster], Uint8Array);
+    if (v.cluster === 'km') { for (let i = 0; i < n; i++) code[i] = a[i]; cats = [...new Set(a)].sort((x, y) => x - y).map(i => '군집 ' + (i + 1)); }
+    else { let mx = 0; for (let i = 0; i < n; i++) { code[i] = a[i] - 1; if (a[i] > mx) mx = a[i]; } cats = Array.from({ length: mx }, (_, i) => '군집 ' + (i + 1)); none = '어느 군집에도 들지 않음'; }
+    const cnt = new Array(cats.length).fill(0); for (const c of code) if (c >= 0) cnt[c]++;
+    slot = new Array(cats.length).fill(-1); cats.map((_, i) => i).sort((a, b) => cnt[b] - cnt[a]).slice(0, 8).forEach((c, i) => slot[c] = i);
+  } else { for (let i = 0; i < n; i++) code[i] = v.arr[rows[i]]; cats = v.cats; slot = v.slot; }
+  const pal = [], s = new Uint8Array(n); // palette index per point
+  const base = ord ? ['--o1','--o2','--o3','--o4','--o5','--o6','--o7'] : ['--s1','--s2','--s3','--s4','--s5','--s6','--s7','--s8','--s9','--s10','--s11','--s12'].slice(0, v.max || 8);
+  base.forEach(b => pal.push(css(b))); const OTHER = pal.length; pal.push(css('--other')); const HI = pal.length; pal.push(css('--hi'));
+  for (let i = 0; i < n; i++) { const c = code[i];
+    if (focus !== '' && focus != null) s[i] = c === +focus ? HI : OTHER; else s[i] = c >= 0 && slot[c] >= 0 ? slot[c] : OTHER; }
+  return { code, cats, slot, pal, s, OTHER, HI, base, none, focus };
+}
+
+/* ── 점 지도 (scatter canvas) ────────────────────────────────────── */
+function ScatterMap(box, opt = {}) {
+  const cv = $('canvas', box), ctx = cv.getContext('2d'), tip = el('<div class="tip" hidden></div>'); box.appendChild(tip);
+  let S = null, view = { k: 1, x: 0, y: 0 }, W = 0, H = 0, dpr = 1, grid = null, perm = null;
+  const sx = (i) => (S.xy[2 * i] / 65535 * (W - 24) + 12) * view.k + view.x;
+  const sy = (i) => ((1 - S.xy[2 * i + 1] / 65535) * (H - 24) + 12) * view.k + view.y;
+  function draw() { if (!S) return; dpr = window.devicePixelRatio || 1; const r = cv.getBoundingClientRect(); W = r.width; H = r.height;
+    if (cv.width !== Math.round(W * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+    const n = S.n, rad = S.r || (n > 6000 ? 1.5 : 2.1), px = new Float32Array(n), py = new Float32Array(n);
+    for (let i = 0; i < n; i++) { px[i] = sx(i); py[i] = sy(i); }
+    if (!perm || perm.length !== n) { perm = new Uint32Array(n); for (let i = 0; i < n; i++) perm[i] = i; let s = 12345;
+      for (let i = n - 1; i > 0; i--) { s = (s * 1103515245 + 12345) & 0x7fffffff; const j = s % (i + 1); const t = perm[i]; perm[i] = perm[j]; perm[j] = t; } }
+    const pass = (test, alpha, r2) => { ctx.globalAlpha = alpha; let last = -1;
+      for (let q = 0; q < n; q++) { const i = perm[q]; if (S.hide && S.hide[i]) continue; if (!test(i)) continue; const c = S.spec.s[i];
+        if (c !== last) { ctx.fillStyle = S.dim && S.dim[i] ? css('--dim') : S.spec.pal[c]; last = S.dim && S.dim[i] ? -2 : c; }
+        ctx.beginPath(); ctx.arc(px[i], py[i], r2, 0, 6.2832); ctx.fill(); } };
+    const dimmed = (i) => S.dim && S.dim[i];
+    pass((i) => dimmed(i), 0.9, rad * 0.8);
+    pass((i) => !dimmed(i) && S.spec.s[i] === S.spec.OTHER, S.fade || 0.7, rad);
+    pass((i) => !dimmed(i) && S.spec.s[i] !== S.spec.OTHER && !(S.ring && S.ring[i]), S.fade || 0.8, rad);
+    if (S.ring) { ctx.globalAlpha = 1; ctx.lineWidth = 1; ctx.strokeStyle = css('--ink');
+      for (let i = 0; i < n; i++) { if (!S.ring[i]) continue; ctx.fillStyle = S.spec.pal[S.spec.s[i]]; ctx.beginPath(); ctx.arc(px[i], py[i], rad + 1.2, 0, 6.2832); ctx.fill(); ctx.stroke(); } }
+    ctx.globalAlpha = 1;
+    // 범주 이름표: 색만으로 구분하지 않도록 무리의 가운데에 이름을 적는다
+    if (S.labels !== false && S.spec.focus === '' ) { const acc = new Map();
+      for (let i = 0; i < n; i++) { if ((S.hide && S.hide[i]) || dimmed(i)) continue; const c = S.spec.code[i]; if (c < 0 || S.spec.slot[c] < 0) continue;
+        let a = acc.get(c); if (!a) acc.set(c, a = { x: [], y: [] }); a.x.push(px[i]); a.y.push(py[i]); }
+      ctx.font = '500 11px ' + css('--sans'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const placed = [];
+      [...acc.entries()].sort((a, b) => b[1].x.length - a[1].x.length).forEach(([c, a]) => { if (a.x.length < 12) return;
+        const med = (v) => { v.sort((p, q) => p - q); return v[v.length >> 1]; }; const x = med(a.x), y = med(a.y), t = S.spec.cats[c], w = ctx.measureText(t).width / 2 + 3;
+        if (x - w < 0 || x + w > W || y < 8 || y > H - 8) return; if (placed.some(p => Math.abs(p.x - x) < p.w + w && Math.abs(p.y - y) < 14)) return; placed.push({ x, y, w });
+        ctx.lineWidth = 3; ctx.strokeStyle = css('--surface'); ctx.strokeText(t, x, y); ctx.fillStyle = css('--ink'); ctx.fillText(t, x, y); }); }
+    grid = new Map(); for (let i = 0; i < n; i++) { if (S.hide && S.hide[i]) continue; const k = (px[i] >> 4) + ',' + (py[i] >> 4); let g = grid.get(k); if (!g) grid.set(k, g = []); g.push(i); }
+    S._px = px; S._py = py; }
+  function pick(mx, my) { if (!grid) return -1; let best = -1, bd = 100; const gx = mx >> 4, gy = my >> 4;
+    for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) { const g = grid.get((gx + a) + ',' + (gy + b)); if (!g) continue;
+      for (const i of g) { const d = (S._px[i] - mx) ** 2 + (S._py[i] - my) ** 2; if (d < bd) { bd = d; best = i; } } } return best; }
+  const pos = (e) => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  let drag = null;
+  cv.addEventListener('pointermove', (e) => { const [mx, my] = pos(e);
+    if (drag) { view.x = drag.vx + mx - drag.mx; view.y = drag.vy + my - drag.my; drag.moved = true; draw(); return; }
+    const i = pick(mx, my); if (i < 0) { tip.hidden = true; return; } const r = S.rows[i];
+    tip.innerHTML = `<span class="mono">${C.id[r]}</span><br>${D.cats.sp[C.sp[r]] ?? ''} · ${D.cats.tx[C.tx[r]] ?? ''}<br>${D.cats.site[C.site[r]] ?? ''} · ${(C.fs[r] / 1000).toFixed(1)} kHz · ${C.dur[r]}초`;
+    tip.hidden = false; const tw = tip.offsetWidth; tip.style.left = Math.max(4, Math.min(W - tw - 4, mx + 12)) + 'px'; tip.style.top = Math.max(4, my - 8 - tip.offsetHeight) + 'px'; });
+  cv.addEventListener('pointerleave', () => { tip.hidden = true; });
+  if (opt.zoom) { cv.addEventListener('pointerdown', (e) => { const [mx, my] = pos(e); drag = { mx, my, vx: view.x, vy: view.y }; cv.setPointerCapture(e.pointerId); });
+    cv.addEventListener('wheel', (e) => { e.preventDefault(); const [mx, my] = pos(e); const f = Math.exp(-e.deltaY * 0.0015), k = Math.max(1, Math.min(40, view.k * f));
+      view.x = mx - (mx - view.x) * (k / view.k); view.y = my - (my - view.y) * (k / view.k); view.k = k; if (k === 1) { view.x = 0; view.y = 0; } draw(); }, { passive: false }); }
+  cv.addEventListener('pointerup', (e) => { const [mx, my] = pos(e); const moved = drag && drag.moved; drag = null; if (moved) return; const i = pick(mx, my); if (i >= 0 && opt.onPick) opt.onPick(S.rows[i]); });
+  new ResizeObserver(draw).observe(cv);
+  return { set(s) { S = s; draw(); }, redraw: draw, reset() { view = { k: 1, x: 0, y: 0 }; draw(); } };
+}
+const maps = [];
+const redrawAll = () => maps.forEach(m => m());
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', redrawAll);
+new MutationObserver(redrawAll).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+function seg(host, items, get, set) { host.innerHTML = ''; items.forEach(([k, label]) => { const b = el(`<button type="button">${label}</button>`);
+    b.setAttribute('aria-pressed', String(get() === k)); b.onclick = () => { set(k); [...host.children].forEach((c, i) => c.setAttribute('aria-pressed', String(items[i][0] === k))); }; host.appendChild(b); }); }
+
+/* ── 탐색 화면: 전체 탭과 표본 탭이 같이 쓴다 ─────────────────────── */
+const LAB = [['taxon', '분류군'], ['species', '종'], ['site', '출처'], ['fsfam', '샘플링률 계열'], ['type', '형태 (약한 라벨)']];
+const PROJ = [['umap', 'UMAP'], ['tsne', 't-SNE'], ['pca', 'PCA']];
+function Explorer(root, scope) {
+  const reps = D.reps.filter(r => D[scope][r.key]);
+  const stOnMap = D.cats.st.map((_, i) => C.st.some((v, r) => v === i && C.feat[r] === 0));
+  const multiSt = stOnMap.filter(Boolean).length > 1;
+  const st = { rep: reps.find(r => r.key === 'physv0')?.key || reps[0]?.key, proj: 'umap', color: scope === 'full' && multiSt ? 'st' : 'tx', focus: '', mode: 'overlay', show: [true, true, true] };
+  const id = (s) => scope + '-' + s;
+  root.innerHTML = `
+    <div class="block"><h2>${scope === 'full' ? '특징이 있는 ' + fmt(nMap) + '컷은 어떻게 흩어져 있는가' : '표본 ' + fmt(nSample) + '컷은 전체의 어디에 있는가'}</h2>
+      <p class="lede">${scope === 'full'
+        ? `전체 목록 ${fmt(N)}컷 가운데 특징이 계산되어 있는 ${fmt(nMap)}컷을 올렸습니다. 점 하나가 컷 하나입니다. 표현을 바꾸면 같은 컷들이 다른 특징으로 다시 배치됩니다. 지도에 없는 컷은 아래 표에 있습니다.`
+        : '위치 보기는 전체 지도 위에 표본만 색으로 남긴 것이고, 다시 계산은 표본 컷만으로 지도를 새로 그린 것입니다. 앞의 것은 표본이 전체를 고르게 덮는지를, 뒤의 것은 컷 수가 많은 종에 눌리지 않은 구조를 보여 줍니다.'}</p></div>
+    <div class="controls">
+      ${scope === 'sample' ? `<div class="ctl"><span>보기</span><div class="seg" id="${id('mode')}"></div></div>` : ''}
+      <div class="ctl"><span>표현 (REPRESENTATION)</span><div class="seg" id="${id('rep')}"></div></div>
+      <div class="ctl"><span>투영 (PROJECTION)</span><div class="seg" id="${id('proj')}"></div></div>
+      <div class="ctl"><span>색 기준</span><select id="${id('color')}"></select></div>
+      <div class="ctl"><span>한 범주만 강조</span><select id="${id('focus')}"></select></div>
+      ${scope === 'full' && multiSt ? `<div class="ctl"><span>보이는 컷</span><div class="checks" id="${id('show')}"></div></div>` : ''}
+    </div>
+    <div class="stage">
+      <div class="mapbox"><canvas id="${id('cv')}" aria-label="컷 지도"></canvas><button class="reset" type="button" id="${id('reset')}">처음 크기로</button><div class="mapcap" id="${id('cap')}"></div></div>
+      <aside class="side">
+        <div class="block"><h3 id="${id('lt')}"></h3><div class="legend" id="${id('legend')}"></div><p class="note" id="${id('ln')}"></p></div>
+        <div class="detail" id="${id('detail')}"><h3>선택한 컷</h3><p class="note">점을 누르면 그 컷의 정보가 여기에 남습니다.</p></div>
+      </aside>
+    </div>
+    <div class="block"><h3 id="${id('mt')}"></h3>
+      <p class="note">가까운 컷끼리 무엇이 같은지를 봅니다. 막대는 가장 가까운 10컷 가운데 같은 라벨인 비율이고, 세로선은 무작위로 골랐을 때의 기대값입니다. 같은 출처에는 같은 테이프에서 이어 자른 닮은 컷이 많아서, 이웃을 다른 출처의 컷 가운데서만 고른 값을 따로 냈습니다. 두 값의 차이가 출처에 기댄 몫입니다. 군집 일치도(AMI)는 0 이면 무관, 1 이면 군집과 라벨이 같다는 뜻입니다. 모두 2D 그림이 아니라 전처리된 고차원 공간에서 계산했습니다.</p>
+      <div class="scroll"><table id="${id('metrics')}"></table></div></div>
+    <div class="block"><h3>표현끼리 비교: 다른 출처의 컷 가운데서 고른 가장 가까운 10컷이 같은 라벨인 비율</h3>
+      <p class="note">맨 아래 두 줄과 견줘 읽습니다. 무작위 기대값보다 높아야 정보가 있는 것이고, 소리를 전혀 쓰지 않은 대조군(녹음 조건만)보다 높아야 그 정보가 소리에서 온 것입니다.</p>
+      <div class="scroll"><table id="${id('cross')}"></table></div></div>
+    ${scope === 'full' ? `<div class="block"><h3>전체 목록 ${fmt(N)}컷 가운데 지도에 있는 컷과 없는 컷</h3><p class="note">지도에 없는 컷은 특징이 아직 계산되지 않은 컷입니다. 임의의 값으로 채워 넣지 않았습니다. 원음에서 특징을 뽑으면 같은 프로그램으로 올릴 수 있습니다.</p><div class="scroll"><table id="${id('status')}"></table></div></div>` : ''}
+    ${scope === 'sample' ? `<div class="block"><h3>구성 비교: 전체 → 평가 대상 → 표본</h3><div class="scroll"><table id="${id('comp')}"></table></div></div>` : ''}`;
+  const map = ScatterMap($('.mapbox', root), { zoom: true, onPick: showDetail }); $('#' + id('reset')).onclick = () => map.reset();
+  function showDetail(r) { $('#' + id('detail')).innerHTML = `<h3>선택한 컷</h3><dl>
+      <dt>컷 번호</dt><dd class="mono">${C.id[r]}</dd><dt>종</dt><dd>${D.cats.sp[C.sp[r]] ?? '-'}</dd><dt>분류군</dt><dd>${D.cats.tx[C.tx[r]] ?? '-'}</dd>
+      <dt>출처</dt><dd>${D.cats.site[C.site[r]] ?? '-'}</dd><dt>샘플링률</dt><dd class="num">${fmt(C.fs[r])} Hz</dd><dt>길이</dt><dd class="num">${C.dur[r]} 초</dd>
+      <dt>형태</dt><dd>${D.cats.ty[C.ty[r]] ?? '라벨 없음'}</dd><dt>상태</dt><dd>${ST_NAME[D.cats.st[C.st[r]]]}${C.why[r] >= 0 ? ' (' + D.cats.why[C.why[r]] + ')' : ''}</dd>
+      <dt>표본</dt><dd>${C.smp[r] ? '포함' : '밖'}${C.split[r] ? ' · ' + (C.split[r] === 1 ? '개발 출처' : '시험 출처') : ''}</dd></dl>`; }
+  function render() {
+    const only = scope === 'sample' && !D.full[st.rep]; const src = scope === 'sample' && (st.mode === 'refit' || only) ? 'sample' : 'full', blk = D[src][st.rep], rows = dec(blk.rows, Uint16Array), n = rows.length;
+    const spec = colorSpec(st.color, rows, blk, st.focus);
+    const hide = new Uint8Array(n), dim = new Uint8Array(n); let vis = 0;
+    for (let i = 0; i < n; i++) { const r = rows[i]; if (scope === 'full' && !st.show[C.st[r]]) hide[i] = 1; if (scope === 'sample' && src === 'full') { if (C.st[r] !== 0) hide[i] = 1; else if (!C.smp[r]) dim[i] = 1; } if (!hide[i] && !dim[i]) vis++; }
+    map.set({ xy: dec(blk[st.proj], Uint16Array), n, rows, spec, hide, dim });
+    const rep = D.reps.find(r => r.key === st.rep);
+    $('#' + id('cap')).textContent = `${rep.label} · ${PROJ.find(p => p[0] === st.proj)[1]} · 색 있는 점 ${fmt(vis)}컷` + (st.proj === 'pca' ? ` · 두 축이 분산의 ${Math.round((blk.pca_var[0] + blk.pca_var[1]) * 100)}%` : '');
+    // 범례
+    const cnt = new Array(spec.cats.length).fill(0); let none = 0, other = 0, ncat = 0;
+    for (let i = 0; i < n; i++) { if (hide[i] || dim[i]) continue; const c = spec.code[i]; if (c < 0) none++; else { cnt[c]++; } }
+    const L = $('#' + id('legend')); L.innerHTML = ''; $('#' + id('lt')).textContent = VARS[st.color].label;
+    const order = spec.cats.map((_, i) => i).filter(i => spec.slot[i] >= 0).sort((a, b) => spec.slot[a] - spec.slot[b]);
+    const row = (col, name, c) => L.appendChild(el(`<div class="row"><span class="sw" style="background:${col}"></span><span class="nm">${name}</span><span class="ct num">${fmt(c)}</span></div>`));
+    if (st.focus !== '') { row(spec.pal[spec.HI], spec.cats[+st.focus], cnt[+st.focus]); row(spec.pal[spec.OTHER], '그 밖의 컷', vis - cnt[+st.focus]); }
+    else { order.forEach(c => { if (cnt[c]) row(spec.pal[spec.slot[c]], spec.cats[c], cnt[c]); });
+      spec.cats.forEach((_, c) => { if (spec.slot[c] < 0 && cnt[c]) { other += cnt[c]; ncat++; } });
+      if (other) row(spec.pal[spec.OTHER], `그 밖의 ${ncat}개 범주`, other); if (none) row(spec.pal[spec.OTHER], spec.none, none); }
+    $('#' + id('ln')).textContent = (ncat && st.focus === '' ? '색은 컷이 많은 8개 범주에만 줍니다. 나머지는 「한 범주만 강조」로 하나씩 볼 수 있습니다. ' : '') + (scope === 'sample' && src === 'full' ? '옅은 점은 표본에 들지 않은 평가 대상 컷입니다.' : '') + (only ? '이 표현은 표본 컷에만 계산되어 있어 표본만으로 그린 지도를 보여 줍니다.' : '') + (rep.n_empty && src === 'full' ? ` 값이 전부 비어 있는 ${rep.n_empty}컷(아주 짧은 컷)은 이 표현의 지도에서 뺐습니다.` : '');
+    const F = $('#' + id('focus')), keepF = st.focus; F.innerHTML = '<option value="">강조 없음</option>' + spec.cats.map((c, i) => [c, i, cnt[i]]).filter(x => x[2]).sort((a, b) => b[2] - a[2]).map(x => `<option value="${x[1]}">${x[0]} (${fmt(x[2])})</option>`).join(''); F.value = keepF;
+    // 수치
+    const M = D[scope][st.rep].metrics;
+    $('#' + id('mt')).textContent = `${rep.label}: 가까운 컷끼리 무엇이 같은가 (${scope === 'full' ? '전체' : '표본만으로 계산'})`;
+    const barc = (v, base) => v == null ? '<span class="note">해당 없음</span>' : `<div class="barcell"><div class="bar"><i style="width:${v * 100}%"></i><u style="left:${base * 100}%"></u></div><span class="num">${f2(v)}</span></div>`;
+    $('#' + id('metrics')).innerHTML = `<tr><th>라벨</th><th>모든 컷 가운데서 고른 이웃</th><th class="num">기대값</th><th>다른 출처의 컷 가운데서만 고른 이웃</th><th class="num">기대값</th><th class="num">군집 일치도 AMI · KMeans</th><th class="num">AMI · HDBSCAN</th></tr>` +
+      LAB.filter(([k]) => M.nn[k] != null).map(([k, name]) => `<tr><td>${name}</td><td>${barc(M.nn[k], M.base[k])}</td><td class="num">${f2(M.base[k])}</td><td>${barc(M.nn_x[k], M.base_x[k])}</td><td class="num">${M.base_x[k] == null ? '' : f2(M.base_x[k])}</td><td class="num">${f2(M.ami_km[k])}</td><td class="num">${f2(M.ami_hdb[k])}</td></tr>`).join('') +
+      `<tr><td colspan="7" class="note">HDBSCAN 은 군집 ${M.hdb_n}개를 찾았고 ${Math.round(M.hdb_noise * 100)}% 의 컷을 어느 군집에도 넣지 않았습니다.${M.hdb_n <= 3 || M.hdb_noise > 0.5 ? ' 밀도로 보면 뚜렷이 끊어진 덩어리가 거의 없다는 뜻입니다. KMeans 의 군집은 이어진 구름을 정한 개수로 자른 것으로 읽습니다.' : ''} 형태 줄은 단일 형태 라벨이 있는 컷끼리만 셌습니다.</td></tr>`;
+    const XL = LAB.filter(l => l[0] !== 'site');
+    $('#' + id('cross')).innerHTML = `<tr><th>표현</th><th class="num">차원</th><th class="num">컷</th>${XL.map(l => `<th class="num">${l[1]}</th>`).join('')}<th class="num">같은 출처 (모든 컷 가운데서)</th></tr>` +
+      reps.map(r => { const m = D[scope][r.key].metrics; return `<tr class="${r.key === st.rep ? 'on' : ''}"><td>${r.label}</td><td class="num">${r.dim}</td><td class="num">${fmt(scope === 'full' ? r.n_full : r.n_sample)}</td>${XL.map(l => `<td class="num">${f2(m.nn_x[l[0]])}</td>`).join('')}<td class="num">${f2(m.nn.site)}</td></tr>`; }).join('') +
+      `<tr><td class="note">무작위 기대값</td><td></td><td></td>${XL.map(l => `<td class="num note">${f2(M.base_x[l[0]])}</td>`).join('')}<td class="num note">${f2(M.base.site)}</td></tr>`;
+  }
+  seg($('#' + id('rep')), reps.map(r => [r.key, r.label]), () => st.rep, (k) => { st.rep = k; render(); });
+  seg($('#' + id('proj')), PROJ, () => st.proj, (k) => { st.proj = k; render(); });
+  if (scope === 'sample') seg($('#' + id('mode')), [['overlay', '전체 지도에서 표본 위치'], ['refit', '표본만으로 다시 계산']], () => st.mode, (k) => { st.mode = k; render(); });
+  const cs = $('#' + id('color')); cs.innerHTML = Object.entries(VARS).filter(([k]) => scope === 'full' ? (k !== 'st' || multiSt) : (k !== 'st' && k !== 'smp')).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join(''); cs.value = st.color;
+  cs.onchange = () => { st.color = cs.value; st.focus = ''; render(); };
+  $('#' + id('focus')).onchange = (e) => { st.focus = e.target.value; render(); };
+  if (scope === 'full' && multiSt) { const h = $('#' + id('show')); D.cats.st.forEach((k, i) => { if (!stOnMap[i]) return; const n = C.st.filter((v, r) => v === i && C.feat[r] === 0).length; const l = el(`<label><input type="checkbox" id="${id('show' + i)}" checked> ${ST_NAME[k]} <span class="num note">${fmt(n)}</span></label>`); $('input', l).onchange = (e) => { st.show[i] = e.target.checked; render(); }; h.appendChild(l); }); }
+  if (scope === 'sample') { const sets = [['전체', () => true], ['평가 대상', r => C.st[r] === 0], ['표본', r => C.smp[r] === 1]];
+    const tot = sets.map(s => C.st.reduce((a, _, r) => a + (s[1](r) ? 1 : 0), 0));
+    $('#' + id('comp')).innerHTML = `<tr><th>분류군</th>${sets.map((s, j) => `<th class="num">${s[0]} ${fmt(tot[j])}컷</th>`).join('')}</tr>` + D.cats.tx.map((t, i) => `<tr><td>${t}</td>${sets.map((s, j) => { const c = C.tx.reduce((a, v, r) => a + (v === i && s[1](r) ? 1 : 0), 0); return `<td class="num">${fmt(c)} (${(c / tot[j] * 100).toFixed(1)}%)</td>`; }).join('')}</tr>`).join(''); }
+  if (scope === 'full') { const g = new Map(); for (let r = 0; r < N; r++) { const k = C.st[r] + '|' + C.why[r]; let o = g.get(k); if (!o) g.set(k, o = { st: C.st[r], why: C.why[r], n: 0, f: [0, 0, 0] }); o.n++; o.f[C.feat[r]]++; }
+    const FT = ['지도에 있음', '특징은 있으나 따로 보관 (저주파 보조 자료)', '특징 없음'];
+    $('#' + id('status')).innerHTML = `<tr><th>상태</th><th>사유</th><th class="num">컷</th><th class="num">지도에 있음</th><th class="num">따로 보관</th><th class="num">특징 없음</th></tr>` +
+      [...g.values()].sort((a, b) => a.st - b.st || b.n - a.n).map(o => `<tr><td>${ST_NAME[D.cats.st[o.st]]}</td><td>${o.why >= 0 ? D.cats.why[o.why] : ''}</td><td class="num">${fmt(o.n)}</td>${o.f.map(v => `<td class="num">${v ? fmt(v) : ''}</td>`).join('')}</tr>`).join('') +
+      `<tr><td><b>합계</b></td><td></td><td class="num">${fmt(N)}</td>${[0, 1, 2].map(i => `<td class="num">${fmt(C.feat.filter(v => v === i).length)}</td>`).join('')}</tr>`; }
+  maps.push(() => render()); render();
+}
+
+/* ── 종 지도 UMAP 탭 ─────────────────────────────────────────────── */
+function Supervised() {
+  const reps = D.reps.filter(r => D.sup[r.key]); if (!reps.length) return;
+  const st = { rep: reps.find(r => r.key === 'vggish')?.key || reps[0].key, focus: '', fake: true };
+  const FIG = [
+    ['unsup', '① 라벨 없이 그린 UMAP', '종 라벨을 전혀 쓰지 않았습니다. 특징이 스스로 만든 배치입니다.'],
+    ['sup_all', '② 종 지도 UMAP (문헌 그림 방식)', '모든 컷의 종을 알려 주고 그렸습니다. 같은 종끼리 끌어당긴 결과입니다.'],
+    ['sup_holdout', '③ 종 지도에 처음 보는 출처의 컷을 얹음', '개발 출처의 컷만으로 종 지도를 만들고, 시험 출처의 컷(테두리 있는 점)을 종을 알려 주지 않고 그 위에 놓았습니다.'],
+    ['shuffled', '④ 종 라벨을 섞어서 그린 종 지도', '종 이름을 컷끼리 무작위로 바꿔 붙인 뒤 ②와 똑같이 그렸습니다. 소리와 무관한 가짜 라벨입니다. 여기서도 같은 색끼리 모이면 ②의 분리는 계산 방식이 만든 것입니다.']];
+  const Q = $('#sup-quad'); const ms = FIG.map(([k, t, how]) => { const f = el(`<figure class="fig" style="margin:0"><h3>${t}</h3><p class="how">${how}</p><div class="mapbox sq"><canvas aria-label="${t}"></canvas></div><div class="val" id="sv-${k}"></div></figure>`);
+      if (k === 'shuffled') f.insertBefore(el(`<div class="seg" id="sup-fake" style="align-self:flex-start"></div>`), $('.mapbox', f)); Q.appendChild(f); return ScatterMap($('.mapbox', f)); });
+  function render() { const blk = D.sup[st.rep], rows = dec(blk.rows, Uint16Array), n = rows.length, M = blk.metrics;
+    const spec = colorSpec('sp', rows, blk, st.focus); const fakeLab = dec(blk.shuffled_label, Uint8Array);
+    const ring = new Uint8Array(n); for (let i = 0; i < n; i++) ring[i] = C.split[rows[i]] === 2 ? 1 : 0;
+    FIG.forEach(([k], j) => { let sp2 = spec, extra = {};
+      if (k === 'shuffled' && st.fake) { sp2 = { ...spec, code: Int16Array.from(fakeLab), s: new Uint8Array(n) }; for (let i = 0; i < n; i++) { const c = fakeLab[i]; sp2.s[i] = st.focus !== '' ? (c === +st.focus ? spec.HI : spec.OTHER) : (spec.slot[c] >= 0 ? spec.slot[c] : spec.OTHER); } }
+      if (k === 'sup_holdout') extra = { ring, fade: 0.3 };
+      ms[j].set({ xy: dec(blk[k], Uint16Array), n, rows, spec: sp2, r: 2.2, ...extra }); });
+    const h = M.sup_holdout, u = M.unsup_holdout;
+    $('#sv-unsup').innerHTML = `같은 종끼리 모인 정도 <b>${f2(M.unsup.all)}</b>`;
+    $('#sv-sup_all').innerHTML = `같은 종끼리 모인 정도 <b>${f2(M.sup_all.all)}</b>`;
+    $('#sv-sup_holdout').innerHTML = `지도를 만든 컷 ${fmt(h.n_train)}개 <b>${f2(h.train)}</b> · 얹은 컷 ${fmt(h.n_scored)}개 <b>${f2(h.heldout)}</b> <span class="note">(우연 ${f2(h.chance)}. 얹은 ${fmt(h.n_heldout)}컷 중 지도에 있는 종만 채점)</span>`;
+    $('#sv-shuffled').innerHTML = `가짜 라벨끼리 모인 정도 <b>${f2(M.shuffled.fake)}</b> · 진짜 종끼리 모인 정도 <b>${f2(M.shuffled.real)}</b>`;
+    const rep = reps.find(r => r.key === st.rep).label;
+    const nsp = new Set(spec.code).size, lift = M.shuffled.fake > 3 / nsp;
+    $('#sup-say').textContent = `${rep}: 종을 알려 주면 그림의 분리가 ${f2(M.unsup.all)} 에서 ${f2(M.sup_all.all)} 로 올라갑니다. 같은 방식의 지도에 처음 보는 출처의 컷을 얹으면 ${f2(h.heldout)} 입니다(우연 ${f2(h.chance)}, 라벨 없이 만든 지도에 얹었을 때 ${f2(u.heldout)}). ` +
+      (lift ? `가짜 라벨로도 ${f2(M.shuffled.fake)} 만큼 갈라져 보이므로 ②의 분리에는 계산 방식이 만든 몫이 큽니다.` : `가짜 라벨로는 ${f2(M.shuffled.fake)} 로 갈라지지 않으므로(우연 ${f2(1 / nsp)}) ②의 분리가 계산 방식만으로 생긴 것은 아닙니다. 지도를 만든 컷들 안에서는 종마다 다른 점이 실제로 있습니다.`) +
+      ` 다만 그 분리가 새 출처로 옮겨 가는 것은 ③의 ${f2(h.heldout)} 까지입니다. ②와 ③의 차이는 종의 소리가 아니라 지도를 만든 출처에 묶인 몫으로 읽습니다.`;
+    $('#sup-table').innerHTML = `<tr><th>표현</th><th class="num">① 라벨 없이</th><th class="num">② 종 지도</th><th class="num">③ 지도를 만든 컷</th><th class="num">③ 처음 보는 출처</th><th class="num">라벨 없는 지도 · 처음 보는 출처</th><th class="num">④ 가짜 라벨</th><th class="num">③ 의 우연 수준</th></tr>` +
+      reps.map(r => { const m = D.sup[r.key].metrics; return `<tr class="${r.key === st.rep ? 'on' : ''}"><td>${r.label}</td>${[m.unsup.all, m.sup_all.all, m.sup_holdout.train, m.sup_holdout.heldout, m.unsup_holdout.heldout, m.shuffled.fake, m.sup_holdout.chance].map(v => `<td class="num">${f2(v)}</td>`).join('')}</tr>`; }).join('');
+    const F = $('#sup-focus'), cnt = new Array(spec.cats.length).fill(0); for (const c of spec.code) if (c >= 0) cnt[c]++;
+    F.innerHTML = '<option value="">강조 없음 (컷이 많은 12종에 색)</option>' + spec.cats.map((c, i) => [c, i, cnt[i]]).filter(x => x[2]).sort((a, b) => b[2] - a[2]).map(x => `<option value="${x[1]}">${x[0]} (${fmt(x[2])})</option>`).join(''); F.value = st.focus;
+    const L = $('#sup-legend'); L.innerHTML = ''; const chip = (col, t, c) => L.appendChild(el(`<div class="row" style="flex:none"><span class="sw" style="background:${col}"></span><span>${t}</span><span class="ct num">${fmt(c)}</span></div>`));
+    if (st.focus !== '') { chip(spec.pal[spec.HI], spec.cats[+st.focus], cnt[+st.focus]); chip(spec.pal[spec.OTHER], '그 밖의 컷', n - cnt[+st.focus]); }
+    else { spec.cats.map((_, i) => i).filter(i => spec.slot[i] >= 0 && cnt[i]).sort((a, b) => spec.slot[a] - spec.slot[b]).forEach(i => chip(spec.pal[spec.slot[i]], spec.cats[i], cnt[i]));
+      const rest = spec.cats.map((_, i) => i).filter(i => spec.slot[i] < 0 && cnt[i]); if (rest.length) chip(spec.pal[spec.OTHER], `그 밖의 ${rest.length}종`, rest.reduce((a, i) => a + cnt[i], 0)); } }
+  seg($('#sup-rep'), reps.map(r => [r.key, r.label]), () => st.rep, (k) => { st.rep = k; render(); });
+  seg($('#sup-fake'), [[true, '가짜 라벨로 색칠'], [false, '진짜 종으로 색칠']], () => st.fake, (k) => { st.fake = k; render(); });
+  $('#sup-focus').onchange = (e) => { st.focus = e.target.value; render(); };
+  maps.push(() => render()); render();
+}
+
+/* ── 읽는 법 ─────────────────────────────────────────────────────── */
+function Guide() { const rows = (t, head, body) => $(t).innerHTML = `<tr>${head.map(h => `<th>${h}</th>`).join('')}</tr>` + body.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('');
+  rows('#guide-terms', ['말', '뜻', '읽을 때 주의'], [
+    ['컷', '녹음에서 잘라 낸 음원 파일 하나. 점 하나가 컷 하나입니다.', '컷 하나에 콜이 여러 개이거나 배경만 있을 수 있습니다.'],
+    ['표현 (representation)', '컷 하나를 숫자 묶음으로 바꾼 것. ' + D.reps.map(r => r.label).join(', ') + ' 이 있습니다.', 'MFCC·VGGish·AST 는 16 kHz 로 내린 소리를 봅니다. 8 kHz 위의 클릭·고주파 휘슬은 들어가지 않습니다. 컷마다 앞에서 최대 120초만 썼습니다.'],
+    ['투영 (projection)', '수십~수백 차원의 표현을 2차원 그림으로 눌러 편 것.', '그림용입니다. 점 사이의 거리와 무리의 크기·간격을 그대로 믿지 않습니다.'],
+    ['PCA', '분산이 큰 방향 두 개로 눌러 편 것. 계산이 정해져 있어 매번 같습니다.', '두 축이 전체 분산의 일부만 담습니다. 그림 아래에 그 비율이 적혀 있습니다.'],
+    ['UMAP', '가까운 이웃 관계를 지키도록 편 것. 무리가 또렷하게 보입니다.', '무리 사이의 거리와 무리의 넓이에는 의미가 없습니다. 축에 물리적 의미가 없습니다.'],
+    ['t-SNE', 'UMAP 과 같은 목적의 다른 방법. 이웃 관계를 더 좁게 봅니다.', '무리가 더 잘게 쪼개져 보이는 경향이 있습니다. 멀리 떨어진 무리끼리의 관계는 읽지 않습니다.'],
+    ['군집 (clustering)', '라벨 없이 비슷한 컷끼리 묶은 것. KMeans 는 정한 개수로 나누고, HDBSCAN 은 빽빽한 곳만 묶고 나머지는 남깁니다.', '2D 그림이 아니라 전처리된 고차원 공간에서 계산했습니다. 그림에서 한 무리로 보여도 다른 군집일 수 있습니다.'],
+    ['군집 일치도 (AMI)', '군집 나눔이 어떤 라벨과 얼마나 겹치는지. 0 은 무관, 1 은 같음.', '출처의 AMI 가 종보다 높으면 군집이 녹음 조건을 따라간 것입니다.'],
+    ['가장 가까운 10컷의 일치 비율', '어떤 컷에서 가장 비슷한 10컷을 골랐을 때 같은 라벨인 비율.', '무작위 기대값과 함께 봅니다. 컷이 많은 라벨은 기대값부터 높습니다.'],
+    ['다른 출처의 컷 가운데서만 고른 이웃', '같은 출처의 컷을 후보에서 빼고 가장 비슷한 10컷을 고른 것.', '같은 테이프에서 이어 자른 컷끼리 닮은 효과를 뺍니다. 한 종이 한 출처에서만 녹음됐으면 그 종은 맞을 수 없으므로 종 값은 낮게 나옵니다.'],
+    ['대조군 (녹음 조건만)', '샘플링률과 컷 길이 두 값만 쓴 표현. 소리를 쓰지 않습니다.', '이 줄보다 높아야 소리에서 온 정보라고 말할 수 있습니다.'],
+    ['출처', '같은 구역·같은 해의 녹음을 묶은 단위(g_site). 메타데이터로 만든 묶음입니다.', '검증된 녹음 세션이나 개체가 아닙니다.'],
+    ['종 지도 UMAP (supervised UMAP)', '종 라벨을 알려 주고 같은 종끼리 끌어당기도록 그린 UMAP.', '지도를 만든 컷의 분리는 라벨을 넣은 만큼 좋아집니다. 새 자료에서도 통하는지는 ③으로, 계산 방식이 만든 것인지는 ④로 봅니다.'],
+    ['처음 보는 출처', '지도를 만들 때 쓰지 않은 출처의 컷. 출처 분리 분할의 시험 쪽입니다.', '이 컷들이 제 종의 무리로 가야 특징에 정보가 있는 것입니다.'],
+    ['같은 종끼리 모인 정도', '2D 그림에서 가까운 15컷의 다수결로 종을 맞힌 균형정확도(종별 적중률의 평균).', '그림의 겉보기 분리를 재는 값입니다. 분류기의 성능으로 인용하지 않습니다.'],
+    ['형태 라벨', '녹음 노트의 글에서 읽어 낸 whistle·click·moan 같은 이름.', '약한 라벨입니다. 귀로 확인한 정답이 아니고 일부 컷에만 있습니다.']]);
+  rows('#guide-claims', ['문장', '이 화면으로', '이유'], [
+    ['평가 대상 컷 전체가 어떤 덩어리로 나뉘는가', '말할 수 있음', '특징이 있는 컷을 모두 같은 조건으로 올렸습니다.'],
+    ['보류·제외한 컷이 지도의 어디에 놓이는가', '아직 말할 수 없음', '그 컷들의 특징이 계산되어 있지 않습니다.'],
+    ['표본이 전체를 고르게 덮는가', '말할 수 있음', '전체 지도 위의 표본 위치와 구성 비교표.'],
+    ['어떤 표현이 출처·샘플링률을 강하게 담는가', '말할 수 있음', '가장 가까운 10컷의 일치 비율과 AMI.'],
+    ['이 특징으로 종을 분류할 수 있다 / 없다', '말할 수 없음', '분류 성능은 출처를 분리한 평가(Bench v1)에서 봅니다. 이 화면은 배치를 보여 줄 뿐입니다.'],
+    ['종 지도 UMAP 에서 종이 갈라졌으니 특징이 종을 구분한다', '말할 수 없음', '지도를 만든 컷 안에서의 분리입니다. 처음 보는 출처(③)에서 남는 만큼만 근거가 됩니다.'],
+    ['UMAP 의 가로축·세로축이 주파수나 길이를 뜻한다', '말할 수 없음', '축에 고정된 물리적 의미가 없습니다.']]);
+  const c = D.cfg; rows('#guide-cfg', ['단계', '값'], [
+    ['전처리', `빈 값은 중앙값으로 → 표준화 → ±${c.clip} 에서 자름 → PCA 최대 ${c.pca_max}차원. Bench v1 과 같은 순서`],
+    ['UMAP', `2차원으로 새로 계산. 이웃 ${c.umap_neighbors}, min_dist ${c.umap_min_dist}, 씨앗 ${c.seed}. GPT 의 3D 지도(이웃 15)와 다른 계산이라 모양이 다릅니다`], ['t-SNE', `perplexity ${c.tsne_perplexity}, PCA 초기화, 씨앗 ${c.seed}`],
+    ['KMeans', `군집 ${c.kmeans_k}개, 시작점 ${c.kmeans_n_init}번 (GPT 전체 분석과 같은 값)`], ['HDBSCAN', `가장 작은 군집 ${c.hdbscan_min_cluster}컷, PCA 앞 ${c.hdbscan_dims}차원에서 계산`],
+    ['종 지도 UMAP', `라벨 가중 ${c.sup_target_weight}. 처음 보는 출처를 얹을 때는 전처리도 개발 출처의 컷으로만 맞춤`],
+    ['만든 날', D.built + (D.kind === 'mock' ? ' · 모의 자료' : '')]]);
+  const ck = Object.entries(D.check || {}); if (ck.length) { $('#guide-check-wrap').hidden = false;
+    rows('#guide-check', ['표현', '견준 컷', '가장 가까운 10컷이 GPT 저장값과 겹치는 비율', 'KMeans 8개 군집의 일치도 (ARI)'], ck.map(([k, v]) => [D.reps.find(r => r.key === k).label, fmt(v.n), v.nn10_overlap.toFixed(3), v.kmeans_ari.toFixed(2)])); } }
+
+/* ── 탭 ──────────────────────────────────────────────────────────── */
+const TABS = [['full', `전체`, fmt(nMap)], ['sample', '표본', fmt(nSample)], ['sup', '종 지도 UMAP', ''], ['guide', '읽는 법', '']];
+const built = {}; const init = { full: () => Explorer($('#p-full'), 'full'), sample: () => Explorer($('#p-sample'), 'sample'), sup: Supervised, guide: Guide };
+function go(t) { TABS.forEach(([k]) => { $('#p-' + k).hidden = k !== t; $('#tab-' + k).setAttribute('aria-selected', String(k === t)); });
+  if (!built[t]) { built[t] = 1; init[t](); } else redrawAll(); try { history.replaceState(null, '', '#' + t); } catch (e) {} }
+TABS.forEach(([k, label, n]) => { const b = el(`<button role="tab" id="tab-${k}" type="button">${label}${n ? `<span class="num">${n}</span>` : ''}</button>`); b.onclick = () => go(k); $('#tabs').appendChild(b); });
+$('#mock').hidden = D.kind !== 'mock';
+$('#lede').textContent = `Watkins 해양포유류 음원을 특징 표현마다 2차원 지도로 펼쳤습니다. 전체 목록 ${fmt(N)}컷, 특징이 있는 평가 대상 ${fmt(nMap)}컷, 그 가운데 표본 ${fmt(nSample)}컷입니다. 가까운 점은 그 표현에서 비슷한 컷입니다.`;
+const h = location.hash.slice(1); go(TABS.some(t => t[0] === h) ? h : 'full');
+})();
+</script>

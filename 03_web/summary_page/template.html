@@ -1,0 +1,314 @@
+<title>Watkins 스크리닝 요약</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a report read top to bottom. Conclusion first, then six figures, each titled with the claim it supports, then the design that follows. */
+:root{
+  --bg:#f3f6f6; --surface:#ffffff; --ink:#0f1f1f; --ink2:#465958; --ink3:#748584; --line:#d7e0df; --line2:#e8eeed;
+  --accent:#0d5c63; --accent-soft:#e0eeee; --tint:#fff6dc;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --base:#0f1f1f;
+  --o1:#9ec5f4; --o2:#86b6ef; --o3:#5598e7; --o4:#3987e5; --o5:#256abf; --o6:#184f95;
+  --sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#101615; --surface:#182120; --ink:#ecf1f0; --ink2:#b4c2c0; --ink3:#84938f; --line:#2c3837; --line2:#222d2c;
+  --accent:#5fc4c9; --accent-soft:#1d3536; --tint:#33290c;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --base:#ecf1f0;
+  --o1:#184f95; --o2:#1c5cab; --o3:#256abf; --o4:#3987e5; --o5:#6da7ec; --o6:#9ec5f4; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#101615; --surface:#182120; --ink:#ecf1f0; --ink2:#b4c2c0; --ink3:#84938f; --line:#2c3837; --line2:#222d2c;
+  --accent:#5fc4c9; --accent-soft:#1d3536; --tint:#33290c;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --base:#ecf1f0;
+  --o1:#184f95; --o2:#1c5cab; --o3:#256abf; --o4:#3987e5; --o5:#6da7ec; --o6:#9ec5f4; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.65}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;display:flex;flex-direction:column;gap:36px}
+h1{font-size:26px;font-weight:600;margin:0;letter-spacing:-.01em}
+h2{font-size:19px;font-weight:600;margin:0;text-wrap:balance;line-height:1.4}
+h3{font-size:14px;font-weight:600;margin:0}
+p{margin:0}
+.sub{color:var(--ink2);max-width:70ch}
+.num,.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.note{font-size:13px;color:var(--ink3)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.thesis{font-size:20px;font-weight:500;line-height:1.55;border-left:4px solid var(--accent);padding-left:16px;max-width:36em;text-wrap:pretty}
+.pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+@media (max-width:760px){.pillars{grid-template-columns:minmax(0,1fr)}}
+.pillars h3{font-size:15px}
+.pillars p{color:var(--ink2);font-size:14px}
+.tag{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.06em}
+figure{margin:0;display:flex;flex-direction:column;gap:12px;border-top:1px solid var(--line);padding-top:20px}
+.plot{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;min-width:0}
+.plot svg{display:block;width:100%;height:auto}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:minmax(0,1fr)}}
+.read{color:var(--ink2);max-width:74ch}
+.read b{color:var(--ink);font-weight:600}
+.scope{font-size:12px;color:var(--ink3)}
+.key{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:13px;color:var(--ink2)}
+.key span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.key i{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.key i.sq{border-radius:2px}.key i.dia{border-radius:0;transform:rotate(45deg);width:8px;height:8px}
+.key i.ring{background:var(--surface);border:2px solid var(--s1)}
+svg text{font-family:var(--sans);fill:var(--ink2);font-size:12px}
+svg .t-ink{fill:var(--ink)} svg .t-mute{fill:var(--ink3);font-size:11px} svg .t-num{font-family:var(--mono);font-size:11px}
+svg .ax{stroke:var(--line);stroke-width:1} svg .gridl{stroke:var(--line2);stroke-width:1}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+th{font-weight:500;color:var(--ink3);font-size:12px;border-bottom-color:var(--line)}
+td.num{white-space:nowrap;color:var(--ink2);font-size:13px}
+td:last-child{font-weight:500}
+table.plain td:last-child{font-weight:400}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.flow{grid-template-columns:minmax(0,1fr)}}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:6px}
+.step p{font-size:14px;color:var(--ink2)}
+.ann{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-size:14px;display:flex;flex-direction:column;gap:8px}
+.ann div{display:flex;flex-wrap:wrap;gap:4px 12px}
+.ann b{font-weight:600}.ann .why{color:var(--ink2)}
+nav{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px}
+nav a{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+nav a:hover,nav a:focus-visible{border-bottom-color:var(--accent);outline:none}
+ul{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;color:var(--ink2);max-width:74ch}
+</style>
+
+<div class="wrap">
+  <header class="stack">
+    <h1>Watkins 스크리닝 요약</h1>
+    <p class="sub" id="lede"></p>
+    <nav aria-label="그림 바로 가기"><a href="#figA">A 자료 구조</a><a href="#figB">B 누수와 교란</a><a href="#figC">C 굵은 유형</a><a href="#figD">D 물리량</a><a href="#figE">E 유형 × 대역</a><a href="#figF">F 설계</a><a href="#req">요건 표</a><a href="#terms">용어</a></nav>
+  </header>
+
+  <section class="stack">
+    <span class="tag">결론</span>
+    <p class="thesis">Watkins 기반 종 분류 성능은 데이터 누수(data leakage)와 녹음 조건의 교란(confounding)으로 부풀려져 있다. 둘을 통제하면, 새로운 녹음 환경으로 일반화되는 정보는 종이 아니라 굵은 신호 유형과 주파수 대역 수준이다.</p>
+  </section>
+
+  <section class="pillars">
+    <div class="stack"><span class="tag">근거 1 · 그림 B</span><h3>데이터 누수</h3><p id="p1"></p></div>
+    <div class="stack"><span class="tag">근거 2 · 그림 A, B</span><h3>녹음 조건의 교란</h3><p id="p2"></p></div>
+    <div class="stack"><span class="tag">근거 3 · 그림 C, D, E</span><h3>교란을 통제하면 남는 것</h3><p id="p3"></p></div>
+  </section>
+
+  <figure id="figA">
+    <span class="tag">그림 A · 자료 구조</span>
+    <h2>종은 녹음 출처·샘플링률과 얽혀 있어서, 종 라벨이 녹음 조건의 대리 변수가 된다</h2>
+    <div class="grid3">
+      <div class="plot stack"><h3>자료 선정</h3><div id="a1"></div></div>
+      <div class="plot stack"><h3>종마다 녹음 출처가 몇 곳인가</h3><div id="a2"></div></div>
+      <div class="plot stack"><h3>분류군별 샘플링률</h3><div id="a3"></div><div class="key" id="a3k"></div></div>
+    </div>
+    <p class="read" id="ra"></p>
+    <p class="scope">가운데·오른쪽: 평가 대상 10,694컷. 출처는 같은 구역·같은 해의 녹음을 묶은 단위(메타데이터로 만든 묶음이며 검증된 녹음 세션은 아님).</p>
+  </figure>
+
+  <figure id="figB">
+    <span class="tag">그림 B · 근거 1, 2</span>
+    <h2>문헌 방식의 높은 점수는 출처를 분리하면 무너지고, 소리를 쓰지 않은 기준선이 그만큼 맞힌다</h2>
+    <div class="plot stack">
+      <div class="key"><span><i style="background:var(--s2)"></i>무작위 분할 (문헌 방식)</span><span><i style="background:var(--s1)"></i>출처 단위 분할</span><span><i class="dia" style="background:var(--base)"></i>메타데이터 기준선 (샘플링률·길이만)</span><span><svg width="18" height="10"><line x1="1" y1="5" x2="17" y2="5" stroke="var(--ink3)" stroke-dasharray="3 3"/></svg>우연 수준</span></div>
+      <div id="b1"></div>
+    </div>
+    <p class="read" id="rb"></p>
+    <p class="scope">표본 3,539컷 · 사전학습 임베딩 또는 고정 특징 + 선형 분류기 · 균형정확도. 점 하나가 특징 추출기 하나(물리 특징, MFCC, VGGish, AST 2종, EfficientNet-B3), 띠는 그 범위.</p>
+  </figure>
+
+  <figure id="figC">
+    <span class="tag">그림 C · 근거 3</span>
+    <h2>물리적으로 정의한 굵은 신호 유형 3개는, 샘플링률을 고정하면 기준선을 분명히 넘는다</h2>
+    <div class="plot stack">
+      <div class="key"><span><i style="background:var(--s1)"></i>기준선과의 차이가 유의 (95% 구간이 0 위)</span><span><i class="ring"></i>유의하지 않음</span><span><i class="dia" style="background:var(--base)"></i>메타데이터 기준선</span><span><svg width="18" height="10"><line x1="1" y1="5" x2="17" y2="5" stroke="var(--ink3)" stroke-dasharray="3 3"/></svg>우연 0.33</span></div>
+      <div class="grid2" id="c1"></div>
+    </div>
+    <p class="read" id="rc"></p>
+    <p class="scope">표본에서 단일 유형 라벨이 있는 1,456컷. tonal = whistle + moan, impulsive = click + pulse_train, pulsed = pulsed_call + growl. song 86컷과 bark 15컷은 제외(song 은 신호 유형이 아니라 단위의 연속, bark 는 표본 부족). 가로 막대는 출처 단위 부트스트랩 95% 구간. 유형 라벨은 녹음 노트 기반의 약한 라벨.</p>
+  </figure>
+
+  <figure id="figD">
+    <span class="tag">그림 D · 근거 3</span>
+    <h2>세부 유형은 분류기 없이 물리량 하나로 갈린다</h2>
+    <div class="grid3" id="d1"></div>
+    <p class="read" id="rd"></p>
+    <p class="scope">표본 3,539컷 중 해당 라벨이 있는 컷. 물리 특징 51개 가운데 한 값의 분포이며 학습을 하지 않았다. AUROC 는 그 값 하나로 두 유형을 줄 세웠을 때 순서가 맞는 비율(0.5 = 구분 불가, 1 = 완전 구분).</p>
+  </figure>
+
+  <figure id="figE">
+    <span class="tag">그림 E · 근거 3</span>
+    <h2>분류군은 신호 유형이 아니라 주파수 대역과 이어지고, 1–8 kHz 에서 세 분류군이 겹친다</h2>
+    <div class="plot stack">
+      <div class="key"><span><i class="sq" style="background:var(--s1)"></i>이빨고래류</span><span><i class="sq" style="background:var(--s2)"></i>수염고래류</span><span><i class="sq" style="background:var(--s3)"></i>기각류</span><span><i class="sq" style="background:var(--tint);border:1px solid var(--line)"></i>겹치는 구간</span></div>
+      <div id="e1"></div>
+    </div>
+    <p class="read" id="re"></p>
+    <p class="scope">그림 C 와 같은 1,456컷 중 신호 대역이 측정된 컷. 대역은 배경 위로 솟은 신호의 중심 주파수(원 샘플링률에서 측정). 샘플링률의 절반까지만 잴 수 있으므로 녹음 조건과 완전히 분리되지는 않는다.</p>
+  </figure>
+
+  <figure id="figF">
+    <span class="tag">그림 F · 제안</span>
+    <h2>그래서 설계는 구간을 찾고, 물리량을 재고, 유형·측정값·분류군 확률을 출력한다</h2>
+    <div class="flow">
+      <div class="step"><span class="tag">1</span><h3>구간 찾기</h3><p>원 샘플링률에서 배경 위로 솟은 구간(event)을 찾는다. 컷 전체가 아니라 구간이 분석 단위다.</p></div>
+      <div class="step"><span class="tag">2</span><h3>물리량 측정</h3><p>구간마다 음조 집중도, 중심 주파수와 대역, 지속시간, 주파수 변조, 클릭 간격을 초와 Hz 단위로 잰다.</p></div>
+      <div class="step"><span class="tag">3</span><h3>출력</h3><p>신호 유형 3개 중 하나, 측정값, 대역에 근거한 분류군 확률. 종 이름은 내지 않는다.</p></div>
+    </div>
+    <div class="ann">
+      <h3>출력 한 줄의 모양 (예시. 실제 결과가 아님)</h3>
+      <div><span class="mono">12:03:41–12:03:44</span><b>tonal</b><span class="why">음조 집중도 높음</span><span>중심 6.2 kHz · 지속 0.8초 · 변조 1.4 oct/s</span><span>휘슬형</span><span id="ex1"></span></div>
+      <div><span class="mono">12:05:10–12:05:12</span><b>impulsive</b><span class="why">음조 집중도 낮음</span><span>클릭 간격 3 ms · 대역 20–60 kHz</span><span>버스트형</span><span id="ex2"></span></div>
+    </div>
+    <p class="read">"휘슬형", "버스트형" 같은 세부 이름은 분류기가 맞히는 것이 아니라 측정값에 규칙을 적용해 붙인다. 판단의 근거가 출력 안에 그대로 남는다. 평가는 <b>출처 단위 분할, 메타데이터 기준선과의 비교, 샘플링률을 고정한 확인</b> 세 가지를 고정 규칙으로 둔다.</p>
+  </figure>
+
+  <section class="stack" id="req">
+    <span class="tag">스크리닝 결과 → 설계 요건</span>
+    <h2>확인한 것 하나에 요건 하나</h2>
+    <div class="scroll"><table id="reqt"></table></div>
+  </section>
+
+  <section class="stack">
+    <span class="tag">한계</span>
+    <h2>이 요약으로 말할 수 없는 것</h2>
+    <ul>
+      <li>종 분류가 불가능하다는 결론이 아니다. 미세조정(fine-tuning)한 모델은 평가하지 않았고, 평가 대상 36종 가운데 18종은 출처가 1곳이라 일반화를 검증할 수 없다.</li>
+      <li>발성 유형 라벨은 녹음 노트에서 읽어 낸 약한 라벨(weak label)이다. 8개 범주와 3개 묶음은 이 연구에서 정한 작업용 체계이며 음원을 듣고 대조한 검증은 아직 없다.</li>
+      <li>샘플링률은 종의 발성 대역에 맞춰 정해진 값이라 생물학적 정보를 일부 담는다. 다만 다른 장비로 녹음한 자료에서는 쓸 수 없는 정보다.</li>
+      <li>그림 C 의 80 kHz 조건에는 pulsed 가 12컷뿐이다. 그 조건은 사실상 tonal 대 impulsive 의 비교다.</li>
+      <li>그림 D 는 학습 없는 단일 값의 분포라 누수 문제는 없지만, whistle 대 moan 은 샘플링률만으로도 0.96 이 나온다. 대역과 녹음 조건이 여전히 얽혀 있다.</li>
+      <li>사전학습 모델(AST, VGGish, MFCC)은 16 kHz 로 내린 소리만 본다. 표본의 22% 는 신호 대역 전체가 8 kHz 위에 있어, 낮은 점수가 표현의 한계인지 입력의 한계인지 구분되지 않는다.</li>
+      <li>연속 녹음에서의 탐지(언제 소리가 나는가)와 비생물 잡음은 다루지 않았다. 그림 F 는 제안이며 구현·검증된 결과가 아니다.</li>
+    </ul>
+  </section>
+
+  <section class="stack" id="terms">
+    <span class="tag">읽는 법</span>
+    <h2>용어</h2>
+    <div class="scroll"><table class="plain" id="termt"></table></div>
+  </section>
+</div>
+
+<script id="payload" type="application/json">__DATA__</script>
+<script>
+(() => {
+const D = JSON.parse(document.getElementById('payload').textContent);
+const $ = (s) => document.querySelector(s);
+const f2 = (v) => v.toFixed(2), pct = (v) => Math.round(v * 100) + '%', fmt = (n) => n.toLocaleString('ko-KR');
+const FE = ['physv0', 'mfcc16k', 'vggish', 'ast_zero', 'ast_tile', 'effb3'];
+const NAME = { meta: '메타데이터 기준선', physv0: '물리 특징 51', mfcc16k: 'MFCC', vggish: 'VGGish', ast_zero: 'AST (0 채움)', ast_tile: 'AST (되풀이)', effb3: 'EfficientNet-B3' };
+const rng = (o) => { const v = FE.map(f => o[f]); return [Math.min(...v), Math.max(...v)]; };
+const r2 = (o) => { const [a, b] = rng(o); return f2(a) + '–' + f2(b); };
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+// 그릴 때마다 실제 너비를 재서 글자 크기를 고정한다
+function chart(host, draw) { const el = typeof host === 'string' ? $(host) : host; const go = () => { const w = Math.max(240, el.clientWidth); const { h, body } = draw(w); el.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img">${body}</svg>`; }; new ResizeObserver(go).observe(el); go(); }
+
+/* ── A ── */
+const A = D.A;
+chart('#a1', (w) => { const rows = [['전체 목록', A.n_all, A.n_species_all + '종'], ['평가 대상', A.n_main, A.n_species + '종 · ' + A.n_sites + '출처'], ['표본', A.n_core, '종 × 출처마다 최대 40컷']]; let y = 4, b = '';
+  const cut = ['', '참고래 567 · 저주파 115 · 사육 등 2,315 제외', '상한에 걸린 7,155 제외'];
+  rows.forEach(([n, v, s], i) => { if (cut[i]) { b += `<text x="0" y="${y + 12}" class="t-mute">↓ ${cut[i]}</text>`; y += 22; }
+    b += `<text x="0" y="${y + 12}" class="t-ink" font-weight="600">${n}</text><text x="${w}" y="${y + 12}" text-anchor="end" class="t-num t-ink">${fmt(v)}컷</text>`;
+    b += `<rect x="0" y="${y + 18}" width="${w}" height="12" rx="2" fill="var(--line2)"/><rect x="0" y="${y + 18}" width="${Math.max(3, v / A.n_all * w)}" height="12" rx="2" fill="var(--accent)"><title>${n} ${fmt(v)}컷</title></rect>`;
+    b += `<text x="0" y="${y + 46}" class="t-mute">${s}</text>`; y += 58; }); return { h: y, body: b }; });
+chart('#a2', (w) => { const ks = Object.keys(A.site_hist).filter(k => A.site_hist[k] > 0), mx = Math.max(...ks.map(k => A.site_hist[k])), H = 150, bw = Math.min(46, (w - 20) / ks.length - 12); let b = `<line class="ax" x1="0" x2="${w}" y1="${H}" y2="${H}"/>`;
+  ks.forEach((k, i) => { const v = A.site_hist[k], x = (i + .5) * w / ks.length, h = v / mx * (H - 30);
+    b += `<path d="M${x - bw / 2} ${H}V${H - h + 4}q0-4 4-4h${bw - 8}q4 0 4 4V${H}z" fill="${k === '1' ? 'var(--s2)' : 'var(--o3)'}"><title>출처 ${k}곳: ${v}종</title></path><text x="${x}" y="${H - h - 6}" text-anchor="middle" class="t-num t-ink">${v}종</text><text x="${x}" y="${H + 16}" text-anchor="middle">${k}곳</text>`; });
+  return { h: H + 24, body: b }; });
+chart('#a3', (w) => { let y = 0, b = ''; A.fs.rows.forEach(r => { b += `<text x="0" y="${y + 12}" class="t-ink">${r.name}</text><text x="${w}" y="${y + 12}" text-anchor="end" class="t-num">${fmt(r.n)}컷</text>`; let x = 0;
+    r.share.forEach((s, i) => { const ww = s * w; if (ww > 0.5) b += `<rect x="${x + 1}" y="${y + 18}" width="${Math.max(0, ww - 2)}" height="16" rx="2" fill="var(--o${i + 1})"><title>${r.name} · ${A.fs.fam[i].replace('k', ' kHz')}대: ${pct(s)}</title></rect>`; x += ww; }); y += 50; });
+  return { h: y, body: b }; });
+$('#a3k').innerHTML = A.fs.fam.map((f, i) => `<span><i class="sq" style="background:var(--o${i + 1})"></i>${f.replace('k', ' kHz')}대</span>`).join('');
+$('#ra').innerHTML = `평가 대상 ${A.n_species}종 가운데 <b>${A.site_hist['1']}종은 녹음 출처가 1곳</b>, ${A.site_hist['2']}종은 2곳이다. 그런 종에서는 "이 종의 소리"와 "이 테이프의 소리"를 자료만으로 구분할 수 없다. 샘플링률도 분류군과 묶여 있다. 16 kHz 미만으로 녹음된 컷이 <b>수염고래류는 ${pct(A.below16k['수염고래류'])}, 이빨고래류는 ${(A.below16k['이빨고래류'] * 100).toFixed(1)}%</b>다. 소리를 듣지 않고 샘플링률만 봐도 분류군이 갈린다.`;
+
+/* ── B ── */
+chart('#b1', (w) => { const X = (v) => 8 + v * (w - 16); let y = 0, b = '';
+  D.B.forEach(t => { b += `<text x="0" y="${y + 14}" class="t-ink" font-weight="600">${t.task}</text><text x="${w}" y="${y + 14}" text-anchor="end" class="t-mute">${fmt(t.n)}컷 · ${t.sites}출처</text>`; y += 24;
+    [['random', '--s2', '무작위 분할'], ['site', '--s1', '출처 단위 분할']].forEach(([k, col, lab]) => { const [a, c] = rng(t[k]), cy = y + 12;
+      b += `<line class="gridl" x1="${X(0)}" x2="${X(1)}" y1="${cy}" y2="${cy}"/><rect x="${X(a)}" y="${cy - 7}" width="${Math.max(2, X(c) - X(a))}" height="14" rx="7" fill="var(${col})" opacity=".22"/>`;
+      FE.forEach(f => b += `<circle cx="${X(t[k][f])}" cy="${cy}" r="4.5" fill="var(${col})" stroke="var(--surface)" stroke-width="1.5"><title>${NAME[f]} · ${lab}: ${f2(t[k][f])}</title></circle>`);
+      const m = X(t[k].meta); b += `<path d="M${m} ${cy - 7}l6 7-6 7-6-7z" fill="var(--base)" stroke="var(--surface)" stroke-width="1.5"><title>메타데이터 기준선 · ${lab}: ${f2(t[k].meta)}</title></path>`;
+      const lx = X(c) + 12, right = lx + 150 < w; b += `<text x="${right ? lx : X(a) - 12}" y="${cy + 4}" text-anchor="${right ? 'start' : 'end'}" class="t-num t-ink">${f2(a)}–${f2(c)}</text>`; y += 28; });
+    b += `<line x1="${X(t.chance)}" x2="${X(t.chance)}" y1="${y - 58}" y2="${y}" stroke="var(--ink3)" stroke-dasharray="3 3"/>`; y += 14; });
+  [0, .2, .4, .6, .8, 1].forEach(v => b += `<text x="${X(v)}" y="${y + 12}" text-anchor="${v === 0 ? 'start' : v === 1 ? 'end' : 'middle'}" class="t-num">${v.toFixed(1)}</text><line class="ax" x1="${X(v)}" x2="${X(v)}" y1="${y - 6}" y2="${y - 2}"/>`);
+  b += `<line class="ax" x1="${X(0)}" x2="${X(1)}" y1="${y - 6}" y2="${y - 6}"/><text x="${w / 2}" y="${y + 30}" text-anchor="middle" class="t-mute">균형정확도 (balanced accuracy)</text>`; return { h: y + 36, body: b }; });
+const [Bs, Bt, Bg] = D.B;
+$('#p1').innerHTML = `문헌처럼 컷을 무작위로 나누면 같은 테이프의 컷이 학습과 시험에 함께 들어간다. 녹음 출처 단위로 나누면 종 분류는 <b class="num">${r2(Bs.random)}</b> 에서 <b class="num">${r2(Bs.site)}</b> 로 떨어진다(우연 ${f2(Bs.chance)}).`;
+$('#p2').innerHTML = `샘플링률과 컷 길이가 종·분류군과 묶여 있다. 소리를 쓰지 않고 그 두 값만 넣은 메타데이터 기준선이 종 <b class="num">${f2(Bs.site.meta)}</b>, 분류군 <b class="num">${f2(Bg.site.meta)}</b> 를 맞힌다. 음향 특징은 이 기준선을 유의하게 넘지 못한다.`;
+const C = D.C, c40 = C['3_site_fs40k'];
+$('#p3').innerHTML = `샘플링률을 고정하면 기준선은 우연 수준(<span class="num">${f2(c40.feat.meta.ba)}</span>)으로 떨어지고 굵은 신호 유형 3개는 <b class="num">${f2(Math.min(...FE.map(f => c40.feat[f].ba)))}–${f2(Math.max(...FE.map(f => c40.feat[f].ba)))}</b> 로 남는다. 세부 구분은 물리량 하나로 갈리고, 분류군은 대역과 이어진다.`;
+$('#rb').innerHTML = `주황에서 파랑으로 가는 낙폭이 <b>데이터 누수</b>의 크기다. 종은 ${r2(Bs.random)} → ${r2(Bs.site)}, 발성 유형은 ${r2(Bt.random)} → ${r2(Bt.site)}, 분류군은 ${r2(Bg.random)} → ${r2(Bg.site)} 이다. 세밀한 과제일수록 크게 떨어진다. 검은 마름모가 파란 띠 안이나 오른쪽에 있으면 <b>소리를 쓰지 않고도 그만큼 맞힌다</b>는 뜻이다. 출처 단위 분할에서 기준선은 종 ${f2(Bs.site.meta)}, 유형 ${f2(Bt.site.meta)}, 분류군 ${f2(Bg.site.meta)} 이고, 어느 음향 특징도 차이의 95% 구간이 0 위에 있지 않다. 분류기 없이 봐도 같다. 평가 대상 10,694컷에서 가장 가까운 10컷이 같은 종인 비율은 0.55–0.82 이지만 다른 출처에서만 고르면 0.07–0.13 이고, 종 라벨을 넣어 그린 UMAP 의 분리(0.80–0.90)는 처음 보는 출처에서 0.13–0.18 이 된다(「Watkins 군집 지도」 참조).`;
+
+/* ── C ── */
+const CP = [['3_random', '무작위 분할 (문헌 방식)'], ['3_site', '출처 단위 분할 · 전체'], ['3_site_fs40k', '출처 단위 · 샘플링률 40 kHz대만'], ['3_site_fs80k', '출처 단위 · 샘플링률 80 kHz대만']];
+$('#c1').innerHTML = CP.map((p, i) => `<div class="stack"><h3>${p[1]}</h3><div id="c1_${i}"></div></div>`).join('');
+CP.forEach(([k, title], i) => chart('#c1_' + i, (w) => { const S = C[k], L = 118, X = (v) => L + v * (w - L - 40), rows = ['meta', ...FE]; let b = '', y = 4;
+  b += `<line x1="${X(S.chance)}" x2="${X(S.chance)}" y1="0" y2="${rows.length * 24 + 4}" stroke="var(--ink3)" stroke-dasharray="3 3"/><line x1="${X(S.feat.meta.ba)}" x2="${X(S.feat.meta.ba)}" y1="0" y2="${rows.length * 24 + 4}" stroke="var(--base)" opacity=".35"/>`;
+  rows.forEach(f => { const r = S.feat[f], cy = y + 12, sig = r.dlo > 0, isM = f === 'meta';
+    b += `<text x="0" y="${cy + 4}" class="${isM ? 't-ink' : ''}">${isM ? '기준선' : NAME[f]}</text><line x1="${X(r.lo)}" x2="${X(r.hi)}" y1="${cy}" y2="${cy}" stroke="${isM ? 'var(--base)' : 'var(--s1)'}" stroke-width="2" opacity="${isM ? .5 : .45}"/>`;
+    b += isM ? `<path d="M${X(r.ba)} ${cy - 6}l5 6-5 6-5-6z" fill="var(--base)"><title>기준선 ${f2(r.ba)} [${f2(r.lo)}, ${f2(r.hi)}]</title></path>`
+             : `<circle cx="${X(r.ba)}" cy="${cy}" r="5" fill="${sig ? 'var(--s1)' : 'var(--surface)'}" stroke="var(--s1)" stroke-width="2"><title>${NAME[f]} ${f2(r.ba)} [${f2(r.lo)}, ${f2(r.hi)}] · 기준선 대비 ${r.d >= 0 ? '+' : ''}${f2(r.d)} [${f2(r.dlo)}, ${f2(r.dhi)}]</title></circle>`;
+    b += `<text x="${w}" y="${cy + 4}" text-anchor="end" class="t-num ${sig || isM ? 't-ink' : ''}">${f2(r.ba)}</text>`; y += 24; });
+  y += 4; b += `<line class="ax" x1="${X(0)}" x2="${X(1)}" y1="${y}" y2="${y}"/>`; [0, .5, 1].forEach(v => b += `<text x="${X(v)}" y="${y + 14}" text-anchor="${v === 1 ? 'end' : 'middle'}" class="t-num">${v.toFixed(1)}</text>`);
+  b += `<text x="0" y="${y + 14}" class="t-mute">${fmt(S.n)}컷 · ${S.sites}출처</text>`; return { h: y + 20, body: b }; }));
+const cs = C['3_site'], cr = C['3_random'], c80 = C['3_site_fs80k'], dd = (r) => `${r.d >= 0 ? '+' : ''}${f2(r.d)} [${r.dlo >= 0 ? '+' : ''}${f2(r.dlo)}, ${r.dhi >= 0 ? '+' : ''}${f2(r.dhi)}]`;
+const nsig = (S) => FE.filter(f => S.feat[f].dlo > 0).length;
+$('#rc').innerHTML = `네 조건을 차례로 읽는다. <b>무작위 → 출처 단위</b>로 바꿔도 낙폭이 작다(EfficientNet-B3 ${f2(cr.feat.effb3.ba)} → ${f2(cs.feat.effb3.ba)}). 종은 0.4 넘게 떨어졌다. 다만 <b>전체</b>로는 기준선이 ${f2(cs.feat.meta.ba)} 로 높아서 어느 특징도 유의하게 넘지 못한다(가장 좋은 EfficientNet-B3 가 ${dd(cs.feat.effb3)}). <b>샘플링률을 40 kHz대로 고정</b>하면 기준선은 우연 수준 ${f2(c40.feat.meta.ba)} 로 떨어지고 음향 특징 ${nsig(c40)}종이 모두 유의하게 넘는다(물리 특징 ${dd(c40.feat.physv0)}, EfficientNet-B3 ${dd(c40.feat.effb3)}). 80 kHz대에서는 ${nsig(c80)}종이 넘는다. 묶기 전 7유형에서는 전체 조건의 최고 격차가 ${dd(C['7_site'].feat.effb3)} 였다.`;
+
+/* ── D ── */
+const DP = [
+  { title: 'tonal 대 impulsive', q: '음조 집중도 (tonal concentration)', ticks: [[0, '0'], [.25, '0.25'], [.5, '0.5'], [.75, '0.75'], [1, '1']], unit: (v) => f2(v) },
+  { title: 'whistle 대 moan', q: '신호 대역의 중심 주파수', ticks: [[2, '100 Hz'], [3, '1 kHz'], [4, '10 kHz'], [5, '100 kHz']], unit: (v) => { const hz = 10 ** v; return hz >= 1000 ? (hz / 1000).toFixed(1) + ' kHz' : Math.round(hz) + ' Hz'; } },
+  { title: 'click 대 pulse_train', q: '클릭 간격 (inter-click interval)', ticks: [[-3, '1 ms'], [-2, '10 ms'], [-1, '100 ms'], [0, '1 s']], unit: (v) => { const ms = 10 ** v * 1000; return ms >= 100 ? Math.round(ms) + ' ms' : ms.toFixed(1) + ' ms'; } }];
+const DC = ['--s1', '--s2', '--s3'];
+$('#d1').innerHTML = DP.map((p, i) => `<div class="plot stack"><h3>${p.title}</h3><p class="note">${p.q} · AUROC <b class="num" style="color:var(--ink)">${f2(D.D[i].auroc)}</b></p><div class="key">${D.D[i].groups.map((g, j) => `<span><i style="background:var(${DC[j]})"></i>${g.name} <span class="num">중앙값 ${p.unit(g.med)}</span></span>`).join('')}</div><div id="d1_${i}"></div></div>`).join('');
+DP.forEach((p, i) => chart('#d1_' + i, (w) => { const d = D.D[i], H = 130, b0 = d.bins[0], b1 = d.bins[d.bins.length - 1], X = (v) => (v - b0) / (b1 - b0) * w, mx = Math.max(...d.groups.flatMap(g => g.h)); let b = '';
+  d.groups.forEach((g, j) => { let path = `M0 ${H}`; g.h.forEach((v, k) => { const y = H - v / mx * (H - 8); path += `L${X(d.bins[k])} ${y}L${X(d.bins[k + 1])} ${y}`; }); path += `L${w} ${H}z`;
+    b += `<path d="${path}" fill="var(${DC[j]})" fill-opacity=".28" stroke="var(${DC[j]})" stroke-width="2" stroke-linejoin="round"><title>${g.name} ${fmt(g.n)}컷 · 중앙값 ${p.unit(g.med)}</title></path>`; });
+  b += `<line class="ax" x1="0" x2="${w}" y1="${H}" y2="${H}"/>`; p.ticks.forEach(([v, t], k) => b += `<line class="ax" x1="${X(v)}" x2="${X(v)}" y1="${H}" y2="${H + 4}"/><text x="${X(v)}" y="${H + 17}" text-anchor="${k === 0 ? 'start' : k === p.ticks.length - 1 ? 'end' : 'middle'}" class="t-num">${t}</text>`);
+  return { h: H + 22, body: b }; }));
+const dG = D.D.map(d => d.groups), u = DP.map(p => p.unit);
+$('#rd').innerHTML = `<b>tonal 과 impulsive</b>는 음조 집중도 하나로 거의 갈린다(AUROC ${f2(D.D[0].auroc)}, 샘플링률을 40·80 kHz대로 고정해도 0.93–0.95). pulsed 는 이 값에서 tonal 과 겹친다. 펄스가 촘촘해 배음 줄무늬로 보이는 소리라서다. <b>whistle 과 moan</b>의 차이는 중심 주파수다(${u[1](dG[1][0].med)} 대 ${u[1](dG[1][1].med)}). <b>click 과 pulse_train</b>의 차이는 클릭 간격이다(${u[2](dG[2][0].med)} 대 ${u[2](dG[2][1].med)}). 클릭 간격은 샘플링률만으로는 못 가르는 구분(0.58)을 가르므로 소리에서 온 정보다. 세부 유형은 따로 분류할 범주가 아니라 <b>재서 보여 줄 값</b>이다. 실제로 묶음 안의 두 유형을 분류기로 가르게 하면 어느 음향 특징도 메타데이터 기준선을 넘지 못한다(whistle 대 moan: 기준선 ${f2(D.C_pairs.pair_whistle_moan.feat.meta.ba)}, click 대 pulse_train: ${f2(D.C_pairs.pair_click_pulse_train.feat.meta.ba)}, pulsed_call 대 growl: ${f2(D.C_pairs.pair_pulsed_call_growl.feat.meta.ba)}).`;
+
+/* ── E ── */
+const E = D.E, TC = ['--s1', '--s2', '--s3'], TN = ['이빨고래류', '수염고래류', '기각류'];
+chart('#e1', (w) => { const L = Math.min(120, w * .3), R = 54, W = w - L - R; let y = 0, b = '';
+  ['tonal', 'impulsive', 'pulsed'].forEach(ty => { const tot = E.type_only.find(t => t.type === ty); b += `<text x="0" y="${y + 14}" class="t-ink" font-weight="600">${ty}</text><text x="${w}" y="${y + 14}" text-anchor="end" class="t-mute">${fmt(tot.n)}컷</text>`; y += 22;
+    E.cells.filter(c => c.type === ty).forEach(c => { const mid = c.band === '1–8 kHz', few = c.n < 20;
+      if (mid) b += `<rect x="0" y="${y - 2}" width="${w}" height="26" rx="3" fill="var(--tint)"/>`;
+      b += `<text x="6" y="${y + 15}" class="${mid ? 't-ink' : ''}">${c.band}</text><text x="${w - 6}" y="${y + 15}" text-anchor="end" class="t-num">${fmt(c.n)}컷</text>`; let x = L;
+      c.share.forEach((s, i) => { const ww = s * W; if (ww > 0.5) { b += `<rect x="${x + 1}" y="${y + 2}" width="${Math.max(0, ww - 2)}" height="18" rx="2" fill="var(${TC[i]})" opacity="${few ? .4 : 1}"><title>${ty} · ${c.band} · ${TN[i]} ${pct(s)} (${fmt(Math.round(s * c.n))}컷)</title></rect>`;
+          if (ww > 34) b += `<text x="${x + ww / 2}" y="${y + 15}" text-anchor="middle" class="t-num" style="fill:#fff">${pct(s)}</text>`; } x += ww; }); y += 28; }); y += 10; });
+  return { h: y, body: b }; });
+const cell = (t, b) => E.cells.find(c => c.type === t && c.band === b), tm = cell('tonal', '1–8 kHz');
+$('#re').innerHTML = `유형만 알아서는 분류군이 정해지지 않는다. impulsive 는 ${pct(E.type_only[1].share[0])} 가 이빨고래지만 pulsed 는 수염 ${pct(E.type_only[2].share[1])}·이빨 ${pct(E.type_only[2].share[0])} 로 갈린다. <b>대역을 함께 보면 양 끝은 쉽다.</b> 8 kHz 위는 유형과 무관하게 이빨고래류(${pct(cell('tonal', '8 kHz 초과').share[0])} 이상), 1 kHz 아래의 tonal·pulsed 는 수염고래류(${pct(cell('tonal', '1 kHz 미만').share[1])}–${pct(cell('pulsed', '1 kHz 미만').share[1])})다. <b>어려운 곳은 1–8 kHz</b>다. tonal 이 이빨 ${pct(tm.share[0])}·수염 ${pct(tm.share[1])}·기각 ${pct(tm.share[2])} 로 겹치고 기각류는 대부분 이 구간에 있다. 특징을 새로 설계한다면 겨냥할 곳이 여기다. 컷이 20개 미만인 칸은 흐리게 그렸다.`;
+$('#ex1').textContent = `1–8 kHz tonal: 이빨 ${pct(tm.share[0])} · 수염 ${pct(tm.share[1])} · 기각 ${pct(tm.share[2])}`;
+$('#ex2').textContent = `8 kHz 초과 impulsive: 이빨 ${pct(cell('impulsive', '8 kHz 초과').share[0])}`;
+
+/* ── 표 ── */
+const tb = (id, head, rows) => $(id).innerHTML = `<tr>${head.map(h => `<th>${h}</th>`).join('')}</tr>` + rows.map(r => `<tr>${r.map((c, i) => `<td${i === 1 && head.length === 3 && id === '#reqt' ? ' class="num"' : ''}>${c}</td>`).join('')}</tr>`).join('');
+tb('#reqt', ['스크리닝에서 확인한 것', '숫자', '설계 요건'], [
+  ['종 분류 성능은 데이터 누수로 부풀려져 있다', `종 ${r2(Bs.random)} → ${r2(Bs.site)}`, '종 이름을 출력 목표로 두지 않는다. 평가는 출처 단위 분할로 한다'],
+  ['녹음 조건만으로도 그만큼 맞힌다', `기준선: 종 ${f2(Bs.site.meta)}, 분류군 ${f2(Bg.site.meta)}`, '모든 결과를 메타데이터 기준선과 비교하고 샘플링률을 고정한 조건에서 확인한다'],
+  ['16 kHz 입력은 신호를 잃는다', '표본의 22% 는 신호 대역 전체가 8 kHz 위', '원 샘플링률에서 분석하고 설정은 초와 Hz 단위로 정한다'],
+  ['굵은 신호 유형은 출처가 바뀌어도 유지된다', `40 kHz대: 기준선 ${f2(c40.feat.meta.ba)} 대 ${f2(Math.min(...FE.map(f => c40.feat[f].ba)))}–${f2(Math.max(...FE.map(f => c40.feat[f].ba)))}`, '1차 출력은 tonal / impulsive / pulsed 세 유형으로 한다'],
+  ['세부 유형은 물리량 하나로 갈린다', `AUROC ${f2(D.D[0].auroc)} · ${f2(D.D[1].auroc)} · ${f2(D.D[2].auroc)}`, '세부 구분은 분류하지 않고 측정값으로 출력한다. 판단 근거가 그대로 보인다'],
+  ['분류군은 유형이 아니라 대역과 이어진다', `8 kHz 위: 이빨 ${pct(cell('tonal', '8 kHz 초과').share[0])} 이상`, '분류군은 대역에 근거한 확률로 낸다'],
+  ['1–8 kHz 에서 세 분류군이 겹친다', `tonal: ${pct(tm.share[0])} · ${pct(tm.share[1])} · ${pct(tm.share[2])}`, '추가 특징 개발은 이 구간에 집중한다'],
+  ['라벨이 컷 전체에 붙어 있고 한 컷에 유형이 여럿이다', '표본의 39% 에 유형이 둘 이상', '컷이 아니라 구간(event) 단위로 분석하고 겹침을 허용한다'],
+  ['특징 공간에 끊어진 덩어리가 없다', '밀도 기반 군집이 2–3개만 잡힘', '딱딱한 범주보다 연속값과 확률로 표현한다']]);
+tb('#termt', ['용어', '뜻', '이 요약에서'], [
+  ['컷', '녹음에서 잘라 낸 음원 파일 하나', '길이 중앙값 1.8초. 한 컷에 소리가 여러 개일 수 있다'],
+  ['데이터 누수 (data leakage)', '같은 녹음에서 나온 컷이 학습과 시험에 함께 들어가는 것', '그림 B 의 주황 → 파랑 낙폭'],
+  ['출처 단위 분할 (leave-site-out)', '시험에 쓸 녹음 출처를 학습에서 완전히 빼는 평가', '새 해역·새 장비에서의 성능에 가까운 값'],
+  ['교란 변수 (confounder)', '맞히려는 것과 함께 움직여서 원인을 헷갈리게 하는 변수', '샘플링률, 컷 길이'],
+  ['지름길 학습 (shortcut learning)', '분류기가 목표와 무관한 단서로 정답을 맞히는 것', '소리 대신 녹음 조건으로 종을 맞힘'],
+  ['메타데이터 기준선 (metadata-only baseline)', '음원을 쓰지 않고 샘플링률과 컷 길이만 넣은 분류기', '검은 마름모. 이보다 높아야 소리에서 온 정보'],
+  ['층화 분석 (stratified analysis)', '교란 변수를 고정한 부분집합 안에서 비교', '샘플링률 40 kHz대, 80 kHz대만 본 그림 C'],
+  ['선형 분류기 (linear probe)', '특징을 그대로 두고 단순한 분류기만 얹어 특징의 질을 재는 방법', '모델을 재학습(미세조정)하지 않았다'],
+  ['균형정확도 (balanced accuracy)', '범주별 적중률의 평균. 범주 크기가 달라도 쏠리지 않는다', '우연 수준은 1 / 범주 수'],
+  ['95% 구간', '출처를 다시 뽑아 2,000번 계산했을 때 값이 놓이는 범위', '기준선과의 차이의 구간이 0 위에 있어야 "넘는다"'],
+  ['신호 유형 (signal type)', '시간–주파수 구조로 나눈 소리의 종류', 'tonal(가는 선) · impulsive(광대역 충격음) · pulsed(촘촘한 펄스, 배음 줄무늬)'],
+  ['약한 라벨 (weak label)', '컷 전체에 붙어 있고 사람이 듣고 확인하지 않은 라벨', '발성 유형 라벨 전부']]);
+$('#lede').textContent = `전체 ${fmt(A.n_all)}컷을 스크리닝해 평가 대상 ${fmt(A.n_main)}컷과 표본 ${fmt(A.n_core)}컷으로 좁히고, 문헌의 특징 추출기 6종을 같은 조건에서 견준 결과를 그림 여섯 장으로 줄였다. 앞의 다섯 장은 확인한 것이고 마지막 한 장은 그로부터 제안하는 설계다.`;
+})();
+</script>

@@ -1,0 +1,619 @@
+<title>Watkins 스크리닝 결과집</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a lab notebook — one header, a sticky tab rail, each tab a self-contained result sheet; a shared clip inspector (spectrogram + audio) */
+:root{
+  --bg:#F5F7FA; --panel:#FFFFFF; --ink:#18212D; --muted:#5B6878; --line:#D9E0E8; --soft:#EAF0F7;
+  --accent:#0B4EA2; --accent-2:#00A3D7; --warn:#B4541A; --good:#1C7C54;
+  --odo:#0B4EA2; --mys:#00A3D7; --pin:#7A6A9E;
+  --f-body:"IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F151D; --panel:#16202B; --ink:#E6ECF3; --muted:#9AA8B8; --line:#2A3746; --soft:#1C2836;
+  --accent:#6FA8FF; --accent-2:#3CC6F0; --warn:#F0A060; --good:#5CC79A;
+  --odo:#6FA8FF; --mys:#3CC6F0; --pin:#B7A6E0; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0F151D; --panel:#16202B; --ink:#E6ECF3; --muted:#9AA8B8; --line:#2A3746; --soft:#1C2836;
+  --accent:#6FA8FF; --accent-2:#3CC6F0; --warn:#F0A060; --good:#5CC79A;
+  --odo:#6FA8FF; --mys:#3CC6F0; --pin:#B7A6E0; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.6}
+.wrap{max-width:1180px; margin:0 auto; padding-inline:20px; padding-block:0 64px}
+header.top{padding-block:28px 14px}
+header.top .eyebrow{font-family:var(--f-mono); font-size:12px; letter-spacing:.08em; color:var(--muted); text-transform:uppercase}
+header.top h1{font-size:28px; line-height:1.25; margin:6px 0 6px; text-wrap:balance; font-weight:700}
+header.top p{margin:0; color:var(--muted); max-width:70ch}
+nav.tabs{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); border-bottom:1px solid var(--line); margin-bottom:22px}
+nav.tabs .rail{display:flex; gap:2px; overflow-x:auto; scrollbar-width:thin}
+nav.tabs button{font:inherit; font-size:14px; background:none; border:0; color:var(--muted); padding:12px 14px 10px; border-bottom:2px solid transparent; cursor:pointer; white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--accent); border-bottom-color:var(--accent); font-weight:600}
+nav.tabs button:focus-visible, button:focus-visible, select:focus-visible, input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+section.tab{display:grid; gap:22px}
+h2{font-size:21px; margin:0; line-height:1.35; text-wrap:balance}
+h3{font-size:16px; margin:0 0 8px; line-height:1.4}
+p{margin:0}
+.lede{color:var(--muted); max-width:78ch}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:18px; min-width:0}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px}
+.grid3{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:4px 14px; font-size:13.5px}
+.kv dt{color:var(--muted)} .kv dd{margin:0; font-variant-numeric:tabular-nums}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+.big{font-family:var(--f-mono); font-size:26px; font-weight:500; color:var(--accent); line-height:1.15}
+.stat .lab{font-size:13px; color:var(--muted)}
+.note{font-size:13px; color:var(--muted)}
+.tag{display:inline-block; font-size:12px; padding:1px 8px; border-radius:999px; background:var(--soft); color:var(--muted); font-family:var(--f-mono)}
+.tag.sig{background:var(--accent); color:var(--panel)}
+.controls{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; font-size:14px}
+.controls label{color:var(--muted); font-size:13px; display:flex; gap:6px; align-items:center}
+select,input[type=search]{font:inherit; font-size:14px; padding:5px 8px; border:1px solid var(--line); border-radius:4px; background:var(--panel); color:var(--ink); max-width:100%}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:4px; overflow:hidden}
+.seg button{font:inherit; font-size:13px; background:var(--panel); color:var(--muted); border:0; padding:5px 10px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--panel)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse; width:100%; font-size:13.5px}
+th,td{padding:6px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+th{color:var(--muted); font-weight:500; font-size:12.5px}
+td.n,th.n{text-align:right; font-family:var(--f-mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+tr.base td{background:var(--soft)}
+.sigd{color:var(--good); font-weight:600}
+.cm td{text-align:center; font-family:var(--f-mono); font-size:12.5px; min-width:44px}
+svg text{fill:var(--ink); font-family:var(--f-body)}
+svg .ax{stroke:var(--line)} svg .tick{fill:var(--muted); font-size:11px; font-family:var(--f-mono)}
+.mapbox{display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:18px; align-items:start}
+@media (max-width:900px){ .mapbox{grid-template-columns:1fr} }
+.canvaswrap{position:relative; width:100%; aspect-ratio:1/1; max-width:100%; background:var(--panel); border:1px solid var(--line); border-radius:var(--r)}
+.canvaswrap canvas{position:absolute; inset:0; width:100%; height:100%; cursor:crosshair}
+.tip{position:absolute; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12px; padding:4px 7px; border-radius:4px; white-space:nowrap; transform:translate(10px,-110%)}
+.legend{display:flex; flex-wrap:wrap; gap:4px 12px; font-size:12.5px}
+.legend span{display:inline-flex; gap:6px; align-items:center}
+.legend i{width:10px; height:10px; border-radius:50%; display:inline-block}
+.inspector{position:sticky; top:64px; display:grid; gap:10px}
+.inspector canvas.spec{width:100%; height:auto; aspect-ratio:3/2; border:1px solid var(--line); border-radius:4px; background:#F7FBFF; image-rendering:auto}
+.btn{font:inherit; font-size:14px; padding:6px 14px; border-radius:4px; border:1px solid var(--accent); background:var(--accent); color:var(--panel); cursor:pointer}
+.btn.ghost{background:transparent; color:var(--accent)}
+.btn:disabled{opacity:.5; cursor:default}
+.memo{font-size:12.5px; color:var(--muted); background:var(--soft); padding:8px 10px; border-radius:4px; word-break:break-word}
+.excard{display:grid; gap:8px}
+.excard img{width:100%; height:auto; border:1px solid var(--line); border-radius:4px; display:block}
+.ctype{border-top:1px solid var(--line); padding-top:18px; display:grid; gap:14px}
+.ctype:first-of-type{border-top:0; padding-top:0}
+.small-multiples{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:14px}
+.callout{border-left:3px solid var(--accent); padding:4px 0 4px 12px; color:var(--ink)}
+ul.tight{margin:0; padding-left:18px} ul.tight li{margin:2px 0}
+footer.foot{margin-top:40px; font-size:12.5px; color:var(--muted)}
+@media (prefers-reduced-motion: reduce){ *{transition:none!important; animation:none!important} }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Watkins Marine Mammal Sound DB · screening · 2026-10-14</div>
+  <h1>Watkins 스크리닝 결과집</h1>
+  <p>랩 세미나(v14) 자료의 근거가 되는 결과를 탭별로 모았습니다. 지도·예시의 점이나 카드를 누르면 그 클립의 스펙트로그램과 소리를 확인할 수 있습니다.</p>
+</header>
+<nav class="tabs" aria-label="결과 탭"><div class="rail" role="tablist" id="tabrail"></div></nav>
+
+<!-- ============================== OVERVIEW -->
+<section class="tab" id="t-overview" role="tabpanel">
+  <div>
+    <h2>종 분류 성능은 녹음 출처를 따라가며, 출처를 넘어 남는 정보는 신호 유형 · 대역 수준</h2>
+    <p class="lede" style="margin-top:6px">Watkins DB에서 보고된 높은 종 분리 성능을 녹음 비독립성(pseudoreplication)과 녹음 조건 편향(recording bias)의 관점에서 다시 평가했습니다. 모든 표현은 클립당 벡터 하나로 바꾼 뒤 같은 linear probe로 비교했습니다.</p>
+  </div>
+  <div class="grid3" id="ov-stats"></div>
+  <div class="grid2">
+    <div class="panel">
+      <h3>연구 질문 (RQ)</h3>
+      <dl class="kv">
+        <dt>RQ1 재현성</dt><dd>선행연구처럼 클립을 무작위로 나누면 보고된 수준의 성능이 재현되는가? → <b>재현됨</b></dd>
+        <dt>RQ2 일반화</dt><dd>녹음 출처를 분리해도 성능이 유지되고 메타데이터 baseline을 넘는가? → <b>유지되지 않음</b></dd>
+        <dt>RQ3 강건성</dt><dd>샘플레이트를 통제해도 남는 정보는 어느 수준인가? → <b>신호 유형 · 대역</b> (탐색적)</dd>
+      </dl>
+    </div>
+    <div class="panel">
+      <h3>읽는 법</h3>
+      <ul class="tight note">
+        <li><b>BA</b> (balanced accuracy, 균형 정확도): 클래스별 재현율의 평균. chance = 1/클래스 수</li>
+        <li><b>클립 랜덤 분할</b>: 선행연구 방식(5-fold). 같은 녹음의 클립이 학습·평가에 함께 들어갈 수 있음</li>
+        <li><b>출처 단위 분할</b>: 녹음 출처 49개를 7-fold로 나눔. 같은 출처는 한쪽에만</li>
+        <li><b>메타데이터 baseline</b>: 음원 없이 샘플레이트·클립 길이 2개 값만 넣은 같은 분류기</li>
+        <li>95% CI는 출처 단위 bootstrap. "유의"는 baseline 대비 차이의 CI가 0을 포함하지 않음</li>
+      </ul>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>탭 안내</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>탭</th><th>내용</th><th>세미나 v14 쪽</th></tr></thead>
+      <tbody id="ov-map"></tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ============================== DATA -->
+<section class="tab" id="t-data" role="tabpanel" hidden>
+  <div><h2>데이터 구성과 녹음 출처</h2>
+  <p class="lede" style="margin-top:6px">전체 13,693클립 → 분석 대상 10,694클립(36종, 녹음 출처 49개) → 표본 3,539클립(종별 현장 묶음당 최대 40클립). 녹음 출처는 테이프 번호·음원 해시·날짜·장소명·1° 격자·원정 중 하나라도 같으면 같은 묶음으로 연결한 단위입니다.</p></div>
+  <div class="grid3" id="data-stats"></div>
+  <div class="grid2">
+    <div class="panel"><h3>분류군별 샘플레이트 계열 (10,694클립)</h3><div id="fs-bars"></div>
+      <p class="note" style="margin-top:8px">수염고래류는 99.9%가 20 kHz 이하, 이빨고래류는 92%가 40 kHz 이상. 16 kHz로 리샘플링해도 빈 대역의 넓이로 원 샘플레이트가 드러납니다.</p></div>
+    <div class="panel"><h3>녹음 출처 규모 (상위 12개)</h3><div class="tablewrap"><table id="site-table"></table></div></div>
+  </div>
+  <div class="panel"><h3>종별 클립 수와 출처 수 (10,694클립)</h3>
+    <p class="note" style="margin-bottom:8px">최다 출처 비율 = 그 종의 클립 중 가장 큰 출처에서 나온 비율. 36종 중 18종은 출처가 1개입니다.</p>
+    <div class="tablewrap"><table id="species-table"></table></div></div>
+</section>
+
+<!-- ============================== PROBE -->
+<section class="tab" id="t-probe" role="tabpanel" hidden>
+  <div><h2>Linear probe: 같은 분류기, 다른 분할</h2>
+  <p class="lede" style="margin-top:6px">표본 3,539클립을 여섯 표현(메타데이터 baseline · 물리 특징 51 · MFCC · VGGish · EfficientNet-B3 · AST)으로 바꾸고, fold 안에서만 학습하는 같은 linear probe(중앙값 대체 → 표준화 → ±8 절단 → PCA ≤ 64 → 로지스틱 회귀, class_weight=balanced)로 평가했습니다.</p></div>
+  <div class="controls">
+    <label for="probe-cmp">비교할 분할</label>
+    <select id="probe-cmp">
+      <option value="allcv">출처 단위 7-fold (49개 출처)</option>
+      <option value="regioncv">해역 단위 교차검증</option>
+      <option value="test">떼어 둔 출처 20개 (개발 29개로 학습)</option>
+    </select>
+    <span class="legend"><span><i style="border:1.5px solid var(--muted);background:transparent"></i>클립 랜덤 5-fold</span><span><i style="background:var(--accent)"></i>선택한 분할 (선: 95% CI)</span><span><i style="background:var(--warn);border-radius:0;width:2px;height:12px"></i>baseline</span></span>
+  </div>
+  <div class="grid3" id="probe-charts"></div>
+  <div class="panel"><h3>수치</h3><div class="tablewrap"><table id="probe-table"></table></div>
+    <p class="note" style="margin-top:8px">Δ = 표현 − 메타데이터 baseline (같은 클립 paired, 출처 bootstrap 95% CI). <span class="sigd">초록</span> = CI가 0 미포함. 종 과제는 출처가 충분한 10종 1,664클립, 콜 타입은 메모에 하나만 기재된 7범주 1,542클립.</p></div>
+  <div class="panel"><h3>클래스별 재현율</h3>
+    <div class="controls" style="margin-bottom:10px">
+      <label for="pc-task">과제</label><select id="pc-task"><option value="group3">분류군</option><option value="species">종 (10)</option><option value="type_single">콜 타입 (7)</option></select>
+      <label for="pc-prot">분할</label><select id="pc-prot"><option value="allcv">출처 단위</option><option value="filecv">클립 랜덤</option></select>
+    </div>
+    <div class="tablewrap"><table id="pc-table"></table></div></div>
+  <div class="panel"><h3>선행연구 분류 절차 재현 (개발용 출처 29개, 2,769클립)</h3>
+    <div class="tablewrap"><table id="a7-table"></table></div>
+    <p class="note" style="margin-top:8px">RF: BA, prototype matching: accuracy, k-means: 군집 정확도. 신뢰구간 미산출. 원 논문 값: Lipari et al. 2026 frozen 73.1%, Liang et al. 2025 84.8%. Cominelli et al. 2024는 RF를 Placentia Bay 자료에 적용(Watkins 아님).</p></div>
+</section>
+
+<!-- ============================== MAPS -->
+<section class="tab" id="t-maps" role="tabpanel" hidden>
+  <div><h2>임베딩 지도: PCA · t-SNE · UMAP (비지도 · 지도)</h2>
+  <p class="lede" style="margin-top:6px">표본 3,539클립. 점을 누르면 오른쪽에 스펙트로그램과 소리가 나옵니다. 지도 UMAP은 종 라벨을 쓴 것이므로 군집이 또렷한 것을 비지도 발견의 증거로 읽으면 안 됩니다. "개발 → 검증 투영"은 개발 출처 29개로 지도 UMAP을 만든 뒤, 학습에 쓰지 않은 20개 출처의 클립을 올린 것입니다.</p></div>
+  <div class="controls">
+    <label for="m-rep">표현</label><select id="m-rep"></select>
+    <label for="m-meth">방법</label><select id="m-meth">
+      <option value="pca">PCA (선형, 비지도)</option><option value="tsne">t-SNE (비지도)</option><option value="umap" selected>UMAP (비지도)</option>
+      <option value="umap_sup">UMAP (지도: 종 라벨)</option><option value="umap_sup_dev">UMAP 지도, 개발 → 검증 투영</option></select>
+    <label for="m-col">색</label><select id="m-col">
+      <option value="tx">분류군</option><option value="sig">신호 유형</option><option value="type">콜 타입</option><option value="sp">종</option>
+      <option value="site">녹음 출처</option><option value="fam">샘플레이트 계열</option><option value="split">개발 / 검증 출처</option></select>
+    <label for="m-find">클립 찾기</label><input type="search" id="m-find" placeholder="cut_id 또는 종 이름" size="16">
+  </div>
+  <div class="mapbox">
+    <div style="display:grid; gap:10px; min-width:0">
+      <div class="canvaswrap" id="m-wrap"><canvas id="m-canvas" aria-label="임베딩 지도"></canvas><div class="tip" id="m-tip" hidden></div></div>
+      <div class="legend" id="m-legend"></div>
+      <div class="panel" style="padding:12px 14px"><div class="note" id="m-score"></div></div>
+    </div>
+    <aside class="inspector panel" id="m-insp"></aside>
+  </div>
+  <div class="panel"><h3>지도별 군집 분리도 (2D 지도에서 최근접 15개 이웃 다수결로 맞힌 BA)</h3>
+    <div class="tablewrap"><table id="m-score-table"></table></div>
+    <p class="note" style="margin-top:8px">이 페이지에서 다시 계산한 값(단일 seed). 세미나 결과 ③의 수치(VGGish 0.44 → 0.83, 투영 0.16)와는 계산 조건이 조금 달라 값이 다를 수 있습니다. 검증 BA = 개발 출처의 2D 좌표로 학습한 kNN이 검증 출처의 종을 맞힌 BA (개발에 있는 종만).</p></div>
+  <div class="panel"><h3>최근접 이웃 분석 (분석 대상 10,694클립, 원 특징 공간, 이웃 10개)</h3>
+    <div class="tablewrap"><table id="nn-table"></table></div>
+    <p class="note" style="margin-top:8px">출처가 1개인 18종(2,306클립)은 "다른 출처 이웃" 기준에서 정의상 0점이라 상한이 0.77입니다. 출처가 2개 이상인 종만 보면 상한 0.99, 실제 0.09–0.16. 다른 출처의 이웃만 보면 음원을 쓰지 않은 baseline과 같은 수준입니다.</p></div>
+</section>
+
+<!-- ============================== CALL TYPES -->
+<section class="tab" id="t-ct6" role="tabpanel" hidden>
+  <div><h2>콜 타입 6종 (탐색적 분석)</h2>
+  <p class="lede" style="margin-top:6px">메모에 하나만 기재된 6종 1,456클립 · 출처 40개. 6클래스 linear probe. 3유형 = 6클래스 예측을 Tonal(whistle · moan) · Impulsive(click · pulse train) · Pulsed(pulsed call · growl)로 묶은 값. 라벨은 녹음 메모 기반입니다.</p></div>
+  <div class="controls">
+    <label for="ct-rep">표현</label><select id="ct-rep"></select>
+    <span class="seg" id="ct-prot"><button aria-pressed="true" data-v="allcv">출처 단위</button><button aria-pressed="false" data-v="filecv">클립 랜덤</button></span>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>혼동 행렬 (행 = 메모 라벨, 열 = 예측, 행 기준 %)</h3><div class="tablewrap" id="ct-cm"></div></div>
+    <div class="panel"><h3>요약</h3><div id="ct-sum"></div></div>
+  </div>
+  <div class="panel"><h3>여섯 표현 비교 (출처 단위)</h3><div class="tablewrap"><table id="ct-all"></table></div>
+    <p class="note" style="margin-top:8px">growl → moan, pulsed call → whistle 혼동은 메타데이터 baseline에서도 같은 방향으로 나타납니다(샘플레이트 · 분류군이 같은 쌍). growl 62클립 중 47개가 수염고래류입니다.</p></div>
+</section>
+
+<!-- ============================== SIGNAL / TP -->
+<section class="tab" id="t-signal" role="tabpanel" hidden>
+  <div><h2>신호 유형 3분류와 Tonal vs Pulsed 추가 특징</h2>
+  <p class="lede" style="margin-top:6px">신호 유형 3분류(Tonal · Impulsive · Pulsed)를 샘플레이트 계열 안에서 평가하면 baseline이 chance 근처로 떨어지고, 음향 표현이 그보다 높게 남습니다. 단, Tonal과 Pulsed는 구분되지 않아 펄스 구조를 재는 특징을 추가로 시험했습니다(2026-10-14).</p></div>
+  <div class="panel"><h3>신호 유형 3분류 BA (3클래스 linear probe)</h3>
+    <div class="controls" style="margin-bottom:8px"><label for="sg-cond">조건</label><select id="sg-cond"></select></div>
+    <div class="tablewrap"><table id="sg-table"></table></div>
+    <p class="note" style="margin-top:8px">탐색적 분석: 재분류 기준을 결과를 본 뒤 정했으므로 독립 자료로 다시 확인해야 합니다. 80 kHz 계열은 pulsed가 12클립뿐입니다.</p></div>
+  <div class="panel"><h3>Tonal vs Pulsed: 펄스 구조 특징 (원 샘플레이트, 50 ms 프레임 중 에너지 상위 30 %의 중앙값)</h3>
+    <dl class="kv" style="margin-bottom:12px">
+      <dt>mod_peak_db · mod_peak_hz</dt><dd>포락선 변조 스펙트럼(100 Hz–min(5 kHz, fs/4))의 피크 돌출도와 피크 주파수 (펄스 반복률 추정)</dd>
+      <dt>mod_depth</dt><dd>같은 대역의 변조 깊이 (변조 rms / 평균 포락선)</dd>
+      <dt>cpp_db · cpp_q</dt><dd>켑스트럼 피크 돌출도(quefrency 0.2–10 ms)와 그 위치</dd>
+      <dt>env_kurt_log</dt><dd>고해상도 Hilbert 포락선 첨도 (log10)</dd>
+    </dl>
+    <div class="controls" style="margin-bottom:8px"><label for="tp-feat">특징</label><select id="tp-feat"></select></div>
+    <div id="tp-hist"></div>
+    <div class="tablewrap" style="margin-top:12px"><table id="tp-auc"></table></div></div>
+  <div class="grid2">
+    <div class="panel"><h3>출처 단위 linear probe, Tonal vs Pulsed BA</h3><div class="tablewrap"><table id="tp-probe"></table></div></div>
+    <div class="panel"><h3>해석</h3><ul class="tight note">
+      <li>전체에서는 녹음 조건(샘플레이트 · 길이)이 음향 특징보다 tonal과 pulsed를 잘 가릅니다.</li>
+      <li>새 특징은 whistle vs pulsed call(이빨고래류)에서만 의미 있는 신호를 보입니다. moan vs growl은 여전히 갈리지 않습니다.</li>
+      <li>주기적 펄스열은 수학적으로 기본 주파수가 펄스 반복률인 하모닉 신호와 같습니다. 켑스트럼은 "100–5,000 Hz 간격의 하모닉 구조"를 잴 뿐이라, 저주파 하모닉 moan이 pulsed call보다 높게 나옵니다.</li>
+      <li>growl은 펄스열이 아닌 거친 저주파음(76 % 수염고래류)이라 pulsed 범주에서 분리를 검토해야 합니다.</li></ul></div>
+  </div>
+  <div class="panel"><h3>공통 대역(0–4 kHz) 검증</h3><div class="controls" style="margin-bottom:8px"><label for="bk-task">과제</label><select id="bk-task"></select></div>
+    <div class="tablewrap"><table id="bk-table"></table></div>
+    <p class="note" style="margin-top:8px">4 kHz 위를 지워 모든 클립의 기록 대역을 맞춘 입력(_b4k)과 표준 입력의 출처 단위 BA. Δ표준 = 공통 대역 − 표준 입력.</p></div>
+</section>
+
+<!-- ============================== PHYSICAL FEATURES -->
+<section class="tab" id="t-phys" role="tabpanel" hidden>
+  <div><h2>물리 특징 예시: 콜 타입별</h2>
+  <p class="lede" style="margin-top:6px">물리 특징 51개는 원 샘플레이트에서 초 · Hz 단위로 계산한 본 연구의 초안입니다(문헌 방법 아님). 콜 타입마다 세미나에 쓴 예시 1개와, 그 콜 타입의 중앙값에 가까운 다른 종 · 다른 출처의 클립 2개를 보여 줍니다. 스펙트로그램은 원 샘플레이트, 앞 10초.</p></div>
+  <div class="controls"><span class="seg" id="ph-type"></span></div>
+  <div id="ph-body"></div>
+  <div class="panel"><h3>핵심 특징의 콜 타입별 분포 (단일 라벨 1,456클립)</h3>
+    <p class="note" style="margin-bottom:10px">세로선 = 선택한 콜 타입의 예시 3개. 숫자 = 콜 타입별 중앙값.</p>
+    <div class="small-multiples" id="ph-dist"></div></div>
+  <div class="panel"><h3>51개 특징 사전</h3><div class="tablewrap"><table id="ph-dict"></table></div>
+    <p class="note" style="margin-top:8px">band SNR = 10·log10(P95/P50). 잡음 기대값 6.4 dB + 3 dB = 9.4 dB를 넘는 칸만 신호 대역으로 셉니다. 나이퀴스트 위 1/3 옥타브 대역은 0으로 둡니다(녹음되지 않은 대역과 소리 없음이 섞이는 한계).</p></div>
+</section>
+
+<section class="tab" id="t-check" role="tabpanel" hidden>
+<div><h2>1단계 점검 (리뷰 지적 사항 검증, 2026-10-14)</h2><p class="lede" style="margin-top:6px">교수님 검토 과정에서 나온 지적(학습에 없는 종, 출처 정의, baseline 해석, Nyquist 단서, PCA, 임계값)을 지금 있는 임베딩으로 다시 계산했습니다. 같은 linear probe를 다시 돌린 값이라 기존 표와 0.01–0.02 차이가 날 수 있습니다(재현 확인: 종 baseline 0.245, 분류군 AST 0.798 등). 괄호 안 = baseline 대비 차이, * = 출처(또는 해당 분할 단위) bootstrap 95% CI가 0 미포함.</p></div>
+<div class="panel"><h3>① 종 × fold 표 (종 10개, 출처 단위 7-fold): 평가 종이 모두 학습 쪽에도 있음</h3><div class="tablewrap"><table><thead><tr><th>종</th><th class="n">출처 수</th><th class="n">클립</th><th class="n">fold 0</th><th class="n">fold 1</th><th class="n">fold 2</th><th class="n">fold 3</th><th class="n">fold 4</th><th class="n">fold 5</th><th class="n">fold 6</th></tr></thead><tbody><tr><td>들쇠고래</td><td class="n">3</td><td class="n">148</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">110</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">20</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">18</td></tr><tr><td>범고래</td><td class="n">6</td><td class="n">227</td><td class="n" style="">40</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">3</td><td class="n" style="">80</td><td class="n" style="">40</td><td class="n" style="">39</td><td class="n" style="">25</td></tr><tr><td>북극고래</td><td class="n">3</td><td class="n">64</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">16</td><td class="n" style="">8</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">40</td><td class="n" style="color:var(--muted)">0</td></tr><tr><td>일각고래</td><td class="n">3</td><td class="n">82</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">8</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">40</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">34</td></tr><tr><td>참거두고래</td><td class="n">6</td><td class="n">326</td><td class="n" style="">183</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">35</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">2</td><td class="n" style="">54</td><td class="n" style="">52</td></tr><tr><td>참돌고래</td><td class="n">5</td><td class="n">202</td><td class="n" style="">93</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">5</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">64</td><td class="n" style="">40</td></tr><tr><td>큰돌고래</td><td class="n">3</td><td class="n">81</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">40</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">2</td><td class="n" style="">39</td><td class="n" style="color:var(--muted)">0</td></tr><tr><td>큰머리돌고래</td><td class="n">5</td><td class="n">153</td><td class="n" style="">49</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">40</td><td class="n" style="">30</td><td class="n" style="">6</td><td class="n" style="">28</td><td class="n" style="color:var(--muted)">0</td></tr><tr><td>혹등고래</td><td class="n">8</td><td class="n">308</td><td class="n" style="">3</td><td class="n" style="">40</td><td class="n" style="">34</td><td class="n" style="">52</td><td class="n" style="">121</td><td class="n" style="">29</td><td class="n" style="">29</td></tr><tr><td>흰고래(벨루가)</td><td class="n">3</td><td class="n">73</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">20</td><td class="n" style="">49</td><td class="n" style="color:var(--muted)">0</td><td class="n" style="">4</td></tr></tbody></table></div><p class="note" style="margin-top:8px">모든 종이 출처 3개 이상이고, 어떤 fold를 평가로 빼도 그 종의 클립이 다른 fold에 남습니다(학습에 없는 종 0클립). fold 0은 A007 출처 하나(29%)입니다.</p></div>
+<div class="panel"><h3>② 출처 정의별 민감도 · 종 (10)</h3><div class="tablewrap"><table><thead><tr><th>분할 단위</th><th class="n">묶음 수</th><th class="n">메타데이터 baseline</th><th class="n">물리 특징 51</th><th class="n">MFCC</th><th class="n">VGGish</th><th class="n">EfficientNet-B3</th><th class="n">AST</th></tr></thead><tbody><tr><td>클립 랜덤 5-fold</td><td class="n">–</td><td class="n"><b>0.36</b></td><td class="n"><b>0.62</b> <span class="sigd">+0.27*</span></td><td class="n"><b>0.66</b> <span class="sigd">+0.30*</span></td><td class="n"><b>0.68</b> <span class="sigd">+0.32*</span></td><td class="n"><b>0.76</b> <span class="sigd">+0.40*</span></td><td class="n"><b>0.76</b> <span class="sigd">+0.40*</span></td></tr><tr><td>녹음 세션 (테이프·해시·날짜+장소)</td><td class="n">81</td><td class="n"><b>0.24</b></td><td class="n"><b>0.35</b> <span class="note">+0.10</span></td><td class="n"><b>0.38</b> <span class="sigd">+0.14*</span></td><td class="n"><b>0.30</b> <span class="note">+0.06</span></td><td class="n"><b>0.42</b> <span class="sigd">+0.17*</span></td><td class="n"><b>0.38</b> <span class="sigd">+0.13*</span></td></tr><tr><td>현장 묶음 (장소·연도, 1° 격자·연도)</td><td class="n">67</td><td class="n"><b>0.32</b></td><td class="n"><b>0.34</b> <span class="note">+0.01</span></td><td class="n"><b>0.34</b> <span class="note">+0.02</span></td><td class="n"><b>0.29</b> <span class="note">-0.04</span></td><td class="n"><b>0.41</b> <span class="sigd">+0.09*</span></td><td class="n"><b>0.34</b> <span class="note">+0.02</span></td></tr><tr><td>녹음 출처 49 (재분할)</td><td class="n">36</td><td class="n"><b>0.26</b></td><td class="n"><b>0.28</b> <span class="note">+0.03</span></td><td class="n"><b>0.27</b> <span class="note">+0.01</span></td><td class="n"><b>0.22</b> <span class="note">-0.03</span></td><td class="n"><b>0.32</b> <span class="note">+0.07</span></td><td class="n"><b>0.28</b> <span class="note">+0.03</span></td></tr><tr><td>녹음 출처 49 (기존 fold)</td><td class="n">36</td><td class="n"><b>0.24</b></td><td class="n"><b>0.28</b> <span class="note">+0.04</span></td><td class="n"><b>0.28</b> <span class="note">+0.03</span></td><td class="n"><b>0.21</b> <span class="note">-0.04</span></td><td class="n"><b>0.33</b> <span class="note">+0.09</span></td><td class="n"><b>0.29</b> <span class="note">+0.05</span></td></tr></tbody></table></div></div>
+<div class="panel"><h3>② 출처 정의별 민감도 · 분류군 (3)</h3><div class="tablewrap"><table><thead><tr><th>분할 단위</th><th class="n">묶음 수</th><th class="n">메타데이터 baseline</th><th class="n">물리 특징 51</th><th class="n">MFCC</th><th class="n">VGGish</th><th class="n">EfficientNet-B3</th><th class="n">AST</th></tr></thead><tbody><tr><td>클립 랜덤 5-fold</td><td class="n">–</td><td class="n"><b>0.69</b></td><td class="n"><b>0.86</b> <span class="sigd">+0.16*</span></td><td class="n"><b>0.81</b> <span class="sigd">+0.12*</span></td><td class="n"><b>0.86</b> <span class="sigd">+0.16*</span></td><td class="n"><b>0.91</b> <span class="sigd">+0.22*</span></td><td class="n"><b>0.93</b> <span class="sigd">+0.24*</span></td></tr><tr><td>녹음 세션 (테이프·해시·날짜+장소)</td><td class="n">171</td><td class="n"><b>0.71</b></td><td class="n"><b>0.79</b> <span class="sigd">+0.08*</span></td><td class="n"><b>0.71</b> <span class="note">-0.01</span></td><td class="n"><b>0.71</b> <span class="note">-0.01</span></td><td class="n"><b>0.82</b> <span class="sigd">+0.11*</span></td><td class="n"><b>0.86</b> <span class="sigd">+0.14*</span></td></tr><tr><td>현장 묶음 (장소·연도, 1° 격자·연도)</td><td class="n">114</td><td class="n"><b>0.68</b></td><td class="n"><b>0.79</b> <span class="sigd">+0.11*</span></td><td class="n"><b>0.71</b> <span class="note">+0.03</span></td><td class="n"><b>0.71</b> <span class="note">+0.03</span></td><td class="n"><b>0.80</b> <span class="sigd">+0.12*</span></td><td class="n"><b>0.84</b> <span class="sigd">+0.16*</span></td></tr><tr><td>녹음 출처 49 (재분할)</td><td class="n">49</td><td class="n"><b>0.65</b></td><td class="n"><b>0.76</b> <span class="note">+0.10</span></td><td class="n"><b>0.62</b> <span class="note">-0.03</span></td><td class="n"><b>0.62</b> <span class="note">-0.04</span></td><td class="n"><b>0.65</b> <span class="note">-0.00</span></td><td class="n"><b>0.79</b> <span class="sigd">+0.14*</span></td></tr><tr><td>녹음 출처 49 (기존 fold)</td><td class="n">49</td><td class="n"><b>0.68</b></td><td class="n"><b>0.74</b> <span class="note">+0.06</span></td><td class="n"><b>0.63</b> <span class="note">-0.05</span></td><td class="n"><b>0.62</b> <span class="note">-0.06</span></td><td class="n"><b>0.66</b> <span class="note">-0.02</span></td><td class="n"><b>0.79</b> <span class="note">+0.11</span></td></tr></tbody></table></div></div>
+<div class="panel"><h3>② 출처 정의별 민감도 · 콜 타입 (7)</h3><div class="tablewrap"><table><thead><tr><th>분할 단위</th><th class="n">묶음 수</th><th class="n">메타데이터 baseline</th><th class="n">물리 특징 51</th><th class="n">MFCC</th><th class="n">VGGish</th><th class="n">EfficientNet-B3</th><th class="n">AST</th></tr></thead><tbody><tr><td>클립 랜덤 5-fold</td><td class="n">–</td><td class="n"><b>0.44</b></td><td class="n"><b>0.67</b> <span class="sigd">+0.23*</span></td><td class="n"><b>0.55</b> <span class="sigd">+0.11*</span></td><td class="n"><b>0.63</b> <span class="sigd">+0.19*</span></td><td class="n"><b>0.71</b> <span class="sigd">+0.27*</span></td><td class="n"><b>0.72</b> <span class="sigd">+0.28*</span></td></tr><tr><td>녹음 세션 (테이프·해시·날짜+장소)</td><td class="n">131</td><td class="n"><b>0.40</b></td><td class="n"><b>0.49</b> <span class="sigd">+0.10*</span></td><td class="n"><b>0.33</b> <span class="note">-0.06</span></td><td class="n"><b>0.36</b> <span class="note">-0.03</span></td><td class="n"><b>0.52</b> <span class="sigd">+0.12*</span></td><td class="n"><b>0.51</b> <span class="sigd">+0.12*</span></td></tr><tr><td>현장 묶음 (장소·연도, 1° 격자·연도)</td><td class="n">91</td><td class="n"><b>0.42</b></td><td class="n"><b>0.49</b> <span class="note">+0.07</span></td><td class="n"><b>0.31</b> <span class="sigd">-0.10*</span></td><td class="n"><b>0.31</b> <span class="sigd">-0.10*</span></td><td class="n"><b>0.52</b> <span class="note">+0.10</span></td><td class="n"><b>0.48</b> <span class="note">+0.07</span></td></tr><tr><td>녹음 출처 49 (재분할)</td><td class="n">40</td><td class="n"><b>0.41</b></td><td class="n"><b>0.42</b> <span class="note">+0.02</span></td><td class="n"><b>0.29</b> <span class="note">-0.12</span></td><td class="n"><b>0.29</b> <span class="note">-0.12</span></td><td class="n"><b>0.50</b> <span class="sigd">+0.10*</span></td><td class="n"><b>0.41</b> <span class="note">+0.01</span></td></tr><tr><td>녹음 출처 49 (기존 fold)</td><td class="n">40</td><td class="n"><b>0.41</b></td><td class="n"><b>0.41</b> <span class="note">-0.00</span></td><td class="n"><b>0.29</b> <span class="sigd">-0.12*</span></td><td class="n"><b>0.30</b> <span class="note">-0.11</span></td><td class="n"><b>0.48</b> <span class="note">+0.07</span></td><td class="n"><b>0.41</b> <span class="note">-0.01</span></td></tr></tbody></table></div></div>
+<div class="panel callout" style="padding:12px 16px"><b>읽는 법</b>: 종 분류는 클립 랜덤 0.62–0.76 → 녹음 세션 0.30–0.42 → 녹음 출처 0.21–0.33으로 단계적으로 떨어집니다. 하락의 대부분은 세션 단위에서 이미 일어나고(녹음 비독립성), 세션 단위에서는 EfficientNet-B3 · AST · MFCC가 baseline을 유의하게 넘습니다(+0.13–0.17). 현장 묶음 · 출처 단위로 넓히면 그 이득이 줄어 유의하지 않게 됩니다(새 조사 조건 · 지역으로의 전이). 분류군은 AST가 모든 단위에서 baseline을 넘습니다.</div>
+<div class="panel"><h3>③ 메타데이터만 · 음향만 · 둘 다 (출처 단위 7-fold)</h3><div class="tablewrap"><table><thead><tr><th>과제</th><th>표현</th><th class="n">메타만</th><th class="n">음향만 (Δ메타)</th><th class="n">음향+메타 (Δ메타)</th><th class="n">음향+메타 − 음향</th></tr></thead><tbody><tr><td>종 (10)</td><td>물리 특징 51</td><td class="n">0.24</td><td class="n"><b>0.28</b> <span class="note">+0.04</span></td><td class="n"><b>0.30</b> <span class="note">+0.05</span></td><td class="n ">+0.013</td></tr><tr><td></td><td>MFCC</td><td class="n">0.24</td><td class="n"><b>0.28</b> <span class="note">+0.03</span></td><td class="n"><b>0.30</b> <span class="note">+0.05</span></td><td class="n ">+0.020</td></tr><tr><td></td><td>VGGish</td><td class="n">0.24</td><td class="n"><b>0.21</b> <span class="note">-0.04</span></td><td class="n"><b>0.23</b> <span class="note">-0.01</span></td><td class="n ">+0.023</td></tr><tr><td></td><td>EfficientNet-B3</td><td class="n">0.24</td><td class="n"><b>0.32</b> <span class="note">+0.08</span></td><td class="n"><b>0.33</b> <span class="note">+0.09</span></td><td class="n sigd">+0.009</td></tr><tr><td></td><td>AST</td><td class="n">0.24</td><td class="n"><b>0.30</b> <span class="note">+0.06</span></td><td class="n"><b>0.30</b> <span class="note">+0.06</span></td><td class="n ">-0.003</td></tr><tr><td>분류군 (3)</td><td>물리 특징 51</td><td class="n">0.68</td><td class="n"><b>0.74</b> <span class="note">+0.06</span></td><td class="n"><b>0.75</b> <span class="note">+0.07</span></td><td class="n ">+0.010</td></tr><tr><td></td><td>MFCC</td><td class="n">0.68</td><td class="n"><b>0.63</b> <span class="note">-0.05</span></td><td class="n"><b>0.68</b> <span class="note">+0.00</span></td><td class="n sigd">+0.053</td></tr><tr><td></td><td>VGGish</td><td class="n">0.68</td><td class="n"><b>0.62</b> <span class="note">-0.06</span></td><td class="n"><b>0.72</b> <span class="note">+0.04</span></td><td class="n sigd">+0.096</td></tr><tr><td></td><td>EfficientNet-B3</td><td class="n">0.68</td><td class="n"><b>0.65</b> <span class="note">-0.03</span></td><td class="n"><b>0.66</b> <span class="note">-0.02</span></td><td class="n ">+0.002</td></tr><tr><td></td><td>AST</td><td class="n">0.68</td><td class="n"><b>0.81</b> <span class="sigd">+0.13*</span></td><td class="n"><b>0.80</b> <span class="note">+0.12</span></td><td class="n sigd">-0.015</td></tr><tr><td>콜 타입 (7)</td><td>물리 특징 51</td><td class="n">0.41</td><td class="n"><b>0.41</b> <span class="note">-0.00</span></td><td class="n"><b>0.43</b> <span class="note">+0.02</span></td><td class="n sigd">+0.025</td></tr><tr><td></td><td>MFCC</td><td class="n">0.41</td><td class="n"><b>0.29</b> <span class="sigd">-0.12*</span></td><td class="n"><b>0.35</b> <span class="note">-0.06</span></td><td class="n sigd">+0.068</td></tr><tr><td></td><td>VGGish</td><td class="n">0.41</td><td class="n"><b>0.30</b> <span class="note">-0.11</span></td><td class="n"><b>0.35</b> <span class="note">-0.07</span></td><td class="n ">+0.049</td></tr><tr><td></td><td>EfficientNet-B3</td><td class="n">0.41</td><td class="n"><b>0.47</b> <span class="note">+0.06</span></td><td class="n"><b>0.48</b> <span class="note">+0.07</span></td><td class="n ">+0.010</td></tr><tr><td></td><td>AST</td><td class="n">0.41</td><td class="n"><b>0.41</b> <span class="note">+0.00</span></td><td class="n"><b>0.41</b> <span class="note">-0.00</span></td><td class="n ">-0.005</td></tr></tbody></table></div><p class="note" style="margin-top:8px">마지막 열이 0에 가까우면 그 표현이 샘플레이트 · 길이 정보를 이미 담고 있다는 뜻입니다. AST · EfficientNet-B3 · 물리 특징은 메타를 더해도 거의 변하지 않고, VGGish · MFCC는 메타를 더하면 올라갑니다(분류군 VGGish +0.10*).</p></div>
+<div class="panel"><h3>④ PCA 64 유무 (출처 단위)</h3><div class="tablewrap"><table><thead><tr><th>표현</th><th class="n">종 (10): PCA → 없음</th><th class="n">분류군 (3): PCA → 없음</th><th class="n">콜 타입 (7): PCA → 없음</th></tr></thead><tbody><tr><td>물리 특징 51</td><td class="n">0.284 → 0.285</td><td class="n">0.743 → 0.744</td><td class="n">0.410 → 0.410</td></tr><tr><td>MFCC</td><td class="n">0.278 → 0.265</td><td class="n">0.631 → 0.637</td><td class="n">0.287 → 0.280</td></tr><tr><td>VGGish</td><td class="n">0.207 → 0.212</td><td class="n">0.625 → 0.601</td><td class="n">0.297 → 0.275</td></tr><tr><td>EfficientNet-B3</td><td class="n">0.322 → 0.329</td><td class="n">0.654 → 0.675</td><td class="n">0.470 → 0.477</td></tr><tr><td>AST</td><td class="n">0.304 → 0.324</td><td class="n">0.810 → 0.796</td><td class="n">0.414 → 0.412</td></tr></tbody></table></div><p class="note" style="margin-top:8px">차이는 ±0.03 안입니다. "PCA 상위 축이 녹음 편향을 담아 성능을 낮췄다"는 가설은 지지되지 않습니다.</p></div>
+<div class="panel"><h3>⑤ 물리 특징 소거 (출처 단위, 괄호 = baseline 대비)</h3><div class="tablewrap"><table><thead><tr><th>특징 묶음</th><th class="n">개수</th><th class="n">종 (10)</th><th class="n">분류군 (3)</th><th class="n">콜 타입 (7)</th></tr></thead><tbody><tr><td>phys51 (all)</td><td class="n">51</td><td class="n"><b>0.28</b> <span class="note">+0.04</span></td><td class="n"><b>0.74</b> <span class="note">+0.06</span></td><td class="n"><b>0.41</b> <span class="note">-0.00</span></td></tr><tr><td>phys − 1/3-oct (20)</td><td class="n">20</td><td class="n"><b>0.33</b> <span class="sigd">+0.08*</span></td><td class="n"><b>0.73</b> <span class="note">+0.05</span></td><td class="n"><b>0.44</b> <span class="note">+0.03</span></td></tr><tr><td>phys − abs. frequency (17)</td><td class="n">17</td><td class="n"><b>0.30</b> <span class="note">+0.06</span></td><td class="n"><b>0.59</b> <span class="note">-0.09</span></td><td class="n"><b>0.41</b> <span class="note">-0.00</span></td></tr><tr><td>band only: A+B (38)</td><td class="n">38</td><td class="n"><b>0.29</b> <span class="note">+0.05</span></td><td class="n"><b>0.76</b> <span class="note">+0.08</span></td><td class="n"><b>0.35</b> <span class="note">-0.06</span></td></tr></tbody></table></div><p class="note" style="margin-top:8px">1/3 옥타브 31개(나이퀴스트 위 = 0)를 빼면 종 분류가 0.28 → 0.33으로 오히려 오르고 baseline을 유의하게 넘습니다. 절대 주파수(f05 · f50 · f95 + 1/3 옥타브)를 모두 빼면 분류군이 0.74 → 0.59로 크게 떨어집니다. 분류군 정보는 주로 절대 주파수에 있습니다(생물학적 대역과 녹음 대역이 함께 섞인 정보).</p></div>
+<div class="panel"><h3>⑥ 임계값: 표본 안 vs 학습 fold에서 정한 값 (출처 단위)</h3><div class="tablewrap"><table><thead><tr><th>규칙</th><th class="n">클립</th><th class="n">AUROC</th><th class="n">표본 안 BA (민감도/특이도)</th><th class="n">out-of-fold BA</th><th class="n">fold별 임계값 (저장 척도)</th></tr></thead><tbody><tr><td>TC: impulsive vs 나머지</td><td class="n">1446</td><td class="n">0.95</td><td class="n">0.887 <span class="note">(0.88 / 0.90)</span></td><td class="n"><b>0.867</b> <span class="note">(0.87 / 0.86)</span></td><td class="n">0.0777–0.107</td></tr><tr><td>클릭 간격: click vs pulse train</td><td class="n">367</td><td class="n">0.76</td><td class="n">0.711 <span class="note">(0.56 / 0.87)</span></td><td class="n"><b>0.693</b> <span class="note">(0.56 / 0.83)</span></td><td class="n">-2.33–-2.02</td></tr><tr><td>f50: whistle vs moan</td><td class="n">840</td><td class="n">0.90</td><td class="n">0.852 <span class="note">(0.76 / 0.95)</span></td><td class="n"><b>0.848</b> <span class="note">(0.75 / 0.94)</span></td><td class="n">3.42–3.43</td></tr></tbody></table></div><p class="note" style="margin-top:8px">fold마다 다시 정한 임계값을 평가 fold에 적용해도 BA가 0.004–0.02만 줄어듭니다. TC 임계값은 0.078–0.107로 안정적입니다. 클릭 간격과 f50은 log10 값(초 · Hz)입니다.</p></div>
+<div class="panel"><h3>⑦ 선행연구 절차 재현 (부록 A7): 학습에 없는 종을 빼고 다시 계산</h3><div class="tablewrap"><table><thead><tr><th>표현</th><th class="n">RF BA (전체)</th><th class="n">RF BA (학습에 있는 종만)</th><th class="n">prototype acc (전체)</th><th class="n">prototype acc (학습에 있는 종만)</th></tr></thead><tbody><tr class="base"><td>메타데이터 baseline</td><td class="n">0.089</td><td class="n"><b>0.245</b></td><td class="n">0.054</td><td class="n"><b>0.098</b></td></tr><tr class=""><td>물리 특징 51</td><td class="n">0.028</td><td class="n"><b>0.078</b></td><td class="n">0.040</td><td class="n"><b>0.073</b></td></tr><tr class=""><td>MFCC</td><td class="n">0.017</td><td class="n"><b>0.046</b></td><td class="n">0.034</td><td class="n"><b>0.061</b></td></tr><tr class=""><td>VGGish</td><td class="n">0.021</td><td class="n"><b>0.059</b></td><td class="n">0.033</td><td class="n"><b>0.060</b></td></tr><tr class=""><td>EfficientNet-B3</td><td class="n">0.048</td><td class="n"><b>0.133</b></td><td class="n">0.082</td><td class="n"><b>0.149</b></td></tr><tr class=""><td>AST</td><td class="n">0.034</td><td class="n"><b>0.094</b></td><td class="n">0.062</td><td class="n"><b>0.113</b></td></tr></tbody></table></div><p class="note" style="margin-top:8px">개발용 출처 29개 · 33종 · 2,769클립, 출처 단위 5-fold. 평가 클립의 45%(1,253/2,769)는 그 fold의 학습에 없는 종입니다. 학습에 있는 12종 1,516클립만 봐도 음향 표현은 0.05–0.15에 머물고 baseline(RF 0.25)보다 낮습니다. 즉 A7의 낮은 값은 학습에 없는 종 때문만은 아닙니다. RF 설정(300 trees, balanced_subsample)은 이번 재계산 값이며 기존 A7 표와 다를 수 있습니다.</p></div>
+</section>
+<section class="tab" id="t-check2" role="tabpanel" hidden>
+<div><h2>2단계 점검: Nyquist 결측 · band SNR · EfficientNet 복원 · 속성 라벨 (2026-10-15)</h2><p class="lede" style="margin-top:6px">물리 특징 A · B 그룹을 원음에서 다시 계산했습니다(기존 저장값과 최대 차이 1e−6으로 일치 확인). 모든 probe는 출처 단위 7-fold, 괄호 = 메타데이터 baseline 대비, * = 출처 bootstrap 95% CI 0 미포함.</p></div>
+<div class="panel"><h3>① Nyquist 위 대역: 0 대신 결측 처리 (+ band SNR 정의 d0/d1)</h3><div class="tablewrap"><table><thead><tr><th>물리 특징 구성</th><th class="n">개수</th><th class="n">종 (10)</th><th class="n">분류군 (3)</th><th class="n">콜 타입 (7)</th><th class="n">샘플레이트 계열 예측 BA</th></tr></thead><tbody><tr class="base"><td>현재 (d0, Nyquist 위 = 0)</td><td class="n">51</td><td class="n"><b>0.284</b> <span class="note">+0.04</span></td><td class="n"><b>0.743</b> <span class="note">+0.06</span></td><td class="n"><b>0.409</b> <span class="note">-0.00</span></td><td class="n">0.737</td></tr><tr class=""><td>d0, Nyquist 위 = 결측</td><td class="n">51</td><td class="n"><b>0.294</b> <span class="note">+0.05</span></td><td class="n"><b>0.736</b> <span class="note">+0.06</span></td><td class="n"><b>0.418</b> <span class="note">+0.01</span></td><td class="n">0.720</td></tr><tr class=""><td>d1 (최소통계 잡음), 위 = 0</td><td class="n">51</td><td class="n"><b>0.268</b> <span class="note">+0.02</span></td><td class="n"><b>0.734</b> <span class="note">+0.05</span></td><td class="n"><b>0.429</b> <span class="note">+0.02</span></td><td class="n">0.760</td></tr><tr class=""><td>d1, 위 = 결측</td><td class="n">51</td><td class="n"><b>0.264</b> <span class="note">+0.02</span></td><td class="n"><b>0.734</b> <span class="note">+0.05</span></td><td class="n"><b>0.439</b> <span class="note">+0.03</span></td><td class="n">0.723</td></tr><tr class=""><td>d1, 결측 + 공통 관측 대역(≤2.2 kHz)만</td><td class="n">36</td><td class="n"><b>0.248</b> <span class="note">+0.00</span></td><td class="n"><b>0.734</b> <span class="note">+0.05</span></td><td class="n"><b>0.442</b> <span class="note">+0.03</span></td><td class="n">0.616</td></tr><tr class=""><td>d1, 1/3 옥타브 제외(20)</td><td class="n">20</td><td class="n"><b>0.284</b> <span class="note">+0.04</span></td><td class="n"><b>0.732</b> <span class="note">+0.05</span></td><td class="n"><b>0.450</b> <span class="note">+0.04</span></td><td class="n">0.634</td></tr></tbody></table></div><p class="note" style="margin-top:8px">마지막 열 = 이 특징만으로 샘플레이트 계열(6개)을 맞힌 BA (메타데이터 0.99, chance 0.17). 결측 처리는 fold 학습 행의 중앙값으로 대체. 결측으로 바꿔도 성능 변화는 ±0.03 안이고 어느 것도 baseline을 유의하게 넘지 못합니다. 샘플레이트 정보는 0.74 → 0.72로 거의 줄지 않습니다. f95 · 신호 칸 비율 등 다른 특징에도 기록 대역이 담겨 있기 때문입니다. 1/3 옥타브를 빼거나 모든 클립이 관측하는 2.2 kHz 이하 대역만 쓰면 0.62–0.63으로 줄지만 여전히 chance보다 훨씬 높습니다.</p></div>
+<div class="panel"><h3>② band SNR 정의 재검토</h3>
+<dl class="kv" style="margin-bottom:10px"><dt>d0 (현재)</dt><dd>주파수 칸마다 10·log10(P95/P50), 시간 방향 분위수. 잡음만 있으면 6.36 dB(지수분포 이론값과 일치), 기준 9.4 dB</dd>
+<dt>d1 (제안)</dt><dd>10·log10(P95 / N̂), N̂ = P10 × ln2 / (−ln 0.9) — 최소 통계(minimum statistics)로 추정한 잡음 중앙값. 잡음만 있으면 d0와 같은 6.36 dB라 기준 9.4 dB를 그대로 씀. 신호가 프레임의 50–90 %를 차지해도 바닥이 신호에 끌려 올라가지 않음</dd></dl>
+<div class="tablewrap"><table><thead><tr><th>활동 프레임 비율</th><th class="n">클립</th><th class="n">최대 band SNR d0 (dB)</th><th class="n">d1 (dB)</th><th class="n">차이</th><th class="n">신호 대역 미정의 d0</th><th class="n">d1</th></tr></thead><tbody><tr><td><25%</td><td class="n">238</td><td class="n">12.8</td><td class="n">16.8</td><td class="n">+4.0</td><td class="n">12.6%</td><td class="n">0.0%</td></tr><tr><td>25–50</td><td class="n">1009</td><td class="n">17.6</td><td class="n">19.2</td><td class="n">+1.6</td><td class="n">0.6%</td><td class="n">0.0%</td></tr><tr><td>50–75</td><td class="n">1462</td><td class="n">19.9</td><td class="n">22.8</td><td class="n">+2.8</td><td class="n">0.1%</td><td class="n">0.0%</td></tr><tr><td>75–90</td><td class="n">597</td><td class="n">21.7</td><td class="n">24.9</td><td class="n">+3.2</td><td class="n">0.0%</td><td class="n">0.0%</td></tr><tr><td>≥90%</td><td class="n">232</td><td class="n">23.8</td><td class="n">26.1</td><td class="n">+2.4</td><td class="n">0.0%</td><td class="n">0.0%</td></tr></tbody></table></div>
+<ul class="tight note" style="margin-top:10px"><li>신호 대역 미정의 클립: d0 37개(click 14 · whistle 12 · 복수 11) → d1 0개</li>
+<li>d1은 모든 콜 타입에서 1.8–3.7 dB 높음 (whistle 19.8→21.6, click 15.4→18.6, pulse train 19.0→22.7). 지속음만의 문제가 아니라 d0가 전반적으로 과소추정</li>
+<li>f50 변화: 중앙값 0.033 옥타브, 8 %의 클립이 0.5 옥타브 이상 이동. whistle vs moan f50 AUROC 0.901 → 0.903</li>
+<li>분류군 × 대역: 이빨고래류 ≤1 kHz 21 → 8클립, 기각류 &gt;8 kHz 9 → 17클립 (1–8 kHz 중첩 결론은 그대로)</li>
+<li>남은 한계: (1) 분자가 P95라 신호가 프레임의 5 % 미만인 드문 click은 여전히 놓칠 수 있음 → 충격성 신호는 최댓값 · P99 기반 지표를 따로 둘 것. (2) d1은 잡음이 정상(stationary)이라고 가정해, 잡음이 크게 변하는 녹음에서는 바닥을 낮게 잡아 신호 칸을 늘릴 수 있음(신호 칸 비율 중앙값 0.26 → 0.32)</li></ul></div>
+<div class="panel"><h3>③ EfficientNet-B3 전처리 복원</h3>
+<p>Kim et al. 2026 공개 코드(GitHub)에서 입력 형식(PNG → RGB/255, 800×300, ImageNet 정규화 없음)을 확인하고, 나머지 선택지를 저장 벡터와의 cosine으로 탐색했습니다.</p>
+<dl class="kv" style="margin:10px 0"><dt>복원된 전처리</dt><dd>40 kHz → torch.stft(1024/256, Hann, center) → 10·log10(파워) → [최댓값 − 80 dB, 최댓값]을 0–1로 → 흑백 3채널 → 저주파가 아래 → 8비트 → 800×300 bilinear → /255 → torchvision efficientnet_b3(ImageNet) 특징 지도 전역 평균 1,536</dd>
+<dt>짧은 클립 (&lt; 5 s)</dt><dd>5초까지 반복(tile): cosine 0.994 (0 채움 0.713, 늘이기 0.521)</dd>
+<dt>긴 클립 (&gt; 5 s)</dt><dd>5초 창으로 나눠 평균: cosine 0.997 (첫 창만 0.961)</dd>
+<dt>dB 범위</dt><dd>80 dB가 최적 (70: 0.947 · 80: 0.996 · 90: 0.985)</dd>
+<dt>전체 3,539클립</dt><dd><b>cosine 평균 0.995</b>, 중앙값 0.996, 하위 5 % 0.989, 최솟값 0.970 (기존 재계산 0.76 → 해결)</dd></dl>
+<div class="tablewrap"><table><thead><tr><th>과제</th><th>분할</th><th class="n">저장 벡터 BA</th><th class="n">복원 벡터 BA</th><th class="n">차이</th></tr></thead><tbody><tr><td>species</td><td>클립 랜덤</td><td class="n">0.765</td><td class="n">0.745</td><td class="n">-0.020</td></tr><tr><td>species</td><td>출처 단위</td><td class="n">0.327</td><td class="n">0.334</td><td class="n">+0.007</td></tr><tr><td>group3</td><td>클립 랜덤</td><td class="n">0.912</td><td class="n">0.915</td><td class="n">+0.003</td></tr><tr><td>group3</td><td>출처 단위</td><td class="n">0.656</td><td class="n">0.667</td><td class="n">+0.011</td></tr><tr><td>type7</td><td>클립 랜덤</td><td class="n">0.721</td><td class="n">0.722</td><td class="n">+0.001</td></tr><tr><td>type7</td><td>출처 단위</td><td class="n">0.484</td><td class="n">0.484</td><td class="n">+0.000</td></tr><tr><td>type6</td><td>출처 단위</td><td class="n">0.538</td><td class="n">0.550</td><td class="n">+0.012</td></tr></tbody></table></div>
+<p class="note" style="margin-top:8px">복원 벡터로 다시 계산해도 BA 차이는 ±0.02 이내입니다. 기존 EfficientNet-B3 결과는 이 전처리로 재현 가능합니다. 스크립트: eff_restored.py</p></div>
+<div class="panel"><h3>④ 속성 기반 라벨: 스키마 (클립 = 프레임 측정값의 요약, 배타적 범주 아님)</h3><div class="tablewrap"><table><thead><tr><th>속성</th><th>측정값</th><th>단위</th></tr></thead><tbody><tr><td>충격성 (impulsiveness)</td><td>imp_frac: 프레임별 TC &lt; 0.08인 활동 프레임 비율 · imp_kurt: 1 ms 포락선 첨도</td><td class="num">0–1 · log10</td></tr><tr><td>반복 (repetition)</td><td>rep_ici_ms: 클릭 간격(느린 반복) · rep_prr_hz: 포락선 변조 피크(100 Hz–5 kHz, 펄스 반복률) · rep_prr_prom: 그 돌출도</td><td class="num">ms · Hz · dB</td></tr><tr><td>하모닉성 (harmonicity)</td><td>harm: 초과 스펙트럼 자기상관 최대값 · harm_spacing_hz: 그 간격 · fpk_over_spacing: 최대 주파수 ÷ 간격 (≈1–2 기본음 계열, ≫1 반송파 + 측대역)</td><td class="num">0–1 · Hz · 비</td></tr><tr><td>주파수 윤곽 (contour)</td><td>tonal_frac: 음조 프레임 비율 · contour_cont: 이웃 프레임 최대 주파수 변화 &lt; 1/6 옥타브 비율 · fm_oct_s: 변조율</td><td class="num">0–1 · oct/s</td></tr><tr><td>대역 (band)</td><td>f50_khz (d1 정의) · band_obs_khz: 기록 대역 상한(fs/2)</td><td class="num">kHz</td></tr></tbody></table></div></div>
+<div class="panel"><h3>콜 타입별 속성 중앙값 (단일 라벨)</h3><div class="tablewrap"><table><thead><tr><th></th><th class="n">imp_frac</th><th class="n">tonal_frac</th><th class="n">rep_prr_hz</th><th class="n">harm</th><th class="n">harm_spacing_hz</th><th class="n">fpk_over_spacing</th><th class="n">contour_cont</th><th class="n">fm_oct_s</th><th class="n">f50_khz</th><th class="n">env_crest</th></tr></thead><tbody><tr><td>whistle</td><td class="n">0.17</td><td class="n">0.83</td><td class="n">210</td><td class="n">0.216</td><td class="n">237</td><td class="n">23</td><td class="n">0.693</td><td class="n">3.25</td><td class="n">8.64</td><td class="n">2.59</td></tr><tr><td>moan</td><td class="n">0</td><td class="n">1</td><td class="n">210</td><td class="n">0.229</td><td class="n">728</td><td class="n">1.79</td><td class="n">0.569</td><td class="n">1.63</td><td class="n">1.16</td><td class="n">1.98</td></tr><tr><td>click</td><td class="n">0.936</td><td class="n">0.064</td><td class="n">170</td><td class="n">0.414</td><td class="n">200</td><td class="n">73</td><td class="n">0.325</td><td class="n">34.8</td><td class="n">20.5</td><td class="n">5.9</td></tr><tr><td>pulse train</td><td class="n">0.7</td><td class="n">0.3</td><td class="n">220</td><td class="n">0.429</td><td class="n">260</td><td class="n">46.4</td><td class="n">0.478</td><td class="n">17.3</td><td class="n">17.8</td><td class="n">4.13</td></tr><tr><td>pulsed call</td><td class="n">0.024</td><td class="n">0.976</td><td class="n">380</td><td class="n">0.287</td><td class="n">620</td><td class="n">2.33</td><td class="n">0.602</td><td class="n">4.05</td><td class="n">2.14</td><td class="n">2.33</td></tr><tr><td>growl</td><td class="n">0.002</td><td class="n">0.998</td><td class="n">190</td><td class="n">0.225</td><td class="n">363</td><td class="n">2.47</td><td class="n">0.524</td><td class="n">13.1</td><td class="n">0.83</td><td class="n">2.22</td></tr></tbody></table></div></div>
+<div class="panel"><h3>속성 하나로 가르는 힘 (AUROC, 방향 무관)</h3><div class="tablewrap"><table><thead><tr><th>속성</th><th class="n">tonal vs pulsed</th><th class="n">whistle vs pulsed call</th><th class="n">moan vs growl</th><th class="n">impulsive vs 나머지</th><th class="n">click vs pulse train</th><th class="n">whistle vs moan</th></tr></thead><tbody><tr><td class="num">imp_frac</td><td class="n" style="">0.70</td><td class="n" style="">0.75</td><td class="n" style="">0.53</td><td class="n" style="font-weight:600;color:var(--accent)">0.92</td><td class="n" style="">0.72</td><td class="n" style="font-weight:600;color:var(--accent)">0.89</td></tr><tr><td class="num">imp_kurt</td><td class="n" style="">0.59</td><td class="n" style="">0.65</td><td class="n" style="">0.60</td><td class="n" style="">0.65</td><td class="n" style="font-weight:600;color:var(--accent)">0.78</td><td class="n" style="">0.60</td></tr><tr><td class="num">rep_ici_ms</td><td class="n" style="">0.52</td><td class="n" style="">0.58</td><td class="n" style="">0.58</td><td class="n" style="">0.52</td><td class="n" style="font-weight:600;color:var(--accent)">0.76</td><td class="n" style="">0.58</td></tr><tr><td class="num">rep_prr_hz</td><td class="n" style="">0.59</td><td class="n" style="">0.64</td><td class="n" style="">0.54</td><td class="n" style="">0.59</td><td class="n" style="">0.56</td><td class="n" style="">0.53</td></tr><tr><td class="num">rep_prr_prom</td><td class="n" style="">0.57</td><td class="n" style="">0.65</td><td class="n" style="">0.67</td><td class="n" style="">0.58</td><td class="n" style="">0.69</td><td class="n" style="">0.72</td></tr><tr><td class="num">harm</td><td class="n" style="">0.59</td><td class="n" style="">0.62</td><td class="n" style="">0.52</td><td class="n" style="font-weight:600;color:var(--accent)">0.83</td><td class="n" style="">0.51</td><td class="n" style="">0.51</td></tr><tr><td class="num">harm_spacing_hz</td><td class="n" style="">0.60</td><td class="n" style="">0.68</td><td class="n" style="">0.73</td><td class="n" style="">0.61</td><td class="n" style="">0.57</td><td class="n" style="">0.69</td></tr><tr><td class="num">fpk_over_spacing</td><td class="n" style="">0.73</td><td class="n" style="font-weight:600;color:var(--accent)">0.82</td><td class="n" style="">0.60</td><td class="n" style="font-weight:600;color:var(--accent)">0.79</td><td class="n" style="">0.61</td><td class="n" style="font-weight:600;color:var(--accent)">0.90</td></tr><tr><td class="num">tonal_frac</td><td class="n" style="">0.70</td><td class="n" style="">0.75</td><td class="n" style="">0.53</td><td class="n" style="font-weight:600;color:var(--accent)">0.92</td><td class="n" style="">0.72</td><td class="n" style="font-weight:600;color:var(--accent)">0.89</td></tr><tr><td class="num">contour_cont</td><td class="n" style="">0.63</td><td class="n" style="">0.62</td><td class="n" style="">0.62</td><td class="n" style="font-weight:600;color:var(--accent)">0.76</td><td class="n" style="">0.69</td><td class="n" style="">0.64</td></tr><tr><td class="num">fm_oct_s</td><td class="n" style="">0.60</td><td class="n" style="">0.53</td><td class="n" style="">0.75</td><td class="n" style="font-weight:600;color:var(--accent)">0.77</td><td class="n" style="">0.62</td><td class="n" style="">0.60</td></tr><tr><td class="num">f50_khz</td><td class="n" style="">0.73</td><td class="n" style="font-weight:600;color:var(--accent)">0.79</td><td class="n" style="">0.57</td><td class="n" style="font-weight:600;color:var(--accent)">0.81</td><td class="n" style="">0.57</td><td class="n" style="font-weight:600;color:var(--accent)">0.90</td></tr><tr><td class="num">env_crest</td><td class="n" style="">0.60</td><td class="n" style="">0.69</td><td class="n" style="">0.72</td><td class="n" style="font-weight:600;color:var(--accent)">0.91</td><td class="n" style="">0.62</td><td class="n" style="font-weight:600;color:var(--accent)">0.86</td></tr></tbody></table></div><p class="note" style="margin-top:8px">whistle vs pulsed call은 fpk_over_spacing 0.82(whistle 23 vs pulsed call 2.3: pulsed call은 하모닉 간격이 최대 주파수에 가까운 저차 계열)로 가장 잘 갈립니다. moan vs growl은 fm_oct_s 0.75 · harm_spacing 0.73 · env_crest 0.72로 일부 갈립니다(기존 최고 0.67). 표본 안 값입니다.</p></div>
+<div class="panel"><h3>속성이 혼합 클립을 드러내는가</h3><div class="tablewrap"><table><thead><tr><th>메모 라벨</th><th class="n">클립</th><th class="n">음조 프레임 비율 (중앙값)</th><th class="n">충격성 프레임 비율</th><th class="n">둘 다 ≥ 20 %</th></tr></thead><tbody><tr><td>단일: tonal (whistle·moan)</td><td class="n">852</td><td class="n">0.89</td><td class="n">0.11</td><td class="n"><b>34%</b></td></tr><tr><td>단일: impulsive (click·pulse train)</td><td class="n">407</td><td class="n">0.10</td><td class="n">0.91</td><td class="n"><b>31%</b></td></tr><tr><td>복수: tonal + impulsive 기재</td><td class="n">1078</td><td class="n">0.68</td><td class="n">0.33</td><td class="n"><b>53%</b></td></tr><tr><td>복수: tonal만 여러 개</td><td class="n">39</td><td class="n">1.00</td><td class="n">0.00</td><td class="n"><b>8%</b></td></tr></tbody></table></div><p class="note" style="margin-top:8px">메모에 tonal과 impulsive가 함께 적힌 클립은 53 %가 두 속성을 모두 보입니다. 단일 라벨 클립도 31–35 %가 두 속성을 함께 보여, "메모에 하나만 적힘 ≠ 소리가 하나"라는 지적을 뒷받침합니다(배경 잡음 · 기록되지 않은 클릭 포함 가능).</p></div>
+<div class="panel"><h3>멀티라벨 "있음/없음" 판정 (단일 + 복수 라벨 3,318클립, 출처 단위, AUROC)</h3><div class="tablewrap"><table><thead><tr><th>대상</th><th class="n">양성</th><th class="n">메타데이터</th><th class="n">물리 특징 51</th><th class="n">속성 13</th><th class="n">속성 13 + 메타</th></tr></thead><tbody><tr><td>tonal 있음 (whistle·moan)</td><td class="n">2,026 / 3,318</td><td class="n" style="">0.639</td><td class="n" style="">0.718</td><td class="n" style="font-weight:600;color:var(--accent)">0.749</td><td class="n" style="">0.780</td></tr><tr><td>impulsive 있음 (click·pulse train)</td><td class="n">1,793 / 3,318</td><td class="n" style="">0.814</td><td class="n" style="">0.865</td><td class="n" style="font-weight:600;color:var(--accent)">0.894</td><td class="n" style="">0.893</td></tr><tr><td>pulsed 있음 (pulsed call·growl)</td><td class="n">665 / 3,318</td><td class="n" style="">0.810</td><td class="n" style="">0.769</td><td class="n" style="font-weight:600;color:var(--accent)">0.832</td><td class="n" style="">0.832</td></tr></tbody></table></div><p class="note" style="margin-top:8px">배타적 범주 대신 속성마다 있음/없음을 따로 판정하면, 복수 라벨 클립까지 평가에 넣을 수 있습니다. 13개 속성이 51개 물리 특징과 메타데이터보다 높습니다. 다만 pulsed 있음은 메타데이터만으로도 0.81이라 녹음 조건과 얽혀 있습니다. 신뢰구간 미산출.</p></div>
+<div class="panel"><h3>다음: 전문가 검증셋</h3><p>콜 타입별 최대 20클립(출처 10–17개에 분산, 속성과 메모가 어긋나는 후보 26개 포함)을 고른 표기 목록 <span class="num">gold_candidates_v1.csv</span>를 만들었습니다. 이벤트 시작 · 끝, 충격성 · 펄스 반복률 · 하모닉성 · 윤곽, 복수 신호 여부, 확신도(1–3)를 적는 칸이 있습니다.</p></div>
+</section>
+<!-- ============================== GLOSSARY -->
+<section class="tab" id="t-ref" role="tabpanel" hidden>
+  <h2>용어와 참고문헌</h2>
+  <div class="grid2">
+    <div class="panel"><h3>용어</h3><dl class="kv">
+      <dt>녹음 비독립성</dt><dd>pseudoreplication. 같은 녹음에서 잘린 클립을 독립 표본처럼 다룸 (Hurlbert 1984)</dd>
+      <dt>데이터 누수</dt><dd>data leakage. 학습과 평가 자료가 겹쳐 성능이 과대추정됨 (Kapoor &amp; Narayanan 2023)</dd>
+      <dt>녹음 조건 편향</dt><dd>recording bias. 샘플레이트 · 클립 길이가 종과 얽혀 소리 대신 녹음 조건으로 판별</dd>
+      <dt>지름길 학습</dt><dd>shortcut learning (Geirhos et al. 2020)</dd>
+      <dt>linear probe</dt><dd>고정된 표현 위에 선형 분류기만 학습해 표현이 담은 정보를 재는 방법</dd>
+      <dt>녹음 출처</dt><dd>테이프 · 음원 해시 · 날짜 · 장소명 · 1° 격자 · 원정으로 연결한 녹음 묶음 49개</dd>
+      <dt>AUROC</dt><dd>단일 값의 판별력. 0.5 = 무작위, 1 = 완전 구분</dd>
+      <dt>TC</dt><dd>tonal concentration, 음조 집중도. 활동 프레임에서 가장 센 칸 주변 3칸에 모인 에너지 비율의 중앙값</dd>
+      <dt>Tonal · Impulsive · Pulsed</dt><dd>본 연구의 신호 유형 재분류 (whistle · moan / click · pulse train / pulsed call · growl)</dd>
+    </dl></div>
+    <div class="panel"><h3>참고문헌</h3><ul class="tight note" id="refs"></ul></div>
+  </div>
+  <div class="panel"><h3>이 페이지의 소리와 스펙트로그램</h3>
+    <ul class="tight note">
+      <li>소리: 표본 3,539클립의 청취용 변환본(Opus, 앞 15초). 48 kHz 이하로 재표본화되므로 24 kHz 위 성분은 들리지 않습니다. 분석에는 원본 FLAC을 썼습니다.</li>
+      <li>지도 · 검사창의 스펙트로그램: 원 샘플레이트에서 계산한 축소판(앞 15초, 세로 0 – fs/2 선형, 시간 방향 최댓값 축소로 click 보존).</li>
+      <li>로컬 원음 모드: 이 HTML과 spec_*.png를 한 폴더에 두고, 같은 폴더의 <span class="num">audio_core/</span>에 원본 FLAC(<span class="num">cut_id.flac</span>)을 넣어 파일로 열면 원음을 재생합니다.</li>
+    </ul></div>
+  <footer class="foot">자료: Watkins Marine Mammal Sound Database (WHOI), Earth Species Project 공개본 v0.1.0. 계산: 2026-10 스크리닝 작업 (linear probe 결과는 reference_v1 실행, 콜 타입 6종 · 공통 대역 · 지도 · Tonal vs Pulsed는 이후 재계산).</footer>
+</section>
+</div>
+
+<script>
+const DATA=/*DATA*/null;
+const MAPS=/*MAPS*/null;
+const PHYS=/*PHYS*/null;
+const MEDIA=/*MEDIA*/null;
+</script>
+<script>
+(function(){
+"use strict";
+const $=s=>document.querySelector(s), el=(t,a={},h)=>{const e=document.createElement(t);for(const k in a){if(k==='class')e.className=a[k];else if(k==='style')e.style.cssText=a[k];else e.setAttribute(k,a[k]);}if(h!=null)e.innerHTML=h;return e;};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const f2=v=>v==null||isNaN(v)?'–':(+v).toFixed(2), f3=v=>v==null||isNaN(v)?'–':(+v).toFixed(3);
+const C=DATA.clips, N=C.id.length, IDX={}; C.id.forEach((c,i)=>IDX[c]=i);
+const FEAT={meta:'메타데이터 baseline',physv0:'물리 특징 51',mfcc16k:'MFCC',vggish:'VGGish',effb3:'EfficientNet-B3',ast_tile:'AST'};
+const FEATS=['meta','physv0','mfcc16k','vggish','effb3','ast_tile'];
+const TXK={Odontoceti:'이빨고래류',Mysticeti:'수염고래류',Pinnipedia:'기각류'};
+const TYK={whistle:'whistle',moan:'moan',click:'click',pulse_train:'pulse train',pulsed_call:'pulsed call',growl:'growl',song:'song',bark:'bark'};
+const fam=fs=>fs<=7000?'5k':fs<=14000?'10k':fs<=28000?'20k':fs<=56000?'40k':fs<=112000?'80k':'160k';
+/* ---------- tabs */
+const TABS=[['overview','개요'],['data','데이터 · 출처'],['probe','Linear probe'],['maps','임베딩 지도'],['ct6','콜 타입 6종'],['signal','신호 유형 · Tonal vs Pulsed'],['phys','물리 특징 예시'],['check','1단계 점검'],['check2','2단계 점검'],['ref','용어 · 참고']];
+const rail=$('#tabrail'), drawn={};
+function show(id){TABS.forEach(([t])=>{$('#t-'+t).hidden=t!==id; rail.querySelector('[data-t="'+t+'"]').setAttribute('aria-selected',t===id);});
+  try{localStorage.setItem('wk-tab',id)}catch(e){}
+  if(!drawn[id]){drawn[id]=1; (INIT[id]||(()=>{}))();} if(id==='maps') drawMap();}
+TABS.forEach(([t,l])=>{const b=el('button',{role:'tab','data-t':t,'aria-selected':'false'},l); b.onclick=()=>{show(t); history.replaceState(null,'','#'+t);}; rail.appendChild(b);});
+/* ---------- media */
+const LUT=(()=>{const st=[[0,[247,251,255]],[.35,[158,202,225]],[.6,[66,146,198]],[.82,[8,81,156]],[1,[8,32,72]]];const o=[];for(let i=0;i<256;i++){const t=i/255;let k=0;while(k<st.length-2&&t>st[k+1][0])k++;const [a,ca]=st[k],[b,cb]=st[k+1];const u=(t-a)/(b-a);o.push(ca.map((v,j)=>Math.round(v+(cb[j]-v)*u)));}return o;})();
+const sheets=[]; const local=location.protocol==='file:';
+function sheet(k){if(!sheets[k]){sheets[k]=new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=rej;im.src='spec_'+k+'.png';});}return sheets[k];}
+const bundles={};
+function bundle(b){if(!bundles[b])bundles[b]=fetch('audio_'+b+'.webm').then(r=>{if(!r.ok)throw new Error(r.status);return r.arrayBuffer();});return bundles[b];}
+let curAudio=null, curURL=null;
+async function play(id,btn){
+  const m=MEDIA.idx[id]; if(!m) return;
+  if(curAudio){curAudio.pause(); curAudio=null;}
+  const label=btn.textContent; btn.disabled=true; btn.textContent='불러오는 중…';
+  try{
+    let src;
+    if(local){src='audio_core/'+id+'.flac';}
+    else{const buf=await bundle(m.b); if(curURL)URL.revokeObjectURL(curURL); curURL=URL.createObjectURL(new Blob([buf.slice(m.o,m.o+m.l)],{type:'audio/webm'})); src=curURL;}
+    const a=new Audio(src); curAudio=a; btn.textContent='■ 정지'; btn.disabled=false;
+    btn.onclick=()=>{a.pause(); reset();};
+    const reset=()=>{btn.textContent=label; btn.onclick=()=>play(id,btn);};
+    a.onended=reset; a.onerror=()=>{btn.textContent='재생할 수 없음 (Chrome · Edge · Firefox 권장)'; btn.disabled=true;};
+    await a.play();
+  }catch(e){btn.textContent='불러오지 못함'; btn.disabled=false; btn.onclick=()=>play(id,btn);}
+}
+function drawSpec(canvas,id){
+  const m=MEDIA.idx[id]; const ctx=canvas.getContext('2d'); const W=canvas.width=MEDIA.tw*3, H=canvas.height=MEDIA.fh*3;
+  ctx.fillStyle='#F7FBFF'; ctx.fillRect(0,0,W,H); if(!m) return;
+  sheet(m.s).then(im=>{ctx.imageSmoothingEnabled=true; ctx.drawImage(im,m.c*MEDIA.tw,m.r*MEDIA.fh,MEDIA.tw,MEDIA.fh,0,0,W,H);
+    const fs=C.fs[IDX[id]]; ctx.fillStyle='rgba(8,32,72,.85)'; ctx.font='11px IBM Plex Mono, monospace';
+    ctx.fillText((fs/2000).toFixed(fs/2000<10?1:0)+' kHz',4,12); ctx.fillText('0',4,H-4); const d=m.d; ctx.textAlign='right'; ctx.fillText(d.toFixed(1)+' s',W-4,H-4);});
+}
+function inspector(box,id){
+  const i=IDX[id]; box.innerHTML='';
+  if(i==null){box.appendChild(el('p',{class:'note'},'지도에서 점을 누르면 그 클립의 스펙트로그램과 소리, 메타데이터가 여기에 나옵니다.'));return;}
+  box.appendChild(el('div',{},`<div class="note num">${id}</div><h3 style="margin:2px 0 0">${C.sp[i]} <span class="note">${C.spe[i]}</span></h3>`));
+  const cv=el('canvas',{class:'spec','aria-label':'스펙트로그램'}); box.appendChild(cv); drawSpec(cv,id);
+  const b=el('button',{class:'btn',type:'button'},'▶ 소리 듣기'); b.onclick=()=>play(id,b); box.appendChild(b);
+  const typ=C.type[i]?TYK[C.type[i]]||C.type[i]:(C.multi[i]?'복수: '+C.multi[i].split(';').map(x=>TYK[x]||x).join(' · '):'–');
+  box.appendChild(el('dl',{class:'kv'},`<dt>분류군</dt><dd>${TXK[C.tx[i]]||C.tx[i]}</dd><dt>콜 타입</dt><dd>${typ}${C.sig[i]?' <span class="tag">'+C.sig[i]+'</span>':''}</dd><dt>샘플레이트</dt><dd class="num">${(C.fs[i]/1000).toFixed(1)} kHz</dd><dt>길이</dt><dd class="num">${C.dur[i]} s</dd><dt>녹음 출처</dt><dd class="num">${C.site[i]} · ${C.split[i]==='dev'?'개발':'검증'}</dd><dt>장소 · 연도</dt><dd>${C.loc[i]||'–'} ${C.year[i]||''}</dd>`));
+  if(C.note[i]) box.appendChild(el('div',{class:'memo'},C.note[i]));
+}
+/* ---------- helpers */
+function dotChart(rows,title,chance){ // rows: [{lab, a, b, lo, hi, base}]
+  const W=360,rowH=26,top=26,left=118,right=14,H=top+rows.length*rowH+30; const x=v=>left+(W-left-right)*v;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${title}">`;
+  [0,.25,.5,.75,1].forEach(t=>{s+=`<line class="ax" x1="${x(t)}" x2="${x(t)}" y1="${top-6}" y2="${H-24}"/><text class="tick" x="${x(t)}" y="${H-10}" text-anchor="middle">${t}</text>`;});
+  if(chance!=null) s+=`<line x1="${x(chance)}" x2="${x(chance)}" y1="${top-6}" y2="${H-24}" stroke="var(--muted)" stroke-dasharray="2 3"/><text class="tick" x="${x(chance)+3}" y="${top-10}">chance</text>`;
+  const base=rows.find(r=>r.base); if(base&&base.b!=null) s+=`<line x1="${x(base.b)}" x2="${x(base.b)}" y1="${top-6}" y2="${H-24}" stroke="var(--warn)" stroke-width="1.5"/>`;
+  rows.forEach((r,k)=>{const y=top+k*rowH+rowH/2;
+    s+=`<text x="${left-8}" y="${y+4}" text-anchor="end" style="font-size:12px">${r.lab}</text>`;
+    if(r.lo!=null) s+=`<line x1="${x(r.lo)}" x2="${x(r.hi)}" y1="${y}" y2="${y}" stroke="var(--accent)" stroke-width="2"/>`;
+    if(r.a!=null) s+=`<circle cx="${x(r.a)}" cy="${y}" r="5" fill="none" stroke="var(--muted)" stroke-width="1.5"/>`;
+    if(r.b!=null) s+=`<circle cx="${x(r.b)}" cy="${y}" r="5" fill="${r.base?'var(--warn)':'var(--accent)'}"/>`;});
+  return `<div class="panel"><h3>${title}</h3>${s}</svg></div>`;
+}
+const pct=v=>Math.round(v*100);
+function heat(v){const a=Math.min(1,v); return `background:color-mix(in srgb, var(--accent) ${Math.round(a*85)}%, transparent);color:${a>.5?'var(--panel)':'var(--ink)'}`;}
+const parseCI=s=>typeof s==='string'?JSON.parse(s):s;
+/* ---------- INIT per tab */
+const INIT={};
+INIT.overview=()=>{
+  const P=DATA.probe, g=(t,p,f)=>P.find(r=>r.task===t&&r.prot===p&&r.feat===f);
+  const sp=FEATS.slice(1), rng=(t,p)=>{const v=sp.map(f=>g(t,p,f).ba);return f2(Math.min(...v))+'–'+f2(Math.max(...v));};
+  const ct=DATA.ct6.allcv, s3=DATA.signal3['3_site_fs40k'];
+  const s3v=FEATS.slice(1).filter(f=>s3.feat[f]).map(f=>s3.feat[f].ba);
+  const stats=[[rng('species','filecv'),'종 10개 · 클립 랜덤 분할 BA (5개 표현)'],[rng('species','allcv'),'같은 과제 · 출처 단위 분할 BA'],[f2(g('species','allcv','meta').ba),'음원 없는 메타데이터 baseline (출처 단위)'],
+    [f2(ct.effb3.ba6)+' / '+f2(ct.meta.ba6),'콜 타입 6종 · EfficientNet-B3 vs baseline (출처 단위)'],[f2(Math.min(...s3v))+'–'+f2(Math.max(...s3v)),'40 kHz 계열 신호 유형 3분류 BA (baseline '+f2(s3.feat.meta.ba)+')'],['18 / 36','출처가 1개뿐인 종']];
+  const box=$('#ov-stats'); stats.forEach(([v,l])=>box.appendChild(el('div',{class:'panel stat'},`<div class="big">${v}</div><div class="lab">${l}</div>`)));
+  const map=[['데이터 · 출처','클립 구성, 녹음 출처 규모, 종별 출처 수, 분류군별 샘플레이트','7, 11, 부록 A15'],['Linear probe','여섯 표현 × 세 과제 × 분할별 BA와 CI, 클래스별 재현율, 선행연구 절차 재현','8, 12, 부록 A6–A7'],
+    ['임베딩 지도','PCA · t-SNE · UMAP(비지도 · 지도 · 개발→검증 투영), 점을 눌러 청취, 최근접 이웃','13'],['콜 타입 6종','표현별 혼동 행렬, 6종 · 3유형 · 유형 안 세부 콜 BA','15, 부록 A8–A13'],
+    ['신호 유형 · Tonal vs Pulsed','샘플레이트 계열별 3분류, 펄스 구조 특징 시험(신규), 공통 대역 검증','14, 18, 부록 A14'],['2단계 점검','Nyquist 결측 처리, band SNR 재정의, EfficientNet 전처리 복원(cos 0.995), 속성 기반 라벨','–'],['1단계 점검','리뷰 지적 검증: 종×fold, 출처 정의 민감도, 메타/음향/둘 다, PCA, 물리 특징 소거, 임계값, A7 재계산','–'],['물리 특징 예시','콜 타입별 예시 3개(청취), 핵심 특징 분포, 51개 특징 사전','10, 16, 부록 A5']];
+  map.forEach(r=>$('#ov-map').appendChild(el('tr',{},`<td>${r[0]}</td><td>${r[1]}</td><td class="num">${r[2]}</td>`)));
+};
+INIT.data=()=>{
+  const c=DATA.counts; [[c.all.toLocaleString(),'전체 클립 · 49종'],[c.main.toLocaleString(),'분석 대상 · '+c.species_main+'종 · 출처 '+c.sites+'개'],[c.core.toLocaleString(),'표본 (지도 · probe에 사용)']].forEach(([v,l])=>$('#data-stats').appendChild(el('div',{class:'panel stat'},`<div class="big">${v}</div><div class="lab">${l}</div>`)));
+  const F=['5k','10k','20k','40k','80k','160k'], cols=['#DCEBF7','#A9CDEB','#6FA8DC','#3D7CC9','#0B4EA2','#062C5E'];
+  let s='<svg viewBox="0 0 520 150" width="100%" role="img" aria-label="분류군별 샘플레이트">';
+  ['Odontoceti','Mysticeti','Pinnipedia'].forEach((g,k)=>{const row=DATA.fs_taxon[g], n=F.reduce((a,f)=>a+row[f],0); let x=96; const y=12+k*36;
+    s+=`<text x="88" y="${y+16}" text-anchor="end" style="font-size:12.5px">${TXK[g]}</text>`;
+    F.forEach((f,j)=>{const w=360*row[f]/n; if(w>0){s+=`<rect x="${x}" y="${y}" width="${w}" height="24" fill="${cols[j]}" stroke="var(--panel)"/>`; if(w>26)s+=`<text x="${x+w/2}" y="${y+16}" text-anchor="middle" style="font-size:11px;fill:${j>=3?'#fff':'#18212D'}">${Math.round(100*row[f]/n)}</text>`;} x+=w;});
+    s+=`<text class="tick" x="462" y="${y+16}">n=${n.toLocaleString()}</text>`;});
+  F.forEach((f,j)=>{s+=`<rect x="${96+j*62}" y="128" width="10" height="10" fill="${cols[j]}"/><text class="tick" x="${110+j*62}" y="137">${f.replace('k',' kHz')}</text>`;});
+  $('#fs-bars').innerHTML=s+'</svg>';
+  const st=$('#site-table'); st.innerHTML='<thead><tr><th>출처</th><th class="n">클립</th><th class="n">종</th><th class="n">테이프</th><th class="n">장소</th><th class="n">연도</th><th>분류군</th></tr></thead>';
+  const tb=el('tbody'); DATA.sites.slice(0,12).forEach(r=>tb.appendChild(el('tr',{},`<td class="num">${r.g_site}</td><td class="n">${r.n.toLocaleString()}</td><td class="n">${r.sp}</td><td class="n">${r.tapes}</td><td class="n">${r.locs}</td><td class="n">${r.y0&&r.y1?(r.y0===r.y1?r.y0:r.y0+'–'+String(r.y1).slice(2)):'–'}</td><td>${r.tx.split('/').map(t=>TXK[t]||t).join(' · ')}</td>`))); st.appendChild(tb);
+  const sp=$('#species-table'); sp.innerHTML='<thead><tr><th>종</th><th>분류군</th><th class="n">클립</th><th class="n">출처 수</th><th class="n">최다 출처 비율</th></tr></thead>';
+  const tb2=el('tbody'); DATA.species.forEach(r=>tb2.appendChild(el('tr',{},`<td>${r.species_ko} <span class="note">${r.species_en}</span></td><td>${TXK[r.group3]}</td><td class="n">${r.n.toLocaleString()}</td><td class="n">${r.src}</td><td class="n">${f2(r.top)}</td>`))); sp.appendChild(tb2);
+};
+INIT.probe=()=>{
+  const draw=()=>{const cmp=$('#probe-cmp').value, P=DATA.probe; const T=[['group3','분류군 (3)'],['species','종 (10)'],['type_single','콜 타입 (7)']];
+    let h=''; T.forEach(([t,lab])=>{const rows=FEATS.map(f=>{const a=P.find(r=>r.task===t&&r.prot==='filecv'&&r.feat===f), b=P.find(r=>r.task===t&&r.prot===cmp&&r.feat===f);return {lab:FEAT[f],a:a&&a.ba,b:b&&b.ba,lo:b&&b.lo,hi:b&&b.hi,base:f==='meta'};});
+      const ch=(P.find(r=>r.task===t&&r.prot===cmp)||{}).chance; h+=dotChart(rows,lab,ch);}); $('#probe-charts').innerHTML=h;
+    const tb=$('#probe-table'); tb.innerHTML=`<thead><tr><th>과제</th><th>표현</th><th class="n">클립 랜덤</th><th class="n">${$('#probe-cmp').selectedOptions[0].text.split(' (')[0]}</th><th class="n">95% CI</th><th class="n">Δ baseline</th><th class="n">Δ 95% CI</th><th class="n">클립 · 출처</th></tr></thead>`;
+    const body=el('tbody'); T.forEach(([t,lab])=>FEATS.forEach(f=>{const a=P.find(r=>r.task===t&&r.prot==='filecv'&&r.feat===f), b=P.find(r=>r.task===t&&r.prot===cmp&&r.feat===f); if(!b)return; const sig=b.d!=null&&(b.dlo>0||b.dhi<0);
+      body.appendChild(el('tr',{class:f==='meta'?'base':''},`<td>${f==='meta'?lab:''}</td><td>${FEAT[f]}</td><td class="n">${f3(a&&a.ba)}</td><td class="n"><b>${f3(b.ba)}</b></td><td class="n">${f2(b.lo)}–${f2(b.hi)}</td><td class="n ${sig?'sigd':''}">${f==='meta'?'':(b.d>0?'+':'')+f3(b.d)}</td><td class="n">${f==='meta'?'':f2(b.dlo)+' – '+f2(b.dhi)}</td><td class="n">${b.n.toLocaleString()} · ${b.sites}</td>`));})); tb.appendChild(body);};
+  $('#probe-cmp').onchange=draw; draw();
+  const pc=()=>{const t=$('#pc-task').value,p=$('#pc-prot').value; const R=DATA.per_class.filter(r=>r.task===t&&r.prot===p); const cls=[...new Set(R.map(r=>r.cls))];
+    let h='<thead><tr><th>클래스</th><th class="n">n</th>'+FEATS.map(f=>`<th class="n">${FEAT[f]}</th>`).join('')+'</tr></thead><tbody>';
+    cls.forEach(c=>{const n=(R.find(r=>r.cls===c)||{}).n; h+=`<tr><td>${TXK[c]||TYK[c]||c}</td><td class="n">${n}</td>`+FEATS.map(f=>{const r=R.find(x=>x.cls===c&&x.feat===f);return r?`<td class="n" style="${heat(r.v)}">${f2(r.v)}</td>`:'<td class="n">–</td>';}).join('')+'</tr>';});
+    $('#pc-table').innerHTML=h+'</tbody>';};
+  $('#pc-task').onchange=pc; $('#pc-prot').onchange=pc; pc();
+  const A=DATA.a7; let h='<thead><tr><th>평가 방식</th><th>분할</th>'+A.cols.map(c=>`<th class="n">${c}</th>`).join('')+'</tr></thead><tbody>';
+  A.rows.forEach(r=>{const mx=Math.max(...r[2].slice(1)); h+=`<tr><td>${r[0]}</td><td>${r[1]}</td>`+r[2].map((v,j)=>`<td class="n" style="${j===0&&v>=mx?'background:var(--soft);font-weight:600':''}">${v.toFixed(2)}</td>`).join('')+'</tr>';});
+  $('#a7-table').innerHTML=h+'</tbody>';
+};
+/* ---------- maps */
+const PALQ=['#0B4EA2','#00A3D7','#E07B00','#1C7C54','#B23A48','#7A6A9E','#8C6D1F','#2E8B8B','#C2185B','#5C6B79','#6A994E','#9C4F96'];
+let mapState=null;
+function colorOf(mode){
+  const tx={Odontoceti:css('--odo'),Mysticeti:css('--mys'),Pinnipedia:css('--pin')};
+  const other=css('--line');
+  if(mode==='tx') return {col:i=>tx[C.tx[i]]||other, leg:Object.keys(tx).map(k=>[TXK[k],tx[k]])};
+  if(mode==='sig'){const p={tonal:'#0B4EA2',impulsive:'#E07B00',pulsed:'#1C7C54'}; return {col:i=>p[C.sig[i]]||other, leg:[['Tonal',p.tonal],['Impulsive',p.impulsive],['Pulsed',p.pulsed],['복수 · 미기재',other]]};}
+  if(mode==='type'){const ks=['whistle','moan','click','pulse_train','pulsed_call','growl','song','bark']; const p={}; ks.forEach((k,j)=>p[k]=PALQ[j]); return {col:i=>p[C.type[i]]||other, leg:ks.map(k=>[TYK[k],p[k]]).concat([['복수 · 미기재',other]])};}
+  if(mode==='fam'){const ks=['5k','10k','20k','40k','80k','160k'],cc=['#9BC2E6','#5B9BD5','#2E75B6','#E07B00','#B23A48','#5C2A72'];const p={};ks.forEach((k,j)=>p[k]=cc[j]); return {col:i=>p[fam(C.fs[i])], leg:ks.map((k,j)=>[k.replace('k',' kHz'),cc[j]])};}
+  if(mode==='split'){const p={dev:css('--muted'),test:'#E07B00'}; return {col:i=>p[C.split[i]], leg:[['개발 출처 29',p.dev],['검증 출처 20',p.test]]};}
+  const key=mode==='site'?C.site:C.sp; const cnt={}; key.forEach(k=>cnt[k]=(cnt[k]||0)+1); const top=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]).slice(0,12); const p={}; top.forEach((k,j)=>p[k]=PALQ[j]);
+  return {col:i=>p[key[i]]||other, leg:top.map(k=>[k+' ('+cnt[k]+')',p[k]]).concat([['기타',other]])};
+}
+function drawMap(){
+  if(!mapState) return; const {canvas}=mapState; const rep=$('#m-rep').value, meth=$('#m-meth').value, mode=$('#m-col').value;
+  const xy=MAPS.maps[rep][meth]; const box=canvas.getBoundingClientRect(); const dpr=window.devicePixelRatio||1; const W=box.width,H=box.height; canvas.width=W*dpr; canvas.height=H*dpr;
+  const ctx=canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,W,H); const pad=14; const sx=v=>pad+(W-2*pad)*v/9999, sy=v=>H-pad-(H-2*pad)*v/9999;
+  const {col,leg}=colorOf(mode); const q=($('#m-find').value||'').trim().toLowerCase();
+  const hit=q?(i=>C.id[i].toLowerCase().includes(q)||C.sp[i].toLowerCase().includes(q)||C.spe[i].toLowerCase().includes(q)):null;
+  const qs=a=>{const s=[...a].sort((p,q)=>p-q);return [s[Math.floor(s.length*.005)],s[Math.ceil(s.length*.995)-1]];}; const [x0,x1]=qs(xy[0]),[y0,y1]=qs(xy[1]);
+  const nx=v=>Math.max(0,Math.min(9999,(v-x0)/(x1-x0||1)*9999)), ny=v=>Math.max(0,Math.min(9999,(v-y0)/(y1-y0||1)*9999));
+  const P=[]; for(let i=0;i<N;i++) P.push([sx(nx(xy[0][i])),sy(ny(xy[1][i]))]); mapState.P=P;
+  const devmap=meth==='umap_sup_dev';
+  const order=[...Array(N).keys()]; if(devmap) order.sort((a,b)=>(C.split[a]==='test')-(C.split[b]==='test'));
+  order.forEach(i=>{let c=col(i), r=2.2, a=.85; if(hit){if(!hit(i)){a=.12;}else{r=3.2;a=1;}} if(devmap&&C.split[i]==='dev'&&mode!=='split'&&!hit){a=.25;}
+    ctx.globalAlpha=a; ctx.fillStyle=c; ctx.beginPath(); ctx.arc(P[i][0],P[i][1],r,0,6.283); ctx.fill();});
+  ctx.globalAlpha=1;
+  if(mapState.sel!=null){const [x,y]=P[mapState.sel]; ctx.strokeStyle=css('--ink'); ctx.lineWidth=2; ctx.beginPath(); ctx.arc(x,y,7,0,6.283); ctx.stroke();}
+  $('#m-legend').innerHTML=leg.map(([l,c])=>`<span><i style="background:${c}"></i>${l}</span>`).join('');
+  const sc=MAPS.score[rep][meth]; let t=`<b>${FEAT[rep]} · ${$('#m-meth').selectedOptions[0].text}</b> — kNN-15 BA: 종 ${f2(sc.species)}, 분류군 ${f2(sc.taxon)}`;
+  if(sc.test_species!=null) t+=`; 검증 출처 종 BA <b>${f2(sc.test_species)}</b> (개발 출처 안 ${f2(sc.dev_species)})`;
+  if(sc.test_species_from_dev!=null) t+=`; 개발로 학습 → 검증 출처 종 BA ${f2(sc.test_species_from_dev)}`;
+  if(devmap) t+='. 진한 점 = 검증 출처 20개(학습에 쓰지 않음), 연한 점 = 개발 출처.';
+  if(meth==='umap_sup') t+='. 종 라벨을 쓴 지도이므로 분리가 좋아 보이는 것은 당연합니다.'; t+=' 축 범위는 0.5–99.5 백분위로 잘랐습니다(바깥 점은 가장자리에 표시).';
+  $('#m-score').innerHTML=t;
+}
+INIT.maps=()=>{
+  const rs=$('#m-rep'); ['physv0','mfcc16k','vggish','effb3','ast_tile'].forEach(f=>rs.appendChild(el('option',{value:f},FEAT[f]))); rs.value='vggish';
+  const canvas=$('#m-canvas'); mapState={canvas,sel:null};
+  ['m-rep','m-meth','m-col'].forEach(id=>$('#'+id).onchange=drawMap); $('#m-find').oninput=drawMap;
+  const near=(ev)=>{const b=canvas.getBoundingClientRect(),x=ev.clientX-b.left,y=ev.clientY-b.top; let bi=-1,bd=81; mapState.P.forEach((p,i)=>{const d=(p[0]-x)**2+(p[1]-y)**2; if(d<bd){bd=d;bi=i;}}); return [bi,x,y];};
+  canvas.onmousemove=ev=>{const [i,x,y]=near(ev), tip=$('#m-tip'); if(i<0){tip.hidden=true;return;} tip.hidden=false; tip.style.left=x+'px'; tip.style.top=y+'px'; tip.textContent=`${C.sp[i]} · ${C.type[i]?TYK[C.type[i]]:'–'} · ${(C.fs[i]/1000).toFixed(0)} kHz · ${C.site[i]}`;};
+  canvas.onmouseleave=()=>$('#m-tip').hidden=true;
+  canvas.onclick=ev=>{const [i]=near(ev); if(i<0)return; mapState.sel=i; drawMap(); inspector($('#m-insp'),C.id[i]);};
+  window.addEventListener('resize',()=>{if(!$('#t-maps').hidden)drawMap();});
+  inspector($('#m-insp'),null);
+  const meths=[['pca','PCA'],['tsne','t-SNE'],['umap','UMAP 비지도'],['umap_sup','UMAP 지도'],['umap_sup_dev','지도 · 개발→검증']];
+  let h='<thead><tr><th>표현</th>'+meths.map(m=>`<th class="n">${m[1]}<br>종 · 분류군</th>`).join('')+'<th class="n">검증 출처<br>종 BA</th></tr></thead><tbody>';
+  ['physv0','mfcc16k','vggish','effb3','ast_tile'].forEach(r=>{const s=MAPS.score[r]; h+=`<tr><td>${FEAT[r]}</td>`+meths.map(m=>`<td class="n">${f2(s[m[0]].species)} · ${f2(s[m[0]].taxon)}</td>`).join('')+`<td class="n"><b>${f2(s.umap_sup_dev.test_species)}</b></td></tr>`;});
+  $('#m-score-table').innerHTML=h+'</tbody>';
+  let n='<thead><tr><th>표현</th><th class="n">같은 종 (전체 이웃)</th><th class="n">같은 출처</th><th class="n">같은 종 (다른 출처 이웃만)</th><th class="n">같은 종 (다출처 종만)</th></tr></thead><tbody>';
+  DATA.nn.forEach(r=>n+=`<tr class="${r.feat==='meta'?'base':''}"><td>${FEAT[r.feat]}</td><td class="n">${f2(r.all)}</td><td class="n">${f2(r.same)}</td><td class="n"><b>${f2(r.other)}</b></td><td class="n">${f2(r.multi)}</td></tr>`);
+  $('#nn-table').innerHTML=n+'</tbody>';
+};
+/* ---------- ct6 */
+INIT.ct6=()=>{
+  const rs=$('#ct-rep'); FEATS.forEach(f=>rs.appendChild(el('option',{value:f},FEAT[f]))); rs.value='effb3';
+  const order=['whistle','moan','click','pulse_train','pulsed_call','growl']; const grp={whistle:0,moan:0,click:1,pulse_train:1,pulsed_call:2,growl:2};
+  let prot='allcv';
+  const draw=()=>{const R=(DATA.ct6[prot]||{})[rs.value]; if(!R){$('#ct-cm').innerHTML='<p class="note">자료 없음</p>';return;}
+    const M=R.cmn||R.cm; let h='<table class="cm"><thead><tr><th></th>'+order.map(c=>`<th>${TYK[c]}</th>`).join('')+'</tr></thead><tbody>';
+    order.forEach((c,i)=>{h+=`<tr><th style="text-align:right">${TYK[c]}</th>`+order.map((d,j)=>{const v=M[i][j]; const box=grp[c]===grp[d]?'outline:1px solid var(--warn);outline-offset:-1px;':''; return `<td style="${heat(v)};${box}">${pct(v)}</td>`;}).join('')+'</tr>';});
+    $('#ct-cm').innerHTML=h+'</tbody></table><p class="note" style="margin-top:6px">주황 테두리 = 같은 신호 유형 묶음.</p>';
+    const ci=k=>{const c=parseCI(R[k+'_ci']); return c?` <span class="note">(${f2(c[0])}–${f2(c[1])})</span>`:'';};
+    const dm=k=>{if(rs.value==='meta'||R[k+'_dmeta']==null)return ''; const c=parseCI(R[k+'_dci']); const s=c&&(c[0]>0||c[1]<0); return ` <span class="${s?'sigd':'note'}">Δ ${(R[k+'_dmeta']>0?'+':'')+f2(R[k+'_dmeta'])}</span>`;};
+    $('#ct-sum').innerHTML=`<dl class="kv"><dt>6종 BA</dt><dd class="num"><b>${f3(R.ba6)}</b>${ci('ba6')}${dm('ba6')}</dd><dt>3유형 BA</dt><dd class="num"><b>${f3(R.ba3)}</b>${ci('ba3')}${dm('ba3')}</dd><dt>유형 안 세부 콜</dt><dd class="num"><b>${f3(R.within)}</b>${ci('within')}${dm('within')}</dd></dl>
+      <h3 style="margin-top:14px">재현율</h3><dl class="kv">${order.map(c=>`<dt>${TYK[c]} <span class="note">n=${DATA.ct6.counts[c]}</span></dt><dd class="num">${f2(R.recall[c])}</dd>`).join('')}</dl><p class="note" style="margin-top:8px">chance 0.17. Δ = baseline 대비 (초록 = CI 0 미포함).</p>`;};
+  rs.onchange=draw; document.querySelectorAll('#ct-prot button').forEach(b=>b.onclick=()=>{prot=b.dataset.v; document.querySelectorAll('#ct-prot button').forEach(x=>x.setAttribute('aria-pressed',x===b)); draw();}); draw();
+  let h='<thead><tr><th>표현</th><th class="n">6종 BA</th><th class="n">Δ baseline</th><th class="n">3유형 BA</th><th class="n">세부 콜</th>'+order.map(c=>`<th class="n">${TYK[c]}</th>`).join('')+'</tr></thead><tbody>';
+  FEATS.forEach(f=>{const R=DATA.ct6.allcv[f]; const c=parseCI(R.ba6_dci); const s=f!=='meta'&&c&&(c[0]>0||c[1]<0);
+    h+=`<tr class="${f==='meta'?'base':''}"><td>${FEAT[f]}</td><td class="n"><b>${f2(R.ba6)}</b></td><td class="n ${s?'sigd':''}">${f==='meta'?'':(R.ba6_dmeta>0?'+':'')+f2(R.ba6_dmeta)}</td><td class="n">${f2(R.ba3)}</td><td class="n">${f2(R.within)}</td>`+order.map(o=>`<td class="n" style="${heat(R.recall[o])}">${f2(R.recall[o])}</td>`).join('')+'</tr>';});
+  $('#ct-all').innerHTML=h+'</tbody>';
+};
+/* ---------- signal */
+INIT.signal=()=>{
+  const S=DATA.signal3; const conds=[['3_random','3분류 · 클립 랜덤'],['3_site','3분류 · 출처 단위 (전체)'],['3_site_fs20k','3분류 · 출처 단위 · 20 kHz 계열'],['3_site_fs40k','3분류 · 출처 단위 · 40 kHz 계열'],['3_site_fs80k','3분류 · 출처 단위 · 80 kHz 계열'],['7_site','콜 타입 7범주 · 출처 단위'],['pair_whistle_moan','쌍: whistle vs moan'],['pair_click_pulse_train','쌍: click vs pulse train'],['pair_pulsed_call_growl','쌍: pulsed call vs growl']].filter(c=>S[c[0]]);
+  const cs=$('#sg-cond'); conds.forEach(([k,l])=>cs.appendChild(el('option',{value:k},l))); cs.value='3_site_fs40k';
+  const draw=()=>{const R=S[cs.value]; const cls=R.classes?Object.keys(R.classes):Object.keys(Object.values(R.feat)[0].recall||{});
+    let h=`<thead><tr><th>표현</th><th class="n">BA</th><th class="n">95% CI</th><th class="n">Δ baseline</th>`+cls.map(c=>`<th class="n">${c} 재현율</th>`).join('')+'</tr></thead><tbody>';
+    FEATS.forEach(f=>{const r=R.feat[f]; if(!r)return; const s=f!=='meta'&&(r.dlo>0||r.dhi<0); h+=`<tr class="${f==='meta'?'base':''}"><td>${FEAT[f]}</td><td class="n"><b>${f3(r.ba)}</b></td><td class="n">${f2(r.lo)}–${f2(r.hi)}</td><td class="n ${s?'sigd':''}">${f==='meta'?'':(r.d>0?'+':'')+f2(r.d)+' <span class="note">('+f2(r.dlo)+' – '+f2(r.dhi)+')</span>'}</td>`+cls.map(c=>`<td class="n">${r.recall&&r.recall[c]!=null?f2(r.recall[c]):'–'}</td>`).join('')+'</tr>';});
+    const meta=[R.n!=null?'클립 '+R.n.toLocaleString():'',R.sites!=null?'출처 '+R.sites:'',R.classes?Object.entries(R.classes).map(([k,v])=>k+' '+v).join(' · '):'',R.chance?'chance '+f2(R.chance):''].filter(Boolean).join(' · ');
+    $('#sg-table').innerHTML=h+`</tbody><caption style="caption-side:bottom;text-align:left" class="note">${meta}</caption>`;};
+  cs.onchange=draw; draw();
+  const TP=DATA.tp, fsel=$('#tp-feat'); TP.cols.forEach((c,j)=>fsel.appendChild(el('option',{value:j},c))); fsel.value=3;
+  const groups=[['whistle','#0B4EA2'],['moan','#00A3D7'],['pulsed_call','#1C7C54'],['growl','#8C6D1F'],['click','#E07B00'],['pulse_train','#B23A48']];
+  const auc=(a,b)=>{let s=0;const A=a.filter(v=>v!=null&&!isNaN(v)),B=b.filter(v=>v!=null&&!isNaN(v)); if(!A.length||!B.length)return null; const all=A.map(v=>[v,0]).concat(B.map(v=>[v,1])).sort((x,y)=>x[0]-y[0]); let r=0,i=0; while(i<all.length){let j=i;while(j<all.length&&all[j][0]===all[i][0])j++; const rk=(i+j+1)/2; for(let k=i;k<j;k++) if(all[k][1]===1) s+=rk; i=j;} const u=s-B.length*(B.length+1)/2; return u/(A.length*B.length);};
+  const hist=()=>{const j=+fsel.value; const vals=g=>TP.rows[g].map(r=>r[j]); const allv=groups.flatMap(([g])=>vals(g)).filter(v=>!isNaN(v)).sort((a,b)=>a-b);
+    const lo=allv[Math.floor(allv.length*.01)], hi=allv[Math.floor(allv.length*.99)], nb=30, bw=(hi-lo)/nb||1;
+    const W=640,H=230,L=40,R=12,T=10,B=30; let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="분포">`; let ymax=0; const hs={};
+    groups.forEach(([g])=>{const h=new Array(nb).fill(0), v=vals(g).filter(x=>!isNaN(x)); v.forEach(x=>{const k=Math.min(nb-1,Math.max(0,Math.floor((x-lo)/bw)));h[k]++;}); hs[g]=h.map(c=>c/v.length); ymax=Math.max(ymax,...hs[g]);});
+    const x=v=>L+(W-L-R)*(v-lo)/(hi-lo), y=v=>H-B-(H-B-T)*v/ymax;
+    s+=`<line class="ax" x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}"/>`; for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4; s+=`<text class="tick" x="${x(v)}" y="${H-12}" text-anchor="middle">${Math.abs(v)>=100?v.toFixed(0):v.toPrecision(3)}</text>`;}
+    groups.forEach(([g,c])=>{const h=hs[g]; let d=`M${x(lo)},${y(0)}`; h.forEach((v,k)=>{d+=` L${x(lo+k*bw)},${y(v)} L${x(lo+(k+1)*bw)},${y(v)}`;}); d+=` L${x(hi)},${y(0)}`; s+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="${g==='whistle'||g==='pulsed_call'?2:1.4}" ${g==='click'||g==='pulse_train'?'stroke-dasharray="3 3"':''}/>`;});
+    $('#tp-hist').innerHTML=s+'</svg><div class="legend">'+groups.map(([g,c])=>`<span><i style="background:${c}"></i>${TYK[g]} (${TP.rows[g].length})</span>`).join('')+'</div>';};
+  fsel.onchange=hist; hist();
+  const pairs=[['tonal vs pulsed',['whistle','moan'],['pulsed_call','growl']],['whistle vs pulsed call',['whistle'],['pulsed_call']],['moan vs growl',['moan'],['growl']],['moan vs pulsed call',['moan'],['pulsed_call']],['impulsive vs 나머지',['whistle','moan','pulsed_call','growl'],['click','pulse_train']]];
+  let h='<thead><tr><th>비교 (AUROC, 방향 무관)</th>'+TP.cols.map(c=>`<th class="n">${c}</th>`).join('')+'</tr></thead><tbody>';
+  pairs.forEach(([lab,A,B])=>{h+=`<tr><td>${lab}</td>`+TP.cols.map((c,j)=>{const a=A.flatMap(g=>TP.rows[g].map(r=>r[j])), b=B.flatMap(g=>TP.rows[g].map(r=>r[j])); let u=auc(a,b); if(u==null)return '<td class="n">–</td>'; u=Math.max(u,1-u); return `<td class="n" style="${u>=.7?'font-weight:600;color:var(--accent)':''}">${u.toFixed(2)}</td>`;}).join('')+'</tr>';});
+  $('#tp-auc').innerHTML=h+'</tbody>';
+  let p='<thead><tr><th>입력</th>'+Object.keys(TP.probe).map(k=>`<th class="n">${k}</th>`).join('')+'</tr></thead><tbody>';
+  Object.keys(TP.probe['전체']).forEach(k=>p+=`<tr class="${k.startsWith('meta')?'base':''}"><td>${k.replace('meta baseline','메타데이터 baseline').replace('phys51','물리 특징 51').replace('new 6','새 특징 6')}</td>`+Object.keys(TP.probe).map(c=>`<td class="n">${f3(TP.probe[c][k])}</td>`).join('')+'</tr>');
+  $('#tp-probe').innerHTML=p+'</tbody><caption style="caption-side:bottom;text-align:left" class="note">전체: tonal 852 · pulsed 197 · 출처 단위 7-fold. 40 kHz 계열: 288클립, pulsed 60, 출처 16.</caption>';
+  const BK=DATA.b4k; const tasks=[['taxon','분류군'],['species','종'],['calltype','콜 타입'],['signal','신호 유형']].filter(t=>BK[t[0]+'_allcv']); const ts=$('#bk-task'); tasks.forEach(([k,l])=>ts.appendChild(el('option',{value:k},l)));
+  const bk=()=>{const t=ts.value, A=BK[t+'_allcv'], F=BK[t+'_filecv']; const names={meta:'메타데이터 baseline',mfcc16k:'MFCC',vggish:'VGGish',ast_tile:'AST',mfcc_b4k:'MFCC 공통 대역',vggish_b4k:'VGGish 공통 대역',ast_tile_b4k:'AST 공통 대역'};
+    let h='<thead><tr><th>입력</th><th class="n">출처 단위 BA</th><th class="n">95% CI</th><th class="n">Δ baseline</th><th class="n">Δ 표준</th><th class="n">클립 랜덤 BA</th></tr></thead><tbody>';
+    Object.keys(A.feat).forEach(k=>{const r=A.feat[k], fr=F&&F.feat[k]; const sd=r.d_std!=null&&(r.ds_lo>0||r.ds_hi<0); const sm=k!=='meta'&&(r.dm_lo>0||r.dm_hi<0);
+      h+=`<tr class="${k==='meta'?'base':''}"><td>${names[k]||k}</td><td class="n"><b>${f3(r.ba)}</b></td><td class="n">${f2(r.lo)}–${f2(r.hi)}</td><td class="n ${sm?'sigd':''}">${k==='meta'?'':(r.d_meta>0?'+':'')+f2(r.d_meta)}</td><td class="n ${sd?'sigd':''}">${r.d_std!=null?(r.d_std>0?'+':'')+f2(r.d_std):''}</td><td class="n">${fr?f3(fr.ba):'–'}</td></tr>`;});
+    $('#bk-table').innerHTML=h+`</tbody><caption style="caption-side:bottom;text-align:left" class="note">클립 ${A.n.toLocaleString()} · 출처 ${A.sites} · chance ${f2(A.chance)}</caption>`;};
+  ts.onchange=bk; bk();
+};
+/* ---------- physical */
+INIT.phys=()=>{
+  const T=PHYS.types, seg=$('#ph-type'); let cur='whistle';
+  T.forEach(t=>{const b=el('button',{type:'button','aria-pressed':t===cur,'data-v':t},TYK[t]); b.onclick=()=>{cur=t; seg.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b)); body(); dist();}; seg.appendChild(b);});
+  const SIGT={whistle:'Tonal',moan:'Tonal',click:'Impulsive',pulse_train:'Impulsive',pulsed_call:'Pulsed',growl:'Pulsed'};
+  const DESC={whistle:'협대역 주파수 윤곽이 시간에 따라 변조됨. 이빨고래류의 고주파 tonal 신호.',moan:'저주파 협대역 신호, 하모닉이 자주 동반됨. 주로 수염고래류.',click:'짧은 광대역 펄스. 반복 간격이 길어 하나하나 분리됨.',pulse_train:'짧은 광대역 펄스가 촘촘히 반복됨. 클릭 간격이 짧음.',pulsed_call:'빠른 펄스 반복이 줄무늬(하모닉처럼 보이는 sideband)로 나타남. 범고래 · 참거두고래 등.',growl:'거친 저주파음. 메모 라벨 기준 76 %가 수염고래류.'};
+  const unitFmt=(v,k)=>{if(v==null)return '–'; const u=PHYS.key.find(x=>x.k===k).unit; const a=Math.abs(v); const s=a>=100?v.toFixed(0):a>=10?v.toFixed(1):a>=1?v.toFixed(2):v.toFixed(3); return s+(u?' '+u:'');};
+  const SHOW=['log_sig_f05','log_sig_f50','log_sig_f95','sig_bw_oct','tonal_conc','log1p_fm_oct_per_s','log_event_dur_med','log_tr_kurt','tr_log_ici_med','mod_strength'];
+  const body=()=>{const E=PHYS.ex[cur]; const box=$('#ph-body'); box.innerHTML='';
+    const head=el('div',{class:'panel'}); const tx=Object.entries(E.tx).filter(([,v])=>v>0).map(([k,v])=>TXK[k]+' '+v).join(' · ');
+    head.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:baseline"><h3 style="margin:0">${TYK[cur]}</h3><span class="tag sig">${SIGT[cur]}</span><span class="note">${E.n}클립 · ${E.n_species}종 · 출처 ${E.n_sites}개 · ${tx}</span></div><p style="margin-top:6px">${DESC[cur]}</p>`;
+    const g=el('div',{class:'grid3',style:'margin-top:14px'});
+    E.examples.forEach(x=>{const c=el('div',{class:'excard'}); const im=new Image(); im.alt=x.id+' 스펙트로그램'; im.src='data:image/png;base64,'+x.img;
+      c.appendChild(el('div',{},`<div class="note num">${x.id}${x.deck?' · <b>세미나 예시</b>':''}</div><div><b>${x.sp}</b> <span class="note">${x.spe}</span></div><div class="note num">${(x.fs/1000).toFixed(1)} kHz · ${x.dur} s · ${x.site} · 세로 0–${(x.fs/2000).toFixed(1)} kHz</div>`));
+      c.appendChild(im); const b=el('button',{class:'btn ghost',type:'button'},'▶ 소리 듣기'); b.onclick=()=>play(x.id,b); c.appendChild(b);
+      c.appendChild(el('dl',{class:'kv'},SHOW.map(k=>`<dt>${PHYS.key.find(z=>z.k===k).label}</dt><dd class="num">${unitFmt(x.vals[k],k)}</dd>`).join('')));
+      if(x.note&&x.note!=='nan') c.appendChild(el('div',{class:'memo'},x.note)); g.appendChild(c);});
+    head.appendChild(g); box.appendChild(head);};
+  const tcol={whistle:'#0B4EA2',moan:'#00A3D7',click:'#E07B00',pulse_train:'#B23A48',pulsed_call:'#1C7C54',growl:'#8C6D1F'};
+  const toDisp=(v,t)=>({p10k:10**v/1000,id:v,expm1:Math.expm1(v),p10:10**v,p10ms:10**v*1000})[t];
+  const fromDisp=(v,t)=>({p10k:Math.log10(v*1000),id:v,expm1:Math.log1p(v),p10:Math.log10(v),p10ms:Math.log10(v/1000)})[t];
+  const dist=()=>{const box=$('#ph-dist'); box.innerHTML=''; PHYS.key.forEach(K=>{const D=PHYS.dist[K.k]; const W=280,H=150,L=8,R=8,T=8,B=34;
+    const nb=D.h[T0()].length; const x=v=>L+(W-L-R)*(v-D.lo)/(D.hi-D.lo); let ymax=0; const hs={}; PHYS.types.forEach(t=>{const n=D.h[t].reduce((a,b)=>a+b,0)||1; hs[t]=D.h[t].map(c=>c/n); ymax=Math.max(ymax,...hs[t]);});
+    const y=v=>H-B-(H-B-T)*v/ymax, bw=(D.hi-D.lo)/nb; let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${K.label}"><line class="ax" x1="${L}" x2="${W-R}" y1="${H-B}" y2="${H-B}"/>`;
+    PHYS.types.forEach(t=>{const h=hs[t]; let d=`M${x(D.lo)},${y(0)}`; h.forEach((v,k)=>{d+=` L${x(D.lo+k*bw)},${y(v)} L${x(D.lo+(k+1)*bw)},${y(v)}`;}); s+=`<path d="${d}" fill="none" stroke="${tcol[t]}" stroke-width="${t===cur?2.4:1}" opacity="${t===cur?1:.45}"/>`;});
+    PHYS.ex[cur].examples.forEach(e=>{const v=e.vals[K.k]; if(v==null)return; const sv=fromDisp(v,K.t); if(sv<D.lo||sv>D.hi||!isFinite(sv))return; s+=`<line x1="${x(sv)}" x2="${x(sv)}" y1="${T}" y2="${H-B}" stroke="var(--ink)" stroke-width="1" stroke-dasharray="2 2"/>`;});
+    for(let k=0;k<=2;k++){const sv=D.lo+(D.hi-D.lo)*k/2; const dv=toDisp(sv,K.t); s+=`<text class="tick" x="${x(sv)}" y="${H-B+14}" text-anchor="${k===0?'start':k===2?'end':'middle'}">${Math.abs(dv)>=100?dv.toFixed(0):Math.abs(dv)>=10?dv.toFixed(1):dv.toPrecision(2)}</text>`;}
+    s+=`<text class="tick" x="${W/2}" y="${H-4}" text-anchor="middle">${K.unit||'(무단위)'} · ${TYK[cur]} 중앙값 ${D.med[cur]==null?'–':unitFmt(D.med[cur],K.k)}</text></svg>`;
+    box.appendChild(el('div',{},`<div style="font-size:13px;font-weight:600">${K.label}</div>${s}`));}); };
+  const T0=()=>PHYS.types[0];
+  body(); dist();
+  const groups=[['A','Signal band (신호 대역)',7],['B','1/3-octave levels (1/3 옥타브 band SNR)',31],['C','Temporal (시간 구조)',4],['D','Tonality (음조성)',3],['E','Impulsiveness (충격성)',4],['F','Repetition (반복성)',2]];
+  const DESC2={log_sig_f05:'신호 대역 하단 5 % 주파수 [log10 Hz]',log_sig_f50:'신호 대역 누적 50 % (중심) 주파수 [log10 Hz]',log_sig_f95:'신호 대역 상단 95 % 주파수 [log10 Hz]',sig_bw_oct:'f05–f95 폭 [옥타브]',sig_bins_frac:'신호로 판정된 주파수 칸 비율',rise_peak_db:'가장 큰 band SNR [dB]',tf_active_frac:'신호로 판정된 시간-주파수 칸 비율',duty:'활동 프레임 비율',log1p_events_per_s:'초당 사건 수 [log(1+x)]',log_event_dur_med:'사건 길이 중앙값 [log10 s]',log_event_dur_max:'사건 길이 최댓값 [log10 s]',tonal_conc:'TC: 최대 칸 주변 3칸 에너지 비율',log1p_fm_oct_per_s:'최대 칸 주파수 변화율 [옥타브/s, log(1+x)]',pk_range_oct:'최대 칸 주파수 사분위 범위 [옥타브]',log_tr_kurt:'1 ms 창 포락선 첨도 [log10]',log1p_tr_clicks_per_s:'초당 클릭 수 [log(1+x)]',tr_log_ici_med:'클릭 간격 중앙값 [log10 s]',tr_ici_cv:'클릭 간격 변동계수',mod_lag_s:'활동 포락선 자기상관 첫 봉우리 지연 [s]',mod_strength:'그 봉우리 높이'};
+  let i=0, h='<thead><tr><th>그룹</th><th>특징 이름</th><th>정의</th></tr></thead><tbody>';
+  groups.forEach(([g,lab,n])=>{for(let k=0;k<n;k++,i++){const nm=PHYS.names[i]; const d=DESC2[nm]||(nm.startsWith('rise3oct_')?`${nm.split('_')[1]} Hz 1/3 옥타브 대역의 평균 band SNR [dB]`:''); h+=`<tr><td>${k===0?g+' '+lab+' · '+n:''}</td><td class="num">${nm}</td><td>${d}</td></tr>`;}});
+  $('#ph-dict').innerHTML=h+'</tbody>';
+};
+INIT.ref=()=>{const R=['Sayigh et al. 2016. The Watkins Marine Mammal Sound Database: an online, freely accessible resource. Proc. Meet. Acoust. 27, 040013.','Liang et al. 2025. Automatic detection and unsupervised clustering-based classification of cetacean vocal signals. Applied Sciences 15(7), 3585.','Cominelli et al. 2024. Acoustic features as a tool to visualize and explore marine soundscapes. Ecology and Evolution 14(2), e10951.','Lipari, Brancatelli &amp; Forlin 2026. Marine mammal acoustic species recognition via metric embedding learning with AST. IEEE Access 14.','Kim et al. 2026. Automated detection and classification of marine species vocalizations using a YOLO-based deep learning framework. Ecology and Evolution 16(4), e73466.','Hagiwara et al. 2023. BEANS: The Benchmark of Animal Sounds. ICASSP 2023.','Hurlbert 1984. Pseudoreplication and the design of ecological field experiments. Ecological Monographs 54(2), 187–211.','Roberts et al. 2017. Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure. Ecography 40(8), 913–929.','Kapoor &amp; Narayanan 2023. Leakage and the reproducibility crisis in machine-learning-based science. Patterns 4(9), 100804.','Geirhos et al. 2020. Shortcut learning in deep neural networks. Nature Machine Intelligence 2, 665–673.','Gong, Chung &amp; Glass 2021. AST: Audio Spectrogram Transformer. Interspeech 2021.','Hershey et al. 2017. CNN architectures for large-scale audio classification. ICASSP 2017.','Tan &amp; Le 2019. EfficientNet. ICML 2019.','Davis &amp; Mermelstein 1980. IEEE Trans. ASSP 28(4), 357–366.','McInnes, Healy &amp; Melville 2018. UMAP. arXiv:1802.03426.']; $('#refs').innerHTML=R.map(r=>`<li>${r}</li>`).join('');};
+/* ---------- boot */
+let start='overview'; try{start=localStorage.getItem('wk-tab')||start}catch(e){}
+const hsh=location.hash.replace('#',''); if(TABS.some(t=>t[0]===hsh)) start=hsh;
+show(start);
+})();
+</script>
