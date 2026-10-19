@@ -2,7 +2,7 @@
 
 수동 소나(Passive Sonar) · 수동 음향 모니터링(PAM) 자료에 공개 AI 레퍼런스 모델을 적용해 **해양포유류 음향 분류 성능을 비교**하고, 녹음 조건이 바뀌어도 유지되는 정보를 바탕으로 **신호 유형 기반 분류기**를 설계한 연구 코드입니다.
 
-> 사전학습 가중치는 백본 모델 고유 파라미터로 고정했고 미세조정(fine-tuning)은 하지 않았습니다.
+> 레퍼런스 비교는 사전학습 가중치를 고정해 수행했고, 별도로 AST 마지막 2블록 부분 미세조정(fine-tuning)을 같은 출처 분리 조건에서 비교했습니다 ([`02_analysis/ast_finetune`](02_analysis/ast_finetune)).
 
 ## 한눈에 보기
 
@@ -17,6 +17,7 @@
 
 - **랜덤 분할에서 선행연구 수준 재현**: 분류군(이빨고래 · 수염고래 · 기각류) BA 0.82–0.93, 종(10종) BA 0.64–0.76. AST · EfficientNet-B3가 가장 높음.
 - **출처 분리 시**: 분류군은 AST 0.79로 유지(기준선 0.68). 종 수준은 0.71 → 0.28로 크게 하락하는데, 36종 중 18종이 녹음 출처 1개뿐인 자료 구조 때문이며 다출처 자료로 보완해야 함.
+- **부분 미세조정 (AST 블록 11–12)**: 새 출처에서 수염고래 재현율 0.83 → 0.89 (+0.06, 95% CI +0.04~+0.08) · 이빨고래 0.94 → 0.97 (+0.03, CI +0.02~+0.06). 기각류는 9종 중 7종이 단일 출처라 0.58 → 0.39로 하락(트레이드오프) → 증강 · 합성 자료로 보완 필요.
 - **녹음 조건에 강건한 정보는 신호 유형 · 대역**: tonal concentration 하나로 impulsive 구분 AUROC 0.95 → 종 대신 *신호 유형 → 측정값 → 분류군 확률* 순서로 판정하는 분류기 설계.
 
 <p align="center"><img src="docs/figures/balanced_accuracy_by_split.png" width="85%" alt="Balanced accuracy by representation for species, call type and taxon, random clip split versus recording-source split"></p>
@@ -65,6 +66,7 @@ Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분�
 |---|---|
 | `01_pipeline_bench/src` | 데이터 구축 · 기준선 파이프라인 `b01`–`b17` (manifest, 녹음 출처 묶기, QC, 물리 특징 `b05`, 사전학습 임베딩 `b06`, 평가 `b07` 등). `wb_notes.py`는 녹음 메모 → 콜 타입 라벨 |
 | `01_pipeline_bench/full_cohort` | 10,694클립 전체 분석 · 검토 페이지 스크립트 |
+| `02_analysis/ast_finetune` | AST 마지막 2블록 부분 미세조정, 출처 분리 5-fold 비교 · 기각류 출처별 분석 |
 | `02_analysis/common_band_4k` | 0–4 kHz 공통 대역 검증 (AST · VGGish · MFCC 재추출) |
 | `02_analysis/calltype6` | 콜 타입 6종 linear probe, 혼동 행렬 |
 | `02_analysis/signal_type3` | 신호 유형 3분류, 샘플레이트 계열별 평가 |
