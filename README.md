@@ -1,8 +1,20 @@
 # Marine Mammal Sound Classifier (해양포유류 음향 분류)
 
-수동 소나(Passive Sonar) · 수동 음향 모니터링(PAM) 자료에 공개 AI 레퍼런스 모델을 적용해 **해양포유류 음향 분류 성능을 비교**하고, 녹음 조건이 바뀌어도 유지되는 정보를 바탕으로 **신호 유형 기반 분류기**를 설계한 연구 코드입니다.
+**Watkins Marine Mammal Sound Database의 해양포유류 음향 클립**에 공개 AI 레퍼런스 표현을 적용해 분류 성능을 비교하고, 녹음 출처 분리 · 메타데이터 기준선 · 신호 유형 및 물리 특징 분석으로 **녹음 조건 편향과 일반화 한계를 검토**한 연구 코드입니다. 별도로 AST 부분 미세조정이 분류군별 재현율과 전체 성능에 미치는 영향을 평가했습니다.
 
-> 레퍼런스 비교는 사전학습 가중치를 고정해 수행했고, 별도로 AST 마지막 2블록 부분 미세조정(fine-tuning)을 같은 출처 분리 조건에서 비교했습니다 ([`02_analysis/ast_finetune`](02_analysis/ast_finetune)).
+수동 소나 · 수동 음향 모니터링(PAM) 적용을 위한 평가 방법과 신호 유형 기반 처리 구조를 제안합니다. **실제 평가 범위는 Watkins DB 내 해양포유류 분류**이며, 생물 소음과 비생물 표적 신호를 구분하는 성능이나 소나 운용 중 오경보 감소 효과는 검증하지 않았습니다.
+
+> 레퍼런스 비교는 사전학습 가중치를 고정한 표현 + 동일한 선형 분류기로 수행했습니다. AST 미세조정 실험은 그 실험 안에서 고정 표현 기준선과 마지막 2블록 미세조정을 **동일한 녹음 출처 분리 5-fold**로 비교했습니다([코드](02_analysis/ast_finetune)). 두 실험의 입력 처리와 분할 설정이 달라 기준선 수치를 혼용하지 않습니다.
+
+## 구현 · 검증 범위
+
+| 구분 | 현재 범위 | 확인 근거 |
+|---|---|---|
+| 구현한 기능 | 자료 · 녹음 출처 구성, QC, 물리 특징 · 사전학습 표현 추출, 선형 분류기, 출처 단위 평가 · bootstrap, AST 부분 미세조정 | [`01_pipeline_bench/src`](01_pipeline_bench/src), [`02_analysis`](02_analysis) |
+| 정량 검증 | Watkins DB 내 종 · 분류군 · 콜 타입 분류의 분할별 성능, AST 미세조정 전후 분류군별 · 전체 성능 | [`results/reference_v1_results.csv`](results/reference_v1_results.csv), [`results/ast_finetune_results.json`](results/ast_finetune_results.json) |
+| 탐색적 분석 | 신호 유형 3분류, 물리 속성 · 대역별 분포, 약한 라벨을 이용한 속성 존재 여부 판정 | [`results/signal_type3_regroup3.json`](results/signal_type3_regroup3.json), [`results/stage2_attribute_presence.json`](results/stage2_attribute_presence.json) |
+| 설계 제안 | 신호 유형 → 측정 속성 · 대역 → 분류군 확률의 단계적 처리 구조 | 구성 요소를 분석한 단계이며 전체 구조의 연계 성능은 미검증 |
+| 향후 시스템 적용 | 생물 소음과 비생물 표적 신호의 구분, 소나 오경보 저감, 실시간 감시 | 비생물 표적 · 배경 소음 · 혼합 신호 자료와 시스템 시험 필요 |
 
 ## 한눈에 보기
 
@@ -10,15 +22,41 @@
 |---|---|
 | 데이터 | Watkins Marine Mammal Sound Database (WHOI), Earth Species Project 공개본 v0.1.0. 13,693클립 → 분석 대상 10,694클립(36종, 녹음 출처 49개) → 표본 3,539클립 |
 | 레퍼런스 표현 | AST (Lipari et al. 2026), VGGish (Cominelli et al. 2024), EfficientNet-B3 (Kim et al. 2026), MFCC (Liang et al. 2025), 물리 특징 51개 (본 연구), 메타데이터 기준선(baseline) |
-| 분류기 | 동일 선형 분류기(linear probe): 표준화 → PCA ≤ 64 → 로지스틱 회귀 |
-| 평가 | 클립 무작위 분할 vs 녹음 출처 단위 분할, 균형정확도(Balanced Accuracy, BA), 출처 bootstrap 95% 신뢰구간 |
+| 분류기 | 레퍼런스 비교: 동일 선형 분류기(linear probe), 중앙값 대체 → 표준화 → ±8 절단 → PCA ≤ 64 → 로지스틱 회귀. AST 부분 미세조정은 별도 실험 |
+| 평가 | 레퍼런스 비교: 클립 무작위 5-fold(`filecv`) vs 녹음 출처 분리 7-fold(`allcv`) 등. AST 미세조정: 출처 분리 5-fold. 균형정확도(Balanced Accuracy, BA), 출처 bootstrap 95% 신뢰구간 |
 
 ## 핵심 결과
 
-- **랜덤 분할에서 선행연구 수준 재현**: 분류군(이빨고래 · 수염고래 · 기각류) BA 0.82–0.93, 종(10종) BA 0.64–0.76. AST · EfficientNet-B3가 가장 높음.
-- **출처 분리 시**: 분류군은 AST 0.79로 유지(기준선 0.68). 종 수준은 0.71 → 0.28로 크게 하락하는데, 36종 중 18종이 녹음 출처 1개뿐인 자료 구조 때문이며 다출처 자료로 보완해야 함.
-- **부분 미세조정 (AST 블록 11–12)**: 새 출처에서 수염고래 재현율 0.83 → 0.89 (+0.06, 95% CI +0.04~+0.08) · 이빨고래 0.94 → 0.97 (+0.03, CI +0.02~+0.06). 기각류는 9종 중 7종이 단일 출처라 0.58 → 0.39로 하락(트레이드오프) → 증강 · 합성 자료로 보완 필요.
-- **녹음 조건에 강건한 정보는 신호 유형 · 대역**: tonal concentration 하나로 impulsive 구분 AUROC 0.95 → 종 대신 *신호 유형 → 측정값 → 분류군 확률* 순서로 판정하는 분류기 설계.
+### 고정 표현 레퍼런스 비교
+
+- **클립 무작위 분할**: 분류군(이빨고래 · 수염고래 · 기각류) BA **0.82–0.93**, 종(10종) BA **0.64–0.76**. AST · EfficientNet-B3가 상위 성능을 보였습니다. 선행연구에서 사용한 표현을 참고한 비교이며, 각 논문의 학습 · 분할 절차 전체를 동일하게 재현한 결과는 아닙니다.
+- **녹음 출처 분리**: 분류군은 AST(`ast_tile`) BA **0.797**(메타데이터 기준선 **0.680**). 종 10개에서는 음향 표현별 BA가 **0.21–0.33**으로 하락합니다. 예를 들어 AST(`ast_zero`)는 클립 무작위 분할 **0.759 → 출처 분리 0.286**입니다. 전체 분석 대상 36종 중 18종이 단일 녹음 출처에만 존재하는 자료 구조와 함께 해석해야 하며, 종 10개 평가는 조건을 만족하는 부분집합(1,664클립 · 36출처)입니다.
+- **신호 유형 · 속성 탐색**: tonal concentration으로 impulsive(click · pulse train)와 나머지 유형(whistle · moan · pulsed call · growl)을 구분한 단일 특징 AUROC는 **0.954**입니다(유효 1,446클립의 분포 비교). 별도로 학습 출처에서 임계값을 정해 미학습 출처에 적용한 out-of-fold BA는 **0.867**입니다([결과의 `F_thresholds`](results/stage1_meta_acoustic_pca_ablation_thresholds.json), [코드](02_analysis/stage1_checks/run2.py)). 속성 13개를 이용한 약한 라벨 기반 출처 분리 평가에서는 `impulsive 있음` AUROC **0.894**를 얻었습니다([결과](results/stage2_attribute_presence.json)). 모두 DB 내 탐색적 유형 분석이며, 이를 바탕으로 제안한 *신호 유형 → 측정 속성 · 대역 → 분류군 확률* 구조 전체의 연계 성능은 후속 검증 대상입니다.
+
+레퍼런스 비교 수치의 근거는 [`results/reference_v1_results.csv`](results/reference_v1_results.csv)입니다. `subset=all`, `metric=balanced_acc`, `protocol=filecv/allcv`와 해당 `task`, `feature` 행에서 확인할 수 있습니다.
+
+### AST 부분 미세조정: 개별 분류군 개선과 전체 BA 하락
+
+동일한 **3,539클립 · 49출처**를 녹음 출처 분리 5-fold로 평가했습니다. AST 블록 11–12 · 최종 정규화층 · 분류층을 3 epoch 학습하고, 같은 입력의 고정 AST 표현 + linear probe와 비교한 결과입니다. 아래 전체 지표는 각 클립의 out-of-fold 예측을 합쳐 계산했습니다.
+
+| 지표 | 고정 표현 + linear probe | 부분 미세조정 | 변화 (95% CI) |
+|---|---|---|---|
+| **전체 균형정확도 (BA)** | **0.784** | **0.752** | **−0.032 (−0.051 ~ −0.008)** |
+| 전체 정확도 | 0.883 | 0.894 | +0.011 (−0.021 ~ +0.034) |
+| 수염고래 재현율 | 0.827 | 0.889 | +0.062 (+0.037 ~ +0.084) |
+| 이빨고래 재현율 | 0.942 | 0.973 | +0.030 (+0.021 ~ +0.055) |
+| 기각류 재현율 | 0.583 | 0.394 | −0.189 (−0.241 ~ −0.122) |
+
+근거: [`results/ast_finetune_results.json`](results/ast_finetune_results.json)의 `frozen`, `finetune`, `recall_frozen`, `recall_ft`, `acc_*`, `ci_diff`, `d_*` 및 [평가 코드](02_analysis/ast_finetune/eval_ft.py). 변화의 점추정치는 각 지표의 차이이며, 95% CI는 녹음 출처 단위 bootstrap 2,000회로 계산했습니다.
+
+**고래류 두 분류군의 재현율은 상승했지만, 세 분류군을 같은 비중으로 평가하는 BA는 하락했습니다.** 따라서 이 결과는 전체 분류 성능 개선이 아니라 분류군 간 성능 변화로 해석합니다. 전체 정확도는 이빨고래가 많은 표본 구성(수염고래 585 · 이빨고래 2,558 · 기각류 396클립)의 영향을 받으며, 정확도 변화의 신뢰구간은 0을 포함합니다.
+
+기각류는 9종 중 7종이 단일 출처에 집중된 자료 구조를 보입니다. [출처별 재현율](results/ast_finetune_pinniped_by_source.json)도 함께 분석했으나, 출처 편향이 성능 하락의 직접 원인인지는 별도 실험이 필요합니다. 다출처 자료 확보, 증강 · 합성 자료 활용은 후속 검증 방향입니다.
+
+레퍼런스 비교의 `ast_tile`은 10.24초 반복 채움 · 창 평균과 출처 분리 7-fold를 사용하고, 이 미세조정 비교는 1.28–10.24초 입력과 출처 분리 5-fold를 사용합니다. 따라서 위 BA 0.797과 미세조정 기준선 0.784는 서로 다른 설정의 결과입니다([표현 추출](01_pipeline_bench/src/b06_embed_pretrained.py), [미세조정 입력](02_analysis/ast_finetune/ast_core.py)).
+
+<p align="center"><img src="docs/figures/ast_finetune.png" width="95%" alt="AST partial fine-tuning: per-taxon recall gains and losses, with lower overall balanced accuracy"></p>
+<p align="center"><sub>출처 분리 5-fold: 고래류 재현율 상승, 기각류 재현율 및 전체 균형정확도 하락</sub></p>
 
 <p align="center"><img src="docs/figures/balanced_accuracy_by_split.png" width="85%" alt="Balanced accuracy by representation for species, call type and taxon, random clip split versus recording-source split"></p>
 <p align="center"><sub>표현별 균형정확도: 빈 원 = 클립 무작위 분할, 채운 원 = 녹음 출처 분리(95% CI), 점선 = 메타데이터 기준선</sub></p>
@@ -32,11 +70,12 @@
 <p align="center"><img src="docs/figures/data_structure.png" width="90%" alt="Species by recording source and species by sample-rate family"></p>
 <p align="center"><sub>데이터 구조: 종이 녹음 출처와 샘플레이트 계열에 묶여 있음(nested)</sub></p>
 
-## 소나 신호처리 관점의 의미
+## 소나 신호처리 적용 방향 (제안 · 미검증 범위)
 
-- 공개 DB의 높은 정확도는 **평가 분할 설계**에 따라 크게 달라짐 → 수동 소나 표적 식별 AI도 해역 · 장비 · 녹음 조건을 분리한 시험평가가 필요.
-- 생물 소음을 신호 유형으로 먼저 가르는 구조는 수동 소나의 **생물 소음 vs 표적 신호 판별(오경보 저감)** 에 그대로 쓸 수 있음.
-- 측면주사 소나(SSS) 기뢰유사물체 탐지 연구 [sss-mine-detection-benchmark](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark)(Side B)에서도 같은 평가 원칙을 적용함.
+- **평가 방법의 활용**: 출처 분할, 메타데이터 기준선, 분류군별 성능 · 신뢰구간을 함께 보는 방법은 소나 AI 시험평가 설계에 참고할 수 있습니다. 본 연구에서 출처가 달라질 때 성능이 어떻게 바뀌는지를 정량적으로 확인했습니다.
+- **처리 구조의 확장 가능성**: 신호 유형과 측정 속성을 먼저 분석하는 구조를 생물 소음 분류 또는 소나 후보 신호의 보조 특징으로 검토할 수 있습니다. 다만 현재 모델과 수치는 Watkins DB의 해양포유류 분류에 해당하며, **비생물 표적과의 구분 성능 · 오경보 저감 효과를 입증하지 않습니다.**
+- **다음 검증 단계**: 비생물 표적, 선박 · 환경 소음, 생물·비생물 혼합 신호를 포함한 별도 자료에서 학습 · 시험하고, 해역 · 장비 · 녹음 조건을 분리해 재현율 · 오경보율을 평가해야 합니다. 단계적 처리 구조와 실시간 적용은 연계 성능 · 처리 지연 검증을 거쳐야 합니다.
+- 측면주사 소나 연구 [sss-mine-detection-benchmark](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark)(Side B)에서도 중복 자료 관리와 평가 분할에 따른 성능 차이를 분석했습니다.
 
 ---
 
@@ -48,16 +87,16 @@ Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분�
 - 표현: 메타데이터 baseline(샘플레이트 · 클립 길이), 물리 특징 51개, MFCC, VGGish, EfficientNet-B3, AST(모두 가중치 고정)
 - 평가: 같은 linear probe(중앙값 대체 → 표준화 → ±8 절단 → PCA ≤ 64 → 로지스틱 회귀, class_weight=balanced)를 클립 랜덤 · 녹음 세션 · 현장 묶음 · 녹음 출처 단위 분할로 비교, 출처 단위 bootstrap 95% CI
 
-### 주요 결과 (자세한 수치는 `results/`)
+### 주요 결과 (Watkins DB 내 분석)
 
 | 확인한 것 | 결과 |
 |---|---|
-| 종 10개, 클립 랜덤 → 녹음 출처 분할 | BA 0.62–0.76 → 0.21–0.33 (메타데이터 baseline 0.24) |
-| 하락이 일어나는 단위 | 대부분 녹음 세션 단위에서 발생(0.30–0.42). 세션 단위에서는 EffNet-B3 · AST · MFCC가 baseline을 유의하게 넘음 |
-| 분류군 (3) | AST가 세션 · 현장 · 출처 모든 단위에서 baseline +0.11–0.16 |
-| 신호 유형 3분류, 40 kHz 계열 안 | 0.48–0.69 (baseline 0.34) — 탐색적 |
-| Tonal vs Pulsed | 물리 특징 · 펄스 반복률 · 켑스트럼으로도 구분 안 됨 (BA 0.56–0.58 < baseline 0.67) |
-| 속성 기반 멀티라벨 판정 | 속성 13개가 물리 특징 51개 · 메타데이터보다 높음 (impulsive 있음 AUROC 0.89) |
+| 종 10개, 클립 랜덤 → 녹음 출처 분할 | BA 0.64–0.76 → 0.21–0.33 (출처 분리 메타데이터 baseline 0.24). [레퍼런스 결과](results/reference_v1_results.csv) |
+| 하락이 일어나는 단위 | 대부분 녹음 세션 단위에서 발생(종 BA 0.30–0.42). 세션 단위에서는 EffNet-B3 · AST · MFCC가 baseline을 유의하게 넘음. [분할 민감도 결과](results/stage1_species_fold_and_split_sensitivity.json) |
+| 분류군 (3) | AST의 세션 · 현장 · 출처 분할 점추정치가 baseline 대비 +0.11–0.16. [분할 민감도 결과](results/stage1_species_fold_and_split_sensitivity.json) |
+| 신호 유형 3분류, 40 kHz 샘플레이트 계열 평가 부분집합 | 출처 분리 BA 0.48–0.69 (baseline 0.34). 학습은 전체 계열, 평가만 부분집합 — 탐색적. [결과](results/signal_type3_regroup3.json) |
+| Tonal vs Pulsed | 물리 특징 · 펄스 반복률 · 켑스트럼 비교에서 기준선을 넘지 못함 (BA 0.56–0.58 < baseline 0.67). [평가 코드](02_analysis/tonal_vs_pulsed/eval.py) |
+| 속성 기반 멀티라벨 판정 | impulsive 있음 AUROC: 속성 13개 0.894, 물리 특징 51개 0.865, 메타데이터 0.814. [약한 라벨 기반 결과](results/stage2_attribute_presence.json) |
 | EfficientNet-B3 전처리 복원 | 저장 벡터와 cosine 평균 0.995 (3,539클립) |
 
 ### 폴더 구성
@@ -119,6 +158,9 @@ python 02_analysis/efficientnet_restore/eff_restored.py   # EfficientNet-B3 복�
 
 ### 주의
 
+- 평가는 Watkins DB의 해양포유류 음향 클립을 대상으로 했습니다. 비생물 표적과의 구분, 연속 녹음에서의 이벤트 탐지, 실제 소나 오경보율 · 실해역 운용 성능은 검증하지 않았습니다.
+- 녹음 출처 단위 분리는 DB 내 일반화 평가입니다. 독립 외부 DB나 모든 해역 · 장비 조건에 대한 일반화를 보장하지 않습니다.
+- AST 미세조정은 고래류 재현율 상승과 함께 기각류 재현율 · 전체 BA 하락을 보였습니다. 증강 · 합성 자료나 단계적 처리 구조의 개선 효과는 후속 검증 대상입니다.
 - 콜 타입 라벨은 녹음 메모에서 만든 약한 라벨입니다. 전문가가 검증한 이벤트 정답이 아닙니다.
 - 신호 유형 3분류, 속성 기준, 임계값은 결과를 본 뒤 정한 탐색적 기준입니다. 독립 자료에서 고정 후 평가해야 합니다.
 - EfficientNet-B3의 원래 전처리 코드는 남아 있지 않아, Kim et al. 2026 공개 코드와 저장 벡터를 대조해 복원했습니다(cosine 0.995).
