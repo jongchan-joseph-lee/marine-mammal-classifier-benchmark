@@ -30,7 +30,7 @@
 ### 고정 표현 레퍼런스 비교
 
 - **클립 무작위 분할**: 분류군(이빨고래 · 수염고래 · 기각류) BA **0.82–0.93**, 종(10종) BA **0.64–0.76**. AST · EfficientNet-B3가 상위 성능을 보였습니다. 선행연구에서 사용한 표현을 참고한 비교이며, 각 논문의 학습 · 분할 절차 전체를 동일하게 재현한 결과는 아닙니다.
-- **녹음 출처 분리**: 분류군은 AST(`ast_tile`) BA **0.797**(메타데이터 기준선 **0.680**). 종 10개에서는 음향 표현별 BA가 **0.21–0.33**으로 하락합니다. 예를 들어 AST(`ast_zero`)는 클립 무작위 분할 **0.759 → 출처 분리 0.286**입니다. 전체 분석 대상 36종 중 18종이 단일 녹음 출처에만 존재하는 자료 구조와 함께 해석해야 하며, 종 10개 평가는 조건을 만족하는 부분집합(1,664클립 · 36출처)입니다.
+- **녹음 출처 분리**: 분류군은 AST(`ast_tile`) BA **0.797**(메타데이터 기준선 **0.680**). 종 10개에서는 음향 표현별 BA가 **0.21–0.33**으로 하락합니다. 예를 들어 AST(`ast_zero`)는 클립 무작위 분할 **0.759 → 출처 분리 0.286**입니다. [표본 라벨표](02_analysis/ast_finetune/labels_3539.csv)에서도 확인되는 36종 중 18종의 단일 녹음 출처 구조와 함께 해석해야 하며, 종 10개 평가는 조건을 만족하는 부분집합(1,664클립 · 36출처)입니다.
 - **신호 유형 · 속성 탐색**: tonal concentration으로 impulsive(click · pulse train)와 나머지 유형(whistle · moan · pulsed call · growl)을 구분한 단일 특징 AUROC는 **0.954**입니다(유효 1,446클립의 분포 비교). 별도로 학습 출처에서 임계값을 정해 미학습 출처에 적용한 out-of-fold BA는 **0.867**입니다([결과의 `F_thresholds`](results/stage1_meta_acoustic_pca_ablation_thresholds.json), [코드](02_analysis/stage1_checks/run2.py)). 속성 13개를 이용한 약한 라벨 기반 출처 분리 평가에서는 `impulsive 있음` AUROC **0.894**를 얻었습니다([결과](results/stage2_attribute_presence.json)). 모두 DB 내 탐색적 유형 분석이며, 이를 바탕으로 제안한 *신호 유형 → 측정 속성 · 대역 → 분류군 확률* 구조 전체의 연계 성능은 후속 검증 대상입니다.
 
 레퍼런스 비교 수치의 근거는 [`results/reference_v1_results.csv`](results/reference_v1_results.csv)입니다. `subset=all`, `metric=balanced_acc`, `protocol=filecv/allcv`와 해당 `task`, `feature` 행에서 확인할 수 있습니다.
@@ -51,7 +51,7 @@
 
 **고래류 두 분류군의 재현율은 상승했지만, 세 분류군을 같은 비중으로 평가하는 BA는 하락했습니다.** 따라서 이 결과는 전체 분류 성능 개선이 아니라 분류군 간 성능 변화로 해석합니다. 전체 정확도는 이빨고래가 많은 표본 구성(수염고래 585 · 이빨고래 2,558 · 기각류 396클립)의 영향을 받으며, 정확도 변화의 신뢰구간은 0을 포함합니다.
 
-기각류는 9종 중 7종이 단일 출처에 집중된 자료 구조를 보입니다. [출처별 재현율](results/ast_finetune_pinniped_by_source.json)도 함께 분석했으나, 출처 편향이 성능 하락의 직접 원인인지는 별도 실험이 필요합니다. 다출처 자료 확보, 증강 · 합성 자료 활용은 후속 검증 방향입니다.
+기각류는 9종 중 7종이 단일 출처이며, 이 7종이 기각류 클립의 약 86%를 차지합니다([표본 라벨표](02_analysis/ast_finetune/labels_3539.csv)). [출처별 재현율](results/ast_finetune_pinniped_by_source.json)도 함께 분석했으나, 출처 편향이 성능 하락의 직접 원인인지는 별도 실험이 필요합니다. 다출처 자료 확보, 증강 · 합성 자료 활용은 후속 검증 방향입니다.
 
 레퍼런스 비교의 `ast_tile`은 10.24초 반복 채움 · 창 평균과 출처 분리 7-fold를 사용하고, 이 미세조정 비교는 1.28–10.24초 입력과 출처 분리 5-fold를 사용합니다. 따라서 위 BA 0.797과 미세조정 기준선 0.784는 서로 다른 설정의 결과입니다([표현 추출](01_pipeline_bench/src/b06_embed_pretrained.py), [미세조정 입력](02_analysis/ast_finetune/ast_core.py)).
 
@@ -62,10 +62,10 @@
 <p align="center"><sub>표현별 균형정확도: 빈 원 = 클립 무작위 분할, 채운 원 = 녹음 출처 분리(95% CI), 점선 = 메타데이터 기준선</sub></p>
 
 <p align="center"><img src="docs/figures/umap_generalisation.png" width="95%" alt="UMAP maps of VGGish embeddings coloured by species"></p>
-<p align="center"><sub>VGGish 임베딩 UMAP: 같은 출처 안에서는 종 군집이 뚜렷(분리도 0.83), 미학습 출처를 투영하면 0.16</sub></p>
+<p align="center"><sub>VGGish UMAP의 종 일치도 0.83, 미학습 출처 투영 시 0.16 (종 라벨을 활용한 시각화 진단)</sub></p>
 
 <p align="center"><img src="docs/figures/signal_type_bands.png" width="95%" alt="Signal-type features and taxon share by centre-frequency band"></p>
-<p align="center"><sub>신호 유형 특징의 판별력과 대역별 분류군 비율 → 분류기 설계의 근거</sub></p>
+<p align="center"><sub>Watkins DB 내 탐색적 신호 유형 특징 분석과 대역별 분류군 비율 → 처리 구조 제안의 근거</sub></p>
 
 <p align="center"><img src="docs/figures/data_structure.png" width="90%" alt="Species by recording source and species by sample-rate family"></p>
 <p align="center"><sub>데이터 구조: 종이 녹음 출처와 샘플레이트 계열에 묶여 있음(nested)</sub></p>
@@ -81,7 +81,7 @@
 
 ## 분석 코드 개요 (Watkins Marine Mammal Sound DB 스크리닝)
 
-Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분류 성능을 **녹음 비독립성(pseudoreplication)** 과 **녹음 조건 편향(recording bias)** 의 관점에서 다시 평가하고, 녹음 출처가 달라져도 유지되는 정보(신호 유형 · 대역 · 속성)를 찾는 분석 코드입니다.
+Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분류 성능을 **녹음 비독립성(pseudoreplication)** 과 **녹음 조건 편향(recording bias)** 의 관점에서 다시 평가하고, 녹음 출처 변화에 대한 일반화 가능성과 신호 유형 · 대역 · 속성의 판별력을 탐색하는 분석 코드입니다.
 
 - 대상: 전체 13,693클립 → 분석 대상 10,694클립(36종, 녹음 출처 49개) → 표본 3,539클립
 - 표현: 메타데이터 baseline(샘플레이트 · 클립 길이), 물리 특징 51개, MFCC, VGGish, EfficientNet-B3, AST(모두 가중치 고정)
@@ -92,7 +92,7 @@ Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분�
 | 확인한 것 | 결과 |
 |---|---|
 | 종 10개, 클립 랜덤 → 녹음 출처 분할 | BA 0.64–0.76 → 0.21–0.33 (출처 분리 메타데이터 baseline 0.24). [레퍼런스 결과](results/reference_v1_results.csv) |
-| 하락이 일어나는 단위 | 대부분 녹음 세션 단위에서 발생(종 BA 0.30–0.42). 세션 단위에서는 EffNet-B3 · AST · MFCC가 baseline을 유의하게 넘음. [분할 민감도 결과](results/stage1_species_fold_and_split_sensitivity.json) |
+| 하락이 일어나는 단위 | 세션 분리만으로 종 BA가 0.30–0.42로 하락. 세션 단위에서는 EffNet-B3 · AST · MFCC의 baseline 대비 차이의 95% CI가 0보다 큼. [분할 민감도 결과](results/stage1_species_fold_and_split_sensitivity.json) |
 | 분류군 (3) | AST의 세션 · 현장 · 출처 분할 점추정치가 baseline 대비 +0.11–0.16. [분할 민감도 결과](results/stage1_species_fold_and_split_sensitivity.json) |
 | 신호 유형 3분류, 40 kHz 샘플레이트 계열 평가 부분집합 | 출처 분리 BA 0.48–0.69 (baseline 0.34). 학습은 전체 계열, 평가만 부분집합 — 탐색적. [결과](results/signal_type3_regroup3.json) |
 | Tonal vs Pulsed | 물리 특징 · 펄스 반복률 · 켑스트럼 비교에서 기준선을 넘지 못함 (BA 0.56–0.58 < baseline 0.67). [평가 코드](02_analysis/tonal_vs_pulsed/eval.py) |
