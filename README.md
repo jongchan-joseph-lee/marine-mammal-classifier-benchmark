@@ -176,3 +176,7 @@ python 02_analysis/efficientnet_restore/eff_restored.py   # EfficientNet-B3 복�
 
 - Watkins Marine Mammal Sound Database, Woods Hole Oceanographic Institution. 본 분석은 Earth Species Project 공개본 v0.1.0을 사용했습니다. 원음과 메타데이터의 이용 조건은 WHOI 안내를 따르십시오.
 - 선행연구: Liang et al. 2025 (Applied Sciences), Cominelli et al. 2024 (Ecology and Evolution), Lipari et al. 2026 (IEEE Access), Kim et al. 2026 (Ecology and Evolution). 전체 목록은 `07_references/download_refs.sh`.
+
+## 라이선스
+
+코드는 MIT License를 따릅니다 ([`LICENSE`](LICENSE)). Watkins DB 원음 · 메타데이터와 사전학습 가중치는 저장소에 포함하지 않으며 각 원 조건을 따릅니다. [`docs/manuscript/`](docs/manuscript)의 원고 초안은 이 라이선스에 포함되지 않습니다.
