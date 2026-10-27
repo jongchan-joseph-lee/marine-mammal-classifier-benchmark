@@ -1,31 +1,27 @@
-# Marine Mammal Sound Classifier (해양포유류 음향 분류)
+# Side A · PAM — 해양포유류 음향 분류 레퍼런스 모델 벤치마크
 
-**Watkins Marine Mammal Sound Database의 해양포유류 음향 클립**에 공개 AI 레퍼런스 표현을 적용해 분류 성능을 비교하고, 녹음 출처 분리 · 메타데이터 기준선 · 신호 유형 및 물리 특징 분석으로 **녹음 조건 편향과 일반화 한계를 검토**한 연구 코드입니다. 별도로 AST 부분 미세조정이 분류군별 재현율과 전체 성능에 미치는 영향을 평가했습니다.
+> **PAM AI 벤치마크:** Watkins 3,539 클립 · 36종 · 녹음 출처 49개, 공개 레퍼런스 표현 5종 비교 및 녹음 출처 분리 평가
 
-수동 소나 · 수동 음향 모니터링(PAM) 적용을 위한 평가 방법과 신호 유형 기반 처리 구조를 제안합니다. **실제 평가 범위는 Watkins DB 내 해양포유류 분류**이며, 생물 소음과 비생물 표적 신호를 구분하는 성능이나 소나 운용 중 오경보 감소 효과는 검증하지 않았습니다.
+Watkins Marine Mammal Sound Database에 공개 AI 레퍼런스 표현(AST · VGGish · EfficientNet-B3 · MFCC · 물리 특징 51개)을 같은 조건으로 적용해 분류 성능을 비교하고, **녹음 출처를 분리했을 때 성능이 얼마나 유지되는지**와 **어떤 수준의 정보(신호 유형 · 물리량 · 분류군)가 출처를 넘어 일반화되는지**를 검토한 개인 연구입니다.
 
-> 레퍼런스 비교는 사전학습 가중치를 고정한 표현 + 동일한 선형 분류기로 수행했습니다. AST 미세조정 실험은 그 실험 안에서 고정 표현 기준선과 마지막 2블록 미세조정을 **동일한 녹음 출처 분리 5-fold**로 비교했습니다([코드](02_analysis/ast_finetune)). 두 실험의 입력 처리와 분할 설정이 달라 기준선 수치를 혼용하지 않습니다.
-
-## 구현 · 검증 범위
-
-| 구분 | 현재 범위 | 확인 근거 |
-|---|---|---|
-| 구현한 기능 | 자료 · 녹음 출처 구성, QC, 물리 특징 · 사전학습 표현 추출, 선형 분류기, 출처 단위 평가 · bootstrap, AST 부분 미세조정 | [`01_pipeline_bench/src`](01_pipeline_bench/src), [`02_analysis`](02_analysis) |
-| 정량 검증 | Watkins DB 내 종 · 분류군 · 콜 타입 분류의 분할별 성능, AST 미세조정 전후 분류군별 · 전체 성능 | [`results/reference_v1_results.csv`](results/reference_v1_results.csv), [`results/ast_finetune_results.json`](results/ast_finetune_results.json) |
-| 탐색적 분석 | 신호 유형 3분류, 물리 속성 · 대역별 분포, 약한 라벨을 이용한 속성 존재 여부 판정 | [`results/signal_type3_regroup3.json`](results/signal_type3_regroup3.json), [`results/stage2_attribute_presence.json`](results/stage2_attribute_presence.json) |
-| 설계 제안 | 신호 유형 → 측정 속성 · 대역 → 분류군 확률의 단계적 처리 구조 | 구성 요소를 분석한 단계이며 전체 구조의 연계 성능은 미검증 |
-| 향후 시스템 적용 | 생물 소음과 비생물 표적 신호의 구분, 소나 오경보 저감, 실시간 감시 | 비생물 표적 · 배경 소음 · 혼합 신호 자료와 시스템 시험 필요 |
-
-## 한눈에 보기
-
-| 항목 | 내용 |
+| | |
 |---|---|
-| 데이터 | Watkins Marine Mammal Sound Database (WHOI), Earth Species Project 공개본 v0.1.0. 13,693클립 → 분석 대상 10,694클립(36종, 녹음 출처 49개) → 표본 3,539클립 |
-| 레퍼런스 표현 | AST (Lipari et al. 2026), VGGish (Cominelli et al. 2024), EfficientNet-B3 (Kim et al. 2026), MFCC (Liang et al. 2025), 물리 특징 51개 (본 연구), 메타데이터 기준선(baseline) |
-| 분류기 | 레퍼런스 비교: 동일 선형 분류기(linear probe), 중앙값 대체 → 표준화 → ±8 절단 → PCA ≤ 64 → 로지스틱 회귀. AST 부분 미세조정은 별도 실험 |
-| 평가 | 레퍼런스 비교: 클립 무작위 5-fold(`filecv`) vs 녹음 출처 분리 7-fold(`allcv`) 등. AST 미세조정: 출처 분리 5-fold. 균형정확도(Balanced Accuracy, BA), 출처 bootstrap 95% 신뢰구간 |
+| **상태** | 분석 완료 · 논문 원고 초안 v3 ([PDF](docs/manuscript/Watkins_manuscript_v3_draft.pdf)) |
+| **데이터** | Watkins DB (WHOI), Earth Species Project 공개본 v0.1.0 — 13,693 → 10,694 클립(36종, 출처 49개) → 표본 3,539 클립 |
+| **평가** | 동일 linear probe, 클립 무작위 5-fold vs **녹음 출처 분리** 7-fold, 메타데이터 기준선(샘플레이트 · 길이), 출처 단위 bootstrap 95% CI |
+| **검증 등급** | 공개 DB 내 정량 평가 (실해역 · 비생물 표적 · 소나 오경보 미검증) |
 
 ## 핵심 결과
+
+| 결과 | 수치 | 의미 |
+|---|---|---|
+| 분류군(이빨고래 · 수염고래 · 기각류), 출처 분리 | AST BA **0.797** (메타데이터 기준선 0.680) | 출처가 바뀌어도 분류군 수준은 기준선을 넘어 유지 |
+| AST 부분 미세조정, 출처 분리 5-fold | 이빨고래 재현율 **0.942 → 0.973**, 수염고래 **0.827 → 0.889** | 고래류 재현율 상승 (기각류 하락으로 전체 BA는 0.784 → 0.752) |
+| 신호 유형(tonal · impulsive · pulsed), 출처 분리 · 40 kHz 계열 | BA **0.48–0.69** (기준선 0.34) | 종 대신 신호 유형 수준에서 일반화 (탐색적) |
+| impulsive 판별 단일 특징, 미학습 출처 | out-of-fold BA **0.867** | 물리량 하나로 신호 유형 구분 가능 (탐색적) |
+| 종 10개, 무작위 → 출처 분리 | BA 0.64–0.76 → **0.21–0.33** (기준선 0.24) | 종 단위 성능의 상당 부분은 녹음 조건에 의존 → 평가 설계 우선 |
+
+## 상세 결과
 
 ### 고정 표현 레퍼런스 비교
 
@@ -70,24 +66,7 @@
 <p align="center"><img src="docs/figures/data_structure.png" width="90%" alt="Species by recording source and species by sample-rate family"></p>
 <p align="center"><sub>데이터 구조: 종이 녹음 출처와 샘플레이트 계열에 묶여 있음(nested)</sub></p>
 
-## 소나 신호처리 적용 방향 (제안 · 미검증 범위)
-
-- **평가 방법의 활용**: 출처 분할, 메타데이터 기준선, 분류군별 성능 · 신뢰구간을 함께 보는 방법은 소나 AI 시험평가 설계에 참고할 수 있습니다. 본 연구에서 출처가 달라질 때 성능이 어떻게 바뀌는지를 정량적으로 확인했습니다.
-- **처리 구조의 확장 가능성**: 신호 유형과 측정 속성을 먼저 분석하는 구조를 생물 소음 분류 또는 소나 후보 신호의 보조 특징으로 검토할 수 있습니다. 다만 현재 모델과 수치는 Watkins DB의 해양포유류 분류에 해당하며, **비생물 표적과의 구분 성능 · 오경보 저감 효과를 입증하지 않습니다.**
-- **다음 검증 단계**: 비생물 표적, 선박 · 환경 소음, 생물·비생물 혼합 신호를 포함한 별도 자료에서 학습 · 시험하고, 해역 · 장비 · 녹음 조건을 분리해 재현율 · 오경보율을 평가해야 합니다. 단계적 처리 구조와 실시간 적용은 연계 성능 · 처리 지연 검증을 거쳐야 합니다.
-- 측면주사 소나 연구 [sss-mine-detection-benchmark](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark)(Side B)에서도 중복 자료 관리와 평가 분할에 따른 성능 차이를 분석했습니다.
-
----
-
-## 분석 코드 개요 (Watkins Marine Mammal Sound DB 스크리닝)
-
-Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분류 성능을 **녹음 비독립성(pseudoreplication)** 과 **녹음 조건 편향(recording bias)** 의 관점에서 다시 평가하고, 녹음 출처 변화에 대한 일반화 가능성과 신호 유형 · 대역 · 속성의 판별력을 탐색하는 분석 코드입니다.
-
-- 대상: 전체 13,693클립 → 분석 대상 10,694클립(36종, 녹음 출처 49개) → 표본 3,539클립
-- 표현: 메타데이터 baseline(샘플레이트 · 클립 길이), 물리 특징 51개, MFCC, VGGish, EfficientNet-B3, AST(모두 가중치 고정)
-- 평가: 같은 linear probe(중앙값 대체 → 표준화 → ±8 절단 → PCA ≤ 64 → 로지스틱 회귀, class_weight=balanced)를 클립 랜덤 · 녹음 세션 · 현장 묶음 · 녹음 출처 단위 분할로 비교, 출처 단위 bootstrap 95% CI
-
-### 주요 결과 (Watkins DB 내 분석)
+### 분석별 결과 요약
 
 | 확인한 것 | 결과 |
 |---|---|
@@ -99,7 +78,54 @@ Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분�
 | 속성 기반 멀티라벨 판정 | impulsive 있음 AUROC: 속성 13개 0.894, 물리 특징 51개 0.865, 메타데이터 0.814. [약한 라벨 기반 결과](results/stage2_attribute_presence.json) |
 | EfficientNet-B3 전처리 복원 | 저장 벡터와 cosine 평균 0.995 (3,539클립) |
 
-### 폴더 구성
+## 논문 원고
+
+**What generalises across recordings? Data leakage, recording-condition confounding and signal-type structure in the Watkins Marine Mammal Sound Database** — 초안 v3 (2026-10-12)
+
+- 원고: [docs/manuscript/Watkins_manuscript_v3_draft.pdf](docs/manuscript/Watkins_manuscript_v3_draft.pdf)
+- 이 저장소의 코드와 [`results/`](results) 수치가 원고의 근거입니다. 원고 3.5–3.7절은 첫 결과를 본 뒤 정의한 탐색적 분석으로 표시되어 있습니다.
+- 투고 전 초안입니다. 저자 · 소속은 추가 예정이며, 인용 · 활용 시 저자에게 문의해 주십시오.
+
+## 소나 신호처리 적용 방향 (제안 · 미검증 범위)
+
+- **평가 방법의 활용**: 출처 분할, 메타데이터 기준선, 분류군별 성능 · 신뢰구간을 함께 보는 방법은 소나 AI 시험평가 설계에 참고할 수 있습니다. 본 연구에서 출처가 달라질 때 성능이 어떻게 바뀌는지를 정량적으로 확인했습니다.
+- **처리 구조의 확장 가능성**: 신호 유형과 측정 속성을 먼저 분석하는 구조를 생물 소음 분류 또는 소나 후보 신호의 보조 특징으로 검토할 수 있습니다. 다만 현재 모델과 수치는 Watkins DB의 해양포유류 분류에 해당하며, **비생물 표적과의 구분 성능 · 오경보 저감 효과를 입증하지 않습니다.**
+- **다음 검증 단계**: 비생물 표적, 선박 · 환경 소음, 생물·비생물 혼합 신호를 포함한 별도 자료에서 학습 · 시험하고, 해역 · 장비 · 녹음 조건을 분리해 재현율 · 오경보율을 평가해야 합니다. 단계적 처리 구조와 실시간 적용은 연계 성능 · 처리 지연 검증을 거쳐야 합니다.
+- 측면주사 소나 연구 [Side B · SSS](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark)에서도 중복 자료 관리와 평가 분할에 따른 성능 차이를 분석했습니다.
+
+## 실행
+
+```bash
+pip install -r requirements.txt
+npm install            # PPT · 아이콘 · 스크린샷 스크립트를 쓸 때만
+python tools/set_root.py ~/watkins_work   # 스크립트 속 /home/claude/ 를 내 작업 폴더로 바꿈
+```
+
+스크립트는 아래 작업 공간 구조를 가정합니다(데이터는 저장소에 포함하지 않음).
+
+```
+<ROOT>/
+├── audio_core/<cut_id>.flac          # 표본 3,539클립 원음 (원 샘플레이트)
+├── pkg_in/data/                      # bench_manifest.csv, core_3539_metadata.csv, main_10694_metadata.csv ...
+├── pkg_in/work/features/*.npz        # meta, physv0, mfcc16k, vggish, effb3, ast_tile, ast_zero (3,539행)
+├── pkg_in/full_cohort/features/*.npz # 10,694행
+├── ref_v1/eval/reference_v1/         # reference_v1 결과 (results.csv, paired.csv, per_class.csv ...)
+└── (각 분석 스크립트가 만드는 출력 폴더)
+```
+
+`01_pipeline_bench/src`의 `b01` → `b02` → `b04` → `b05` → `b06` → `b07` 순서로 manifest · 특징 · 평가를 다시 만들 수 있습니다.
+
+다시 계산하는 예:
+
+```bash
+python 02_analysis/stage1_checks/repro.py        # 기존 linear probe 재현 확인
+python 02_analysis/stage1_checks/run1.py         # 출처 정의별 민감도
+python 02_analysis/stage2_checks/phys2.py        # band SNR d0/d1 · Nyquist 결측 · 프레임 속성
+python 02_analysis/efficientnet_restore/eff_restored.py   # EfficientNet-B3 복원 전처리로 재추출
+```
+
+<details>
+<summary><b>저장소 구성</b></summary>
 
 | 폴더 | 내용 |
 |---|---|
@@ -125,38 +151,9 @@ Watkins Marine Mammal Sound Database(WHOI)로 보고된 해양포유류 종 분�
 | `results` | 계산 결과 표(JSON · CSV): reference_v1, 콜 타입 6종, 신호 유형, 공통 대역, 1 · 2단계 점검, 속성 표, 전문가 검증 후보 |
 | `tools/set_root.py` | 작업 공간 경로 바꾸기 |
 
-### 실행 준비
+</details>
 
-```bash
-pip install -r requirements.txt
-npm install            # PPT · 아이콘 · 스크린샷 스크립트를 쓸 때만
-python tools/set_root.py ~/watkins_work   # 스크립트 속 /home/claude/ 를 내 작업 폴더로 바꿈
-```
-
-스크립트는 아래 작업 공간 구조를 가정합니다(데이터는 저장소에 포함하지 않음).
-
-```
-<ROOT>/
-├── audio_core/<cut_id>.flac          # 표본 3,539클립 원음 (원 샘플레이트)
-├── pkg_in/data/                      # bench_manifest.csv, core_3539_metadata.csv, main_10694_metadata.csv ...
-├── pkg_in/work/features/*.npz        # meta, physv0, mfcc16k, vggish, effb3, ast_tile, ast_zero (3,539행)
-├── pkg_in/full_cohort/features/*.npz # 10,694행
-├── ref_v1/eval/reference_v1/         # reference_v1 결과 (results.csv, paired.csv, per_class.csv ...)
-└── (각 분석 스크립트가 만드는 출력 폴더)
-```
-
-`01_pipeline_bench/src`의 `b01` → `b02` → `b04` → `b05` → `b06` → `b07` 순서로 manifest · 특징 · 평가를 다시 만들 수 있습니다.
-
-### 다시 계산하는 예
-
-```bash
-python 02_analysis/stage1_checks/repro.py        # 기존 linear probe 재현 확인
-python 02_analysis/stage1_checks/run1.py         # 출처 정의별 민감도
-python 02_analysis/stage2_checks/phys2.py        # band SNR d0/d1 · Nyquist 결측 · 프레임 속성
-python 02_analysis/efficientnet_restore/eff_restored.py   # EfficientNet-B3 복원 전처리로 재추출
-```
-
-### 주의
+## 한계
 
 - 평가는 Watkins DB의 해양포유류 음향 클립을 대상으로 했습니다. 비생물 표적과의 구분, 연속 녹음에서의 이벤트 탐지, 실제 소나 오경보율 · 실해역 운용 성능은 검증하지 않았습니다.
 - 녹음 출처 단위 분리는 DB 내 일반화 평가입니다. 독립 외부 DB나 모든 해역 · 장비 조건에 대한 일반화를 보장하지 않습니다.
@@ -167,7 +164,15 @@ python 02_analysis/efficientnet_restore/eff_restored.py   # EfficientNet-B3 복�
 - 부록 A7(선행연구 절차) 결과의 RF 설정은 원래 실행 코드를 다시 확인하지 못했습니다.
 - AST 가중치: `MIT/ast-finetuned-audioset-10-10-0.4593`, revision `f826b80d28226b62986cc218e5cec390b1096902`.
 
-### 데이터와 인용
+## 관련 저장소
+
+| | 저장소 | 내용 |
+|---|---|---|
+| **Side A · PAM** | marine-mammal-classifier-benchmark (현재) | 해양포유류 음향 분류 레퍼런스 모델 벤치마크 |
+| **Side B · SSS** | [sss-mine-detection-benchmark](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark) | 측면주사 소나 기뢰유사물체 탐지 · 분류 벤치마크 |
+| **Side C · SAS** | [SAS_signal_processing](https://github.com/jongchan-joseph-lee/SAS_signal_processing) | 공개 합성 SAS 원시 신호 처리 · 영상 형성 검증 |
+
+## 데이터와 인용
 
 - Watkins Marine Mammal Sound Database, Woods Hole Oceanographic Institution. 본 분석은 Earth Species Project 공개본 v0.1.0을 사용했습니다. 원음과 메타데이터의 이용 조건은 WHOI 안내를 따르십시오.
 - 선행연구: Liang et al. 2025 (Applied Sciences), Cominelli et al. 2024 (Ecology and Evolution), Lipari et al. 2026 (IEEE Access), Kim et al. 2026 (Ecology and Evolution). 전체 목록은 `07_references/download_refs.sh`.
