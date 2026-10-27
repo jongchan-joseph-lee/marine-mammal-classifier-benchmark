@@ -21,6 +21,9 @@ Watkins Marine Mammal Sound Database에 공개 AI 레퍼런스 표현(AST · VGG
 | impulsive 판별 단일 특징, 미학습 출처 | out-of-fold BA **0.867** | 물리량 하나로 신호 유형 구분 가능 (탐색적) |
 | 종 10개, 무작위 → 출처 분리 | BA 0.64–0.76 → **0.21–0.33** (기준선 0.24) | 종 단위 성능의 상당 부분은 녹음 조건에 의존 → 평가 설계 우선 |
 
+<p align="center"><img src="docs/figures/balanced_accuracy_by_split.png" width="85%" alt="Balanced accuracy by representation for species, call type and taxon, random clip split versus recording-source split"></p>
+<p align="center"><sub>표현별 균형정확도: 빈 원 = 클립 무작위 분할, 채운 원 = 녹음 출처 분리(95% CI), 점선 = 메타데이터 기준선</sub></p>
+
 ## 상세 결과
 
 ### 고정 표현 레퍼런스 비교
@@ -54,8 +57,8 @@ Watkins Marine Mammal Sound Database에 공개 AI 레퍼런스 표현(AST · VGG
 <p align="center"><img src="docs/figures/ast_finetune.png" width="95%" alt="AST partial fine-tuning: per-taxon recall gains and losses, with lower overall balanced accuracy"></p>
 <p align="center"><sub>출처 분리 5-fold: 고래류 재현율 상승, 기각류 재현율 및 전체 균형정확도 하락</sub></p>
 
-<p align="center"><img src="docs/figures/balanced_accuracy_by_split.png" width="85%" alt="Balanced accuracy by representation for species, call type and taxon, random clip split versus recording-source split"></p>
-<p align="center"><sub>표현별 균형정확도: 빈 원 = 클립 무작위 분할, 채운 원 = 녹음 출처 분리(95% CI), 점선 = 메타데이터 기준선</sub></p>
+<details>
+<summary><b>그림 더 보기</b> — UMAP · 신호 유형 · 데이터 구조 · 기각류 출처별 재현율</summary>
 
 <p align="center"><img src="docs/figures/umap_generalisation.png" width="95%" alt="UMAP maps of VGGish embeddings coloured by species"></p>
 <p align="center"><sub>VGGish UMAP의 종 일치도 0.83, 미학습 출처 투영 시 0.16 (종 라벨을 활용한 시각화 진단)</sub></p>
@@ -65,6 +68,11 @@ Watkins Marine Mammal Sound Database에 공개 AI 레퍼런스 표현(AST · VGG
 
 <p align="center"><img src="docs/figures/data_structure.png" width="90%" alt="Species by recording source and species by sample-rate family"></p>
 <p align="center"><sub>데이터 구조: 종이 녹음 출처와 샘플레이트 계열에 묶여 있음(nested)</sub></p>
+
+<p align="center"><img src="docs/figures/ast_finetune_pinniped.png" width="95%" alt="AST fine-tuning pinniped recall by recording source"></p>
+<p align="center"><sub>기각류 재현율의 출처별 분해: 6개 출처 중 5개에서 하락</sub></p>
+
+</details>
 
 ### 분석별 결과 요약
 
