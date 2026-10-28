@@ -70,7 +70,7 @@ Watkins Marine Mammal Sound Database에 공개 AI 레퍼런스 표현(AST · VGG
 <p align="center"><sub>데이터 구조: 종이 녹음 출처와 샘플레이트 계열에 묶여 있음(nested)</sub></p>
 
 <p align="center"><img src="docs/figures/ast_finetune_pinniped.png" width="95%" alt="AST fine-tuning pinniped recall by recording source"></p>
-<p align="center"><sub>기각류 재현율의 출처별 분해: 6개 출처 중 5개에서 하락</sub></p>
+<p align="center"><sub>기각류 재현율의 출처별 분해: 8개 출처 중 5개에서 하락, 3개에서 변화 없음</sub></p>
 
 </details>
 
