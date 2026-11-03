@@ -38,7 +38,7 @@ Watkins DB는 해양포유류 음향 표현을 개발 · 비교할 때 가장 �
 | 2. 표현 추출 (Feature extraction) | 고정 AST · VGGish · EfficientNet-B3, 물리 특징 51개, MFCC, 녹음 조건 기준선 | 수행 | `b05`, `b06` |
 | 3. 분류 평가 (Linear-probe classification) | 표준화 → PCA(≤64) → 로지스틱 회귀, 과제: 분류군(3) · 콜 타입(7) · 종(10) | 수행 | `b07`, [`results/reference_v1_results.csv`](results/reference_v1_results.csv) |
 | 4. 분할 비교 (Random vs source-disjoint split) | 클립 무작위 5-fold vs 녹음 출처 분리 7-fold, 출처 단위 재표본 신뢰구간 | 수행 | 같은 결과 파일 |
-| 5. 이웃 · 투영 진단 (Nearest-neighbour and UMAP diagnostics) | 10-최근접 이웃의 라벨 일치율, UMAP 투영 | 수행 (난수 seed 1개, 신뢰구간 없음) | [`02_analysis/nearest_neighbours`](02_analysis/nearest_neighbours) |
+| 5. 이웃 · 투영 진단 (Nearest-neighbour and projection diagnostics) | 10-최근접 이웃의 라벨 일치율, UMAP · t-SNE 2차원 투영 | 수행 (난수 seed 1개, 신뢰구간 없음) | [`02_analysis/nearest_neighbours`](02_analysis/nearest_neighbours), [`03_web/cluster_maps`](03_web/cluster_maps) |
 | 6. 신호 유형 · 물리량 · 주파수 대역 (Signal type, physical quantities and frequency band) | 3개 신호 유형, 단일 물리량 판별력, 대역별 분류군 구성 | **탐색적** (첫 결과를 본 뒤 정의) | [`02_analysis/signal_type3`](02_analysis/signal_type3), [`results/`](results) |
 | 7. 독립 자료 · 연속 녹음 검증 (Independent-archive and continuous-recording validation) | 다른 아카이브에서 신호 유형 정의 고정 후 평가 | 미수행 (후속 단계) | — |
 
@@ -62,13 +62,18 @@ Watkins DB는 해양포유류 음향 표현을 개발 · 비교할 때 가장 �
 - 원고는 이 관찰로부터 *신호 구간 검출 → 물리량 측정 → 신호 유형 · 대역 기반 분류군 확률* 구조의 설계 요건을 제안합니다. 이 구조는 **구현 · 검증하지 않은 제안**입니다.
 
 <details>
-<summary><b>원고 그림 더 보기</b> — 자료 구조 · UMAP · 신호 유형 · 물리량 · 대역</summary>
+<summary><b>원고 그림 더 보기</b> — 자료 구조 · UMAP · t-SNE · 신호 유형 · 물리량 · 대역</summary>
 
 <p align="center"><img src="docs/figures/fig2_data_structure.png" width="85%" alt="Species by number of recording sources and sampling-rate family by taxon"></p>
 <p align="center"><sub>Figure 2 — (a) 종별 녹음 출처 수, (b) 분류군별 샘플레이트 계열 구성</sub></p>
 
 <p align="center"><img src="docs/figures/fig4_umap.png" width="85%" alt="UMAP of VGGish vectors"></p>
-<p align="center"><sub>Figure 4 — VGGish 표현의 UMAP. (c) 미학습 출처 투영 시 종 회복 BA 0.16</sub></p>
+<p align="center"><sub>Figure 4 대응 — VGGish 표현의 UMAP (3,539 클립 표본). (c) 개발 출처 29개로 만든 종 지도 UMAP에 처음 보는 출처 20개를 투영. 일치도(agreement)는 2차원 지도에서 15-최근접 이웃 투표의 균형정확도</sub></p>
+
+<p align="center"><img src="docs/figures/fig4b_tsne.png" width="75%" alt="t-SNE of VGGish vectors coloured by species and by taxon"></p>
+<p align="center"><sub>추가 그림(원고 미포함) — 같은 표본의 VGGish 표현 t-SNE (비지도). (a) 종별 색, (b) 분류군별 색. t-SNE는 새 자료를 기존 지도에 투영할 수 없어 (c)에 해당하는 그림은 없음</sub></p>
+
+<sub>두 그림은 원고 Figure 4와 같은 설계(같은 표본 · 출처 분할)의 스크리닝 결과집 실행본에서 다시 그렸습니다. 실행이 달라 일치도 값이 원고와 조금 다릅니다(원고: 0.44 / 0.83 / 0.77 · 0.16, 이 그림: 0.48 / 0.76 / 0.74 · 0.09). 좌표: [`results/projection_vggish_core3539.npz`](results/projection_vggish_core3539.npz), 코드: [`04_figures/fig_projection_readme.py`](04_figures/fig_projection_readme.py)</sub>
 
 <p align="center"><img src="docs/figures/fig5_signal_type.png" width="85%" alt="Balanced accuracy for three signal types"></p>
 <p align="center"><sub>Figure 5 — 신호 유형 3분류 균형정확도 (탐색적)</sub></p>
