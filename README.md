@@ -34,13 +34,13 @@ Watkins DB는 해양포유류 음향 표현을 개발 · 비교할 때 가장 �
 
 | 단계 | 내용 | 수행 범위 | 근거 |
 |---|---|---|---|
-| 1. 자료 선별 | 수질 · 녹음 환경(수조 · 공기 중 · 다종 혼재) 기준 제외, 녹음 출처(지역 + 연도) 정의 | 수행 | [`01_pipeline_bench/src`](01_pipeline_bench/src) `b01`–`b04` |
-| 2. 표현 추출 | 고정 AST · VGGish · EfficientNet-B3, 물리 특징 51개, MFCC, 녹음 조건 기준선 | 수행 | `b05`, `b06` |
-| 3. 분류 평가 | 표준화 → PCA(≤64) → 로지스틱 회귀, 과제: 분류군(3) · 콜 타입(7) · 종(10) | 수행 | `b07`, [`results/reference_v1_results.csv`](results/reference_v1_results.csv) |
-| 4. 분할 비교 | 클립 무작위 5-fold vs 녹음 출처 분리 7-fold, 출처 단위 재표본 신뢰구간 | 수행 | 같은 결과 파일 |
-| 5. 이웃 · 투영 진단 | 10-최근접 이웃의 라벨 일치율, UMAP 투영 | 수행 (난수 seed 1개, 신뢰구간 없음) | [`02_analysis/nearest_neighbours`](02_analysis/nearest_neighbours) |
-| 6. 신호 유형 · 물리량 · 주파수 대역 | 3개 신호 유형, 단일 물리량 판별력, 대역별 분류군 구성 | **탐색적** (첫 결과를 본 뒤 정의) | [`02_analysis/signal_type3`](02_analysis/signal_type3), [`results/`](results) |
-| 7. 독립 자료 · 연속 녹음 검증 | 다른 아카이브에서 신호 유형 정의 고정 후 평가 | 미수행 (후속 단계) | — |
+| 1. 자료 선별 (Data curation) | 수질 · 녹음 환경(수조 · 공기 중 · 다종 혼재) 기준 제외, 녹음 출처(지역 + 연도) 정의 | 수행 | [`01_pipeline_bench/src`](01_pipeline_bench/src) `b01`–`b04` |
+| 2. 표현 추출 (Feature extraction) | 고정 AST · VGGish · EfficientNet-B3, 물리 특징 51개, MFCC, 녹음 조건 기준선 | 수행 | `b05`, `b06` |
+| 3. 분류 평가 (Linear-probe classification) | 표준화 → PCA(≤64) → 로지스틱 회귀, 과제: 분류군(3) · 콜 타입(7) · 종(10) | 수행 | `b07`, [`results/reference_v1_results.csv`](results/reference_v1_results.csv) |
+| 4. 분할 비교 (Random vs source-disjoint split) | 클립 무작위 5-fold vs 녹음 출처 분리 7-fold, 출처 단위 재표본 신뢰구간 | 수행 | 같은 결과 파일 |
+| 5. 이웃 · 투영 진단 (Nearest-neighbour and UMAP diagnostics) | 10-최근접 이웃의 라벨 일치율, UMAP 투영 | 수행 (난수 seed 1개, 신뢰구간 없음) | [`02_analysis/nearest_neighbours`](02_analysis/nearest_neighbours) |
+| 6. 신호 유형 · 물리량 · 주파수 대역 (Signal type, physical quantities and frequency band) | 3개 신호 유형, 단일 물리량 판별력, 대역별 분류군 구성 | **탐색적** (첫 결과를 본 뒤 정의) | [`02_analysis/signal_type3`](02_analysis/signal_type3), [`results/`](results) |
+| 7. 독립 자료 · 연속 녹음 검증 (Independent-archive and continuous-recording validation) | 다른 아카이브에서 신호 유형 정의 고정 후 평가 | 미수행 (후속 단계) | — |
 
 ## 3. 결과 요약
 
