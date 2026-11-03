@@ -42,6 +42,26 @@ Watkins DB는 해양포유류 음향 표현을 개발 · 비교할 때 가장 �
 | 6. 신호 유형 · 물리량 · 주파수 대역 (Signal type, physical quantities and frequency band) | 3개 신호 유형, 단일 물리량 판별력, 대역별 분류군 구성 | **탐색적** (첫 결과를 본 뒤 정의) | [`02_analysis/signal_type3`](02_analysis/signal_type3), [`results/`](results) |
 | 7. 독립 자료 · 연속 녹음 검증 (Independent-archive and continuous-recording validation) | 다른 아카이브에서 신호 유형 정의 고정 후 평가 | 미수행 (후속 단계) | — |
 
+<details>
+<summary><b>특징 추출기별 처리 예시</b> — 북대서양긴수염고래(North Atlantic right whale) moan 클립 1개</summary>
+
+<p align="center"><img src="docs/figures/extractor_example.png" width="95%" alt="One right whale clip passed through AST, VGGish, EfficientNet-B3, MFCC and physical descriptors: model input, processing and output vector"></p>
+<p align="center"><sub>클립 8101403Z (<i>Eubalaena glacialis</i>, 14.9 kHz, 2.16 s, 하모닉 0.4–6 kHz)를 다섯 표현에 넣었을 때의 모델 입력, 처리 구조, 출력 벡터. 출력 벡터는 이 클립의 실제 값을 벡터 안에서 표준화(z)해 색으로 표시</sub></p>
+
+| 표현 | 전처리 (Preprocessing) | 처리 구조 (Architecture) | 사전학습 자료 | 차원 |
+|---|---|---|---|---|
+| AST | 16 kHz 재표본, 10.24 s로 반복 채움, log-mel 128 × 1024 | 16 × 16 패치 1,212개 → Transformer 12층 → pooled output | AudioSet | 768 |
+| VGGish | 16 kHz 재표본, 0.96 s마다 log-mel 64 × 96 | 합성곱 4단 + 완전연결 3층, 패치별 128 → 평균 | AudioSet | 128 |
+| EfficientNet-B3 | 40 kHz 재표본, 5 s로 반복 채움, STFT 영상 300 × 800 | MBConv CNN → 전역 평균 풀링 | ImageNet (영상) | 1,536 |
+| MFCC | 16 kHz 재표본, 25 ms 프레임, mel 64대역 (50–8,000 Hz) | log → DCT (c1–c20) → 평균 · 표준편차 · Δ평균 · Δ표준편차 | 없음 | 80 |
+| 물리 특징 (Physical descriptors) | 원 샘플레이트 그대로, STFT 32 ms 창 | 대역 에너지 · 시간 구조 · 음조성 · 충격성 · 반복성 계산식 | 없음 | 51 |
+
+- 16 kHz로 재표본하는 표현(AST · VGGish · MFCC)은 0–8 kHz만 봅니다. EfficientNet-B3 입력에는 원 샘플레이트의 나이퀴스트(Nyquist) 주파수(이 클립은 7.45 kHz) 위로 빈 대역이 그대로 남습니다. 이 빈 대역의 폭은 녹음 조건에 따라 달라지므로, 소리가 아닌 녹음 조건을 알려 주는 단서가 될 수 있습니다.
+- 어느 표현도 해양포유류 음향으로 학습되지 않았습니다(AST · VGGish는 일반 오디오, EfficientNet-B3는 사진).
+- 출력 벡터는 이 저장소의 코드로 다시 계산한 값입니다 ([`04_figures/extractor_example`](04_figures/extractor_example), [`results/extractor_example_8101403Z.npz`](results/extractor_example_8101403Z.npz)). 오디오는 Hugging Face 공개 사본 `ivangtorre/watkins-marine-mammal-full-cuts`에서 받았습니다.
+
+</details>
+
 ## 3. 결과 요약
 
 | 질문 | 관찰 결과 (원고 기준) |
