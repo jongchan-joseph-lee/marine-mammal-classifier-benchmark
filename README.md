@@ -162,7 +162,7 @@ python tools/set_root.py ~/watkins_work   # 스크립트의 작업 경로를 내
 ## 관련 저장소
 
 - [sss-mine-detection-benchmark](https://github.com/jongchan-joseph-lee/sss-mine-detection-benchmark) — 측면주사 소나 공개 영상의 기뢰유사물체 탐지 · 분류 평가
-- [sas_signal_processing](https://github.com/jongchan-joseph-lee/sas_signal_processing) — 공개 합성 SAS 원시 신호의 영상 형성 · 검증
+- [SAS_signal_processing](https://github.com/jongchan-joseph-lee/SAS_signal_processing) — 공개 합성 SAS 원시 신호의 영상 형성 · 검증
 
 ## 라이선스
 

@@ -12,5 +12,4 @@ torch>=2.8                 # CPU build is enough
 torchvision>=0.23          # EfficientNet-B3 ImageNet weights
 torchaudio>=2.8
 transformers>=4.56         # AST (MIT/ast-finetuned-audioset-10-10-0.4593, revision f826b80d...)
-python-pptx>=1.0           # 05_deck
 lxml>=5

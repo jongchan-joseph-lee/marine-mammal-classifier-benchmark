@@ -22,7 +22,4 @@
 | 전체 정확도 | 0.88 | 0.89 | +0.01 (−0.02 ~ +0.03) |
 | 균형정확도 | 0.78 | 0.75 | −0.03 (−0.05 ~ −0.01) |
 
-1 epoch도 같은 경향(BA 0.75). 다수 분류군은 개선되지만 기각류는 9종 중 7종이 단일 출처(기각류 클립의 86%)라 미세조정이 출처 특성을 학습해 하락 → 증강 · 합성 자료로 출처 다양화가 다음 단계입니다.
-
-<p align="center"><img src="../../docs/figures/ast_finetune.png" width="95%" alt="AST partial fine-tuning: structure, per-class recall change and overall metrics"></p>
-<p align="center"><img src="../../docs/figures/ast_finetune_pinniped.png" width="95%" alt="Fine-tuning procedure, data structure by taxon and pinniped recall by recording source"></p>
+1 epoch도 같은 경향(BA 0.75). 이빨고래 · 수염고래 재현율은 올랐고 기각류 재현율은 내려갔습니다. 기각류는 9종 중 7종이 단일 출처(기각류 클립의 86%)여서, 미세조정이 출처 특성에 맞춰졌을 가능성이 있습니다(원인은 검증하지 않음). 출처를 다양화한 자료로 다시 확인하는 것이 후속 과제입니다.
