@@ -1,4 +1,4 @@
-import sys; sys.path.insert(0,'/home/claude/b4k'); from emb import *
+import sys; sys.path.insert(0,'/path/to/watkins_work/b4k'); from emb import *
 import json, scipy.signal as ss
 from transformers import ASTFeatureExtractor, ASTModel
 from vggish_reference import VGGishInputProcessor

@@ -3,7 +3,7 @@ from matplotlib.colors import LinearSegmentedColormap, LogNorm
 from matplotlib.patches import Rectangle
 plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"font.size":10,"axes.linewidth":0.6,"axes.spines.top":False,"axes.spines.right":False,"legend.frameon":False})
 K="#0B4EA2"; C2="#00B5E2"; TXC={"Odontoceti":K,"Mysticeti":C2,"Pinnipedia":"#9AA5AE"}
-m=pd.read_csv('/home/claude/pkg_in/data/main_10694_metadata.csv',low_memory=False)
+m=pd.read_csv('/path/to/watkins_work/pkg_in/data/main_10694_metadata.csv',low_memory=False)
 M=pd.crosstab(m.species,m.g_site); tax=m.groupby('species').group3.first()
 # order species by taxon then by size; sources by first species they belong to (diagonal look)
 order_t={"Mysticeti":0,"Odontoceti":1,"Pinnipedia":2}

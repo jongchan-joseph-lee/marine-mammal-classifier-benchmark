@@ -6,8 +6,8 @@ from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import balanced_accuracy_score
-FD='/home/claude/pkg_in/work/features'
-D=pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv',low_memory=False); D['cut_id']=D.cut_id.astype(str); D=D.set_index('cut_id')
+FD='/path/to/watkins_work/pkg_in/work/features'
+D=pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv',low_memory=False); D['cut_id']=D.cut_id.astype(str); D=D.set_index('cut_id')
 IDS=np.load(f'{FD}/physv0.npz',allow_pickle=True)['cut_id'].astype(str)
 M=D.loc[IDS].copy()
 FEATS=['meta','physv0','mfcc16k','vggish','effb3','ast_tile']

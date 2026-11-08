@@ -5,7 +5,7 @@ from PIL import Image
 ids = json.load(open('data_core.json'))['clips']['id']
 CAP = 15.0; TW, FH = 96, 64
 def enc(cid):
-    src = f'/home/claude/audio_core/{cid}.flac'; dst = f'aud/{cid}.webm'
+    src = f'/path/to/watkins_work/audio_core/{cid}.flac'; dst = f'aud/{cid}.webm'
     x, fs = sf.read(src)
     if x.ndim > 1: x = x[:, 0]
     x = x[:int(CAP * fs)]

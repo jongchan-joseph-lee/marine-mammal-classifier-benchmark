@@ -5,7 +5,7 @@
 Clips < 5 s are tiled to 5 s; longer clips are cut into 5 s windows (last window aligned to the end) and averaged."""
 from effcommon import *
 import json, os, sys
-z=np.load('/home/claude/pkg_in/work/features/effb3.npz',allow_pickle=True); ids=z['cut_id'].astype(str); ST=z['X']
+z=np.load('/path/to/watkins_work/pkg_in/work/features/effb3.npz',allow_pickle=True); ids=z['cut_id'].astype(str); ST=z['X']
 out='eff_restored.npy'; done=np.load(out) if os.path.exists(out) else np.full((len(ids),1536),np.nan,np.float32)
 for i,c in enumerate(ids):
     if not np.isnan(done[i,0]): continue

@@ -7,7 +7,7 @@ plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"fo
  "xtick.major.width":0.5,"ytick.major.width":0.5,"xtick.major.size":2,"ytick.major.size":2})
 NAVY="#0B4EA2"; ORG="#E07B00"
 def spec(cid):
-    x,fs=sf.read(f"/home/claude/audio_core/{cid}.flac")
+    x,fs=sf.read(f"/path/to/watkins_work/audio_core/{cid}.flac")
     if x.ndim>1: x=x[:,0]
     g=gcd(16000,fs); y=resample_poly(x,16000//g,fs//g)
     f,t,Z=stft(y,16000,nperseg=512,noverlap=384)
@@ -28,7 +28,7 @@ for k,(cid,lab) in enumerate([("8800601U","(a) Bowhead moan, fs 10 kHz → 16 kH
     else:
         ax.text(t[-1]*0.97,7.6,"recorded to 20 kHz:\n0–8 kHz all filled,\nwhistle (> 8 kHz) cut",ha="right",va="top",fontsize=7.5,color="white")
 # (c)
-d=pd.read_csv("/home/claude/pkg_in/data/bench_manifest.csv",low_memory=False)
+d=pd.read_csv("/path/to/watkins_work/pkg_in/data/bench_manifest.csv",low_memory=False)
 m=d[(d.eligible==True)&(d.fs_family!="LF(<5k)")]
 fams=["5k","10k","20k","40k","80k","160k"]; cols=["#DCEBF7","#A9CDEB","#6FA8DC","#3D7CC9","#0B4EA2","#062C5E"]
 ax=fig.add_subplot(gs[1,:])

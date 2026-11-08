@@ -10,7 +10,7 @@ def model():
         m=torchvision.models.efficientnet_b3(weights=torchvision.models.EfficientNet_B3_Weights.DEFAULT); m.eval(); _M=m
     return _M
 def load40(cid):
-    x,fs=sf.read(f'/home/claude/audio_core/{cid}.flac'); x=x[:,0] if x.ndim>1 else x; x=x-x.mean()
+    x,fs=sf.read(f'/path/to/watkins_work/audio_core/{cid}.flac'); x=x[:,0] if x.ndim>1 else x; x=x-x.mean()
     g=gcd(40000,fs); return resample_poly(x,40000//g,fs//g)
 def spec_db(x, nfft=1024, hop=256, lib='scipy'):
     if lib=='scipy':

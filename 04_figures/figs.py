@@ -9,8 +9,8 @@ plt.rcParams.update({"font.family": "serif", "font.serif": ["Liberation Serif", 
                      "axes.spines.top": False, "axes.spines.right": False, "xtick.major.width": 0.6, "ytick.major.width": 0.6, "savefig.dpi": 300, "figure.dpi": 100,
                      "legend.frameon": False, "mathtext.fontset": "stix"})
 W = 6.3
-S = json.load(open("/home/claude/summary/summary.json")); G = json.load(open("/home/claude/regroup/regroup3.json"))
-REF = "/home/claude/ref_v1/eval/reference_v1"
+S = json.load(open("/path/to/watkins_work/summary/summary.json")); G = json.load(open("/path/to/watkins_work/regroup/regroup3.json"))
+REF = "/path/to/watkins_work/ref_v1/eval/reference_v1"
 FE = ["physv0", "mfcc16k", "vggish", "effb3", "ast_zero", "ast_tile"]
 NM = {"meta": "Baseline (no audio)", "physv0": "Physical descriptors", "mfcc16k": "MFCC", "vggish": "VGGish", "effb3": "EfficientNet-B3", "ast_zero": "AST (zero-padded)", "ast_tile": "AST (repeated)"}
 K = "0.15"; BLUE, ORANGE, GREEN = "#2a78d6", "#eb6834", "#1baf7a"
@@ -50,7 +50,7 @@ fig.legend([Line2D([], [], marker="o", mfc="white", mec=K, ls=""), Line2D([], []
 fig.tight_layout(rect=(0, 0.06, 1, 1)); fig.savefig("fig/fig3.png", bbox_inches="tight"); plt.close(fig)
 
 # ── Figure 4: UMAP with and without species labels (VGGish) ──
-D = json.load(open("/home/claude/watkins_maps/real/data.json")); C = D["cuts"]
+D = json.load(open("/path/to/watkins_work/watkins_maps/real/data.json")); C = D["cuts"]
 dec = lambda s, t: np.frombuffer(base64.b64decode(s), dtype=t)
 blk = D["sup"]["vggish"]; rows_ = dec(blk["rows"], "<u2"); sp = np.array(C["sp"])[rows_]; spl = np.array(C["split"])[rows_]
 top = pd.Series(sp).value_counts().index[:12].tolist()

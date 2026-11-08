@@ -1,7 +1,7 @@
 import json,numpy as np,pandas as pd
 from sklearn.metrics import roc_auc_score
 R=json.load(open('phys2.json'))
-d=pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv',low_memory=False); d['cut_id']=d.cut_id.astype(str); D=d.set_index('cut_id')
+d=pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv',low_memory=False); d['cut_id']=d.cut_id.astype(str); D=d.set_index('cut_id')
 ids=list(R); M=D.loc[ids]
 df=pd.DataFrame({k:[R[c][k] for c in ids] for k in ['d0_f50','d1_f50','d0_f05','d1_f05','d0_f95','d1_f95','d0_peak_db','d1_peak_db','d0_duty','d1_duty']},index=ids)
 df['type']=M.task_type_single.values; df['tx']=M.group3.values; df['dur']=M.dur_s.values

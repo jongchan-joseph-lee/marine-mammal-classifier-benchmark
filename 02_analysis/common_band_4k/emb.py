@@ -2,7 +2,7 @@ import sys, os, json, time, numpy as np, pandas as pd, soundfile as sf, torch
 from fractions import Fraction
 from scipy.signal import resample_poly
 torch.set_num_threads(2)
-AUD='/home/claude/audio_core/'; PKG='/home/claude/pkg_in/'
+AUD='/path/to/watkins_work/audio_core/'; PKG='/path/to/watkins_work/pkg_in/'
 def resample_to(x,fs,t):
     if fs==t: return x
     fr=Fraction(t,fs).limit_denominator(2000); return resample_poly(x,fr.numerator,fr.denominator)

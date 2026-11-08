@@ -8,7 +8,7 @@ from scipy.signal import butter, sosfiltfilt, hilbert
 from multiprocessing import Pool
 def feats(cid):
     try:
-        x, fs = sf.read(f'/home/claude/audio_core/{cid}.flac')
+        x, fs = sf.read(f'/path/to/watkins_work/audio_core/{cid}.flac')
         if x.ndim > 1: x = x[:, 0]
         x = x - x.mean()
         sos = butter(4, 100, 'hp', fs=fs, output='sos'); x = sosfiltfilt(sos, x)
@@ -39,7 +39,7 @@ def feats(cid):
     except Exception as ex:
         return cid, [np.nan] * 7
 if __name__ == '__main__':
-    d = pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv', low_memory=False)
+    d = pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv', low_memory=False)
     m = d[(d.role == 'core') & d.task_type_single.isin(['whistle', 'moan', 'pulsed_call', 'growl', 'click', 'pulse_train'])]
     ids = m.cut_id.astype(str).tolist()
     with Pool(8) as p: res = p.map(feats, ids, chunksize=8)

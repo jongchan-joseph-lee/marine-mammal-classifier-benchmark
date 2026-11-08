@@ -7,9 +7,9 @@ from sklearn.manifold import TSNE
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import balanced_accuracy_score
 import umap
-d = pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv', low_memory=False).set_index('cut_id')
+d = pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv', low_memory=False).set_index('cut_id')
 REPS = ['physv0', 'mfcc16k', 'vggish', 'effb3', 'ast_tile']
-ids = np.load('/home/claude/pkg_in/work/features/physv0.npz', allow_pickle=True)['cut_id'].astype(str)
+ids = np.load('/path/to/watkins_work/pkg_in/work/features/physv0.npz', allow_pickle=True)['cut_id'].astype(str)
 m = d.loc[ids]; sp = m.species.values; tx = m.group3.values; split = m.split.values
 print('split', pd.Series(split).value_counts().to_dict(), flush=True)
 out = {'ids': ids.tolist(), 'maps': {}, 'score': {}}
@@ -21,7 +21,7 @@ def knn_loo(Y, lab, k=15):
 def q(Y):  # quantize to int16 range 0..9999 per axis
     lo, hi = Y.min(0), Y.max(0); return np.round((Y - lo) / (hi - lo + 1e-12) * 9999).astype(int).T.tolist()
 for rep in REPS:
-    z = np.load(f'/home/claude/pkg_in/work/features/{rep}.npz', allow_pickle=True)
+    z = np.load(f'/path/to/watkins_work/pkg_in/work/features/{rep}.npz', allow_pickle=True)
     assert (z['cut_id'].astype(str) == ids).all()
     X = np.clip(StandardScaler().fit_transform(SimpleImputer(strategy='median').fit_transform(z['X'].astype(float))), -8, 8)
     X50 = PCA(n_components=min(50, X.shape[1]), random_state=0).fit_transform(X)

@@ -51,4 +51,4 @@ def load_cached_umap3d(feature="vggish", root=None):
 # Examples after extracting:
 # metadata, X, feature_names = load_feature("vggish", "main")
 # metadata, X, feature_names = load_feature("ast_tile", "core")
-# For direct ZIP access: load_feature("physv0", "main", "Watkins_Claude_Input_Package.zip")
+# For direct ZIP access: load_feature("physv0", "main", "Watkins_Input_Package.zip")

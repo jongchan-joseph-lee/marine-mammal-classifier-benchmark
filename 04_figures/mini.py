@@ -1,12 +1,12 @@
 import numpy as np, soundfile as sf, pandas as pd, matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from phys_dbg import phys, THIRD
-import sys; sys.path.insert(0,'/home/claude/v4'); from spec import spec, CM
+import sys; sys.path.insert(0,'/path/to/watkins_work/v4'); from spec import spec, CM
 plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"font.size":8.5,"axes.linewidth":0.5,"xtick.major.width":0.5,"ytick.major.width":0.5,"xtick.major.size":2,"ytick.major.size":2,"axes.spines.top":False,"axes.spines.right":False})
 K="#0B4EA2"; C2="#00B5E2"; GR="0.55"
-c=pd.read_csv('/home/claude/pkg_in/data/core_3539_metadata.csv',low_memory=False); fn=dict(zip(c.cut_id,c.file_name))
+c=pd.read_csv('/path/to/watkins_work/pkg_in/data/core_3539_metadata.csv',low_memory=False); fn=dict(zip(c.cut_id,c.file_name))
 def load(cid):
-    x,fs=sf.read('/home/claude/v4/audio/'+fn[cid],dtype='float64',always_2d=True); return x[:,0],fs
-SZ=(2.0,1.8); OUT='/home/claude/ms/fig_deck/'
+    x,fs=sf.read('/path/to/watkins_work/v4/audio/'+fn[cid],dtype='float64',always_2d=True); return x[:,0],fs
+SZ=(2.0,1.8); OUT='/path/to/watkins_work/ms/fig_deck/'
 def save(fig,name): fig.tight_layout(pad=0.2); fig.savefig(OUT+name,dpi=300); plt.close(fig)
 x,fs=load('5702601X'); o,D=phys(x,fs)
 # A
@@ -19,7 +19,7 @@ fig,a=plt.subplots(figsize=SZ); v=o[7:38]; fc=np.array(THIRD)/1000; col=[K if f_
 a.bar(np.arange(31),v,color=col,width=0.8); a.set_xticks([2,12,22,30]); a.set_xticklabels(['$10^2$','$10^3$','$10^4$','63 k']); a.set_xlabel('1/3-octave band centre (Hz)',labelpad=1); a.set_ylabel('mean excess (dB)',labelpad=1)
 k=np.flatnonzero(fc>=fs/2000)[0]; a.axvspan(k-0.5,30.5,color='0.93',lw=0); a.text((k+30)/2,max(v)*0.6,'above\nNyquist\n= 0',ha='center',fontsize=7,color=GR); save(fig,'pf_B.png')
 # D
-fig,a=plt.subplots(figsize=SZ); t,ff,Dd,_,_=spec('/home/claude/v4/audio/'+fn['5702601X'],fmax=20000); a.pcolormesh(t,ff/1000,Dd*0.45,cmap=CM,vmin=0,vmax=1,shading='auto',rasterized=True)
+fig,a=plt.subplots(figsize=SZ); t,ff,Dd,_,_=spec('/path/to/watkins_work/v4/audio/'+fn['5702601X'],fmax=20000); a.pcolormesh(t,ff/1000,Dd*0.45,cmap=CM,vmin=0,vmax=1,shading='auto',rasterized=True)
 a.plot(D['pk_t'],D['pk_f']/1000,'.',ms=1.6,color=K); a.set_ylim(0,20); a.set_xlabel('s',labelpad=1); a.set_ylabel('kHz',labelpad=1)
 a.text(0.03,0.95,f"tonal conc. {o[42]:.2f}\nFM rate {np.expm1(o[43]):.1f} oct/s",transform=a.transAxes,va='top',fontsize=7.5,color=K,bbox=dict(fc='white',ec='none',alpha=0.8,pad=1)); save(fig,'pf_D.png')
 # C, F : harp seal

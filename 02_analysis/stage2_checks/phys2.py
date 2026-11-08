@@ -31,7 +31,7 @@ def band_feats(rise, freqs, lo, fs):
     return out,b0,bn
 def feats(cid):
     try:
-        x,fs=sf.read(f'/home/claude/audio_core/{cid}.flac'); x=x[:,0] if x.ndim>1 else x; x=x[:int(60*fs)]; x=x-x.mean()
+        x,fs=sf.read(f'/path/to/watkins_work/audio_core/{cid}.flac'); x=x[:,0] if x.ndim>1 else x; x=x[:int(60*fs)]; x=x-x.mean()
         n=len(x); nfft=nfft_for(fs,n); hop_s=(nfft//2)/fs
         P=stft_power(x,nfft); T=P.shape[0]; freqs=np.fft.rfftfreq(nfft,1/fs); lo=freqs>=max(10.0,2*fs/nfft)
         p50=np.percentile(P,50,axis=0)+1e-30; p95=np.percentile(P,95,axis=0); p10=np.percentile(P,10,axis=0)+1e-30
@@ -77,7 +77,7 @@ def feats(cid):
     except Exception as ex:
         return cid,{'err':str(ex)}
 if __name__=='__main__':
-    ids=np.load('/home/claude/pkg_in/work/features/physv0.npz',allow_pickle=True)['cut_id'].astype(str).tolist()
+    ids=np.load('/path/to/watkins_work/pkg_in/work/features/physv0.npz',allow_pickle=True)['cut_id'].astype(str).tolist()
     if len(sys.argv)>1: ids=ids[:int(sys.argv[1])]
     with Pool(2) as p: res=p.map(feats,ids,chunksize=8)
     json.dump(dict(res),open('phys2.json','w'))

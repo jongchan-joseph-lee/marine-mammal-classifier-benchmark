@@ -2,7 +2,7 @@
 """make_data.py — 요약 그림 6장의 숫자를 한 파일(summary.json)로 모은다. 새 학습은 하지 않는다(그림 C 의 값은 regroup/eval3.py 결과)."""
 import json, numpy as np, pandas as pd
 from sklearn.metrics import roc_auc_score
-PKG, REF, RG = "/home/claude/pkg_in", "/home/claude/ref_v1/eval/reference_v1", "/home/claude/regroup/regroup3.json"
+PKG, REF, RG = "/path/to/watkins_work/pkg_in", "/path/to/watkins_work/ref_v1/eval/reference_v1", "/path/to/watkins_work/regroup/regroup3.json"
 FE = ["meta", "physv0", "mfcc16k", "vggish", "ast_zero", "ast_tile", "effb3"]
 out = {}
 # A. 자료 구조 (평가 대상 10,694컷)

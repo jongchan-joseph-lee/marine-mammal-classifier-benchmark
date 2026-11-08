@@ -1,8 +1,8 @@
 import numpy as np, pandas as pd, json
-REF = '/home/claude/ref_v1/eval/reference_v1'
-d = pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv', low_memory=False)
+REF = '/path/to/watkins_work/ref_v1/eval/reference_v1'
+d = pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv', low_memory=False)
 d['cut_id'] = d.cut_id.astype(str); D = d.set_index('cut_id')
-ids = np.load('/home/claude/pkg_in/work/features/physv0.npz', allow_pickle=True)['cut_id'].astype(str)
+ids = np.load('/path/to/watkins_work/pkg_in/work/features/physv0.npz', allow_pickle=True)['cut_id'].astype(str)
 m = D.loc[ids]
 SIG = {'whistle': 'tonal', 'moan': 'tonal', 'click': 'impulsive', 'pulse_train': 'impulsive', 'pulsed_call': 'pulsed', 'growl': 'pulsed'}
 def s(x): return '' if pd.isna(x) else str(x)
@@ -35,9 +35,9 @@ for _, x in r[r.feature.isin(FE) & r.protocol.isin(['filecv', 'allcv', 'regioncv
 out['probe'] = probe
 pc = pd.read_csv(f'{REF}/per_class.csv'); pc = pc[(pc.subset == 'all') & (pc.metric == 'recall') & pc.feature.isin(FE) & pc.protocol.isin(['filecv', 'allcv'])]
 out['per_class'] = [dict(task=a.task, prot=a.protocol, feat=a.feature, cls=a.cls, v=round(a.value, 3), n=int(a.n_pos)) for a in pc.itertuples()]
-out['signal3'] = json.load(open('/home/claude/regroup/regroup3.json'))
-out['ct6'] = json.load(open('/home/claude/v8/ct6.json'))
-out['b4k'] = json.load(open('/home/claude/b4k/b4k_results.json'))
+out['signal3'] = json.load(open('/path/to/watkins_work/regroup/regroup3.json'))
+out['ct6'] = json.load(open('/path/to/watkins_work/v8/ct6.json'))
+out['b4k'] = json.load(open('/path/to/watkins_work/b4k/b4k_results.json'))
 out['a7'] = {'cols': ['Baseline', 'MFCC', '물리 특징', 'VGGish', 'EffNet-B3', 'AST'], 'rows': [
     ['Random forest · 분류군 (Cominelli et al. 2024 분류기)', '랜덤', [0.94, 0.83, 0.88, 0.79, 0.90, 0.81]],
     ['', '출처 단위', [0.72, 0.56, 0.61, 0.49, 0.63, 0.56]],
@@ -51,12 +51,12 @@ out['nn'] = [dict(feat='meta', all=0.452, same=0.538, other=0.106, multi=0.135),
              dict(feat='physv0', all=0.549, same=0.608, other=0.075, multi=0.096), dict(feat='vggish', all=0.731, same=0.767, other=0.073, multi=0.093),
              dict(feat='ast_tile', all=0.832, same=0.858, other=0.090, multi=0.115)]
 # ---- tonal vs pulsed (today)
-tp = pd.read_csv('/home/claude/v14/tp/tp_feats.csv', dtype={'cut_id': str}).set_index('cut_id')
+tp = pd.read_csv('/path/to/watkins_work/v14/tp/tp_feats.csv', dtype={'cut_id': str}).set_index('cut_id')
 tp = tp.join(D[['task_type_single', 'fs_family']])
 out['tp'] = {'cols': ['mod_peak_db', 'mod_peak_hz', 'mod_depth', 'cpp_db', 'cpp_q', 'env_kurt_log'],
              'rows': {c: tp[tp.task_type_single == c][['mod_peak_db', 'mod_peak_hz', 'mod_depth', 'cpp_db', 'cpp_q', 'env_kurt_log']].round(4).values.tolist() for c in SIG},
              'probe': {'전체': {'meta baseline': 0.671, 'phys51': 0.557, 'new 6': 0.583, 'phys51 + new 6': 0.573},
                        '40 kHz 계열': {'meta baseline': 0.504, 'phys51': 0.570, 'new 6': 0.561, 'phys51 + new 6': 0.588}}}
-out['summary'] = json.load(open('/home/claude/summary/summary.json'))
+out['summary'] = json.load(open('/path/to/watkins_work/summary/summary.json'))
 json.dump(out, open('data_core.json', 'w'), ensure_ascii=False, default=lambda o: o.item() if hasattr(o, 'item') else str(o))
 import os; print(os.path.getsize('data_core.json') / 1e6, 'MB'); print(out['counts']); print(len(probe))

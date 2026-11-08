@@ -3,7 +3,7 @@ from matplotlib.patches import Patch
 from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.image as mpimg
 plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"font.size":9.5,"axes.spines.top":False,"axes.spines.right":False,"legend.frameon":False})
-K="#0B4EA2"; S=json.load(open("/home/claude/summary/summary.json"))
+K="#0B4EA2"; S=json.load(open("/path/to/watkins_work/summary/summary.json"))
 fig=plt.figure(figsize=(12.4,3.9)); gs=fig.add_gridspec(3,2,width_ratios=[1,2.05],hspace=0.95,wspace=0.62)
 sty=[(K,"-"),("#00B5E2","-"),(K,":")]
 spec=[("(a) Tonal concentration",None,None,{"tonal":"tonal","impulsive":"impulsive","pulsed":"pulsed"}),

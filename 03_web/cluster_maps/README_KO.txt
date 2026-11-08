@@ -1,7 +1,7 @@
 Watkins 군집 지도 — 다시 만드는 법 (2026-10-11)
 
 필요한 것: 파이썬 3.10 이상, pip install numpy pandas scikit-learn umap-learn
-입력: Watkins_Claude_Input_Package.zip 을 푼 폴더 (아래에서 PKG)
+입력: Watkins_Input_Package.zip 을 푼 폴더 (아래에서 PKG)
 
 1) 목록표 변환     python adapt_real.py PKG out            → out/cuts.csv (컷은 cut_id 로만 잇는다)
 2) 계산 (약 15분)  python build_maps.py --cuts out/cuts.csv --features PKG/full_cohort/features

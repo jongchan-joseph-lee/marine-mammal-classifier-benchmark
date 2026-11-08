@@ -1,8 +1,8 @@
 import numpy as np, json, matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-import sys; sys.path.insert(0,'/home/claude/v4'); from spec import spec, CM
+import sys; sys.path.insert(0,'/path/to/watkins_work/v4'); from spec import spec, CM
 plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"font.size":7,"axes.linewidth":0.4})
-R=np.load('ex3.npz'); O='/home/claude/ms/fig_x/'; K='#0B4EA2'
+R=np.load('ex3.npz'); O='/path/to/watkins_work/ms/fig_x/'; K='#0B4EA2'
 def norm(A,lo=20,hi=99.7): l,h=np.percentile(A,[lo,hi]); return np.clip((A-l)/(h-l),0,1)
 def im(name,A,ext=None,size=(2,1),yt=None,ytl=None,ylab=None,cmap=CM,grid=None,aspect='auto',vmin=None,vmax=None,origin='lower',hl=None,xlab=None,xt=None,xtl=None):
     fig,a=plt.subplots(figsize=size); a.imshow(A,origin=origin,aspect=aspect,cmap=cmap,extent=ext,interpolation='nearest',vmin=vmin,vmax=vmax)
@@ -17,7 +17,7 @@ def im(name,A,ext=None,size=(2,1),yt=None,ytl=None,ylab=None,cmap=CM,grid=None,a
 def vec(name,v,shape,size=(1.6,0.7)):
     v=v[:np.prod(shape)].reshape(shape); z=(v-v.mean())/(v.std()+1e-9)
     im(name,z,size=size,cmap='RdBu_r',vmin=-2.5,vmax=2.5,origin='upper')
-t,f,D,fs,dur=spec('/home/claude/audio_core/5702601X.flac')
+t,f,D,fs,dur=spec('/path/to/watkins_work/audio_core/5702601X.flac')
 im('s_orig.png',D,[0,dur,0,20],(1.9,1.5),[0,5,10,15,20],['0','5','10','15','20'],'kHz',xlab='s',xt=[0,0.5,1.0],xtl=['0','0.5','1.0'])
 A=R['ast_in'].T
 im('in_ast.png',norm(A),[0,1024,0,128],(2,0.9),[0,128],['0','8k'],'mel 128')

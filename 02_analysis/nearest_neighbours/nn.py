@@ -1,11 +1,11 @@
 import numpy as np, pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import NearestNeighbors
-d=pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv',low_memory=False).set_index('cut_id')
+d=pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv',low_memory=False).set_index('cut_id')
 K=10
 res=[]
 for name in ['meta','mfcc16k','physv0','vggish','ast_tile','ast_zero']:
-    z=np.load(f'/home/claude/pkg_in/full_cohort/features/{name}.npz',allow_pickle=True)
+    z=np.load(f'/path/to/watkins_work/pkg_in/full_cohort/features/{name}.npz',allow_pickle=True)
     ids=z['cut_id'].astype(str); X=np.nan_to_num(z['X'].astype(float))
     X=np.clip(StandardScaler().fit_transform(X),-8,8)
     m=d.loc[ids]; sp=np.asarray(m.species.values,dtype=object); site=np.asarray(m.g_site.values,dtype=object)

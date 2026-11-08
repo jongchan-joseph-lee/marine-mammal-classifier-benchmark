@@ -58,9 +58,9 @@ def phys(x,fs):
         D.update(ac=ac,ac_lag=np.arange(len(ac))*hop_s)
     return out,D
 if __name__=='__main__':
-    z=np.load('/home/claude/pkg_in/work/features/physv0.npz'); ids=list(z['cut_id'])
-    c=pd.read_csv('/home/claude/pkg_in/data/core_3539_metadata.csv',low_memory=False); fn=dict(zip(c.cut_id,c.file_name))
+    z=np.load('/path/to/watkins_work/pkg_in/work/features/physv0.npz'); ids=list(z['cut_id'])
+    c=pd.read_csv('/path/to/watkins_work/pkg_in/data/core_3539_metadata.csv',low_memory=False); fn=dict(zip(c.cut_id,c.file_name))
     for cid in ['5702601X','9420108A','6700900B','8800601U','6002602W','9420108L']:
-        x,fs=sf.read('/home/claude/v4/audio/'+fn[cid],dtype='float64',always_2d=True); x=x[:,0]
+        x,fs=sf.read('/path/to/watkins_work/v4/audio/'+fn[cid],dtype='float64',always_2d=True); x=x[:,0]
         o,_=phys(x,fs); ref=z['X'][ids.index(cid)]
         ok=np.isclose(o,ref,rtol=1e-3,atol=1e-3,equal_nan=True); print(cid, ok.sum(),'/51', [str(z['names'][i]) for i in np.flatnonzero(~ok)][:6])

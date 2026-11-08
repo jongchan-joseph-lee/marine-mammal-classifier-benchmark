@@ -1,7 +1,7 @@
 import numpy as np, matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
-import sys; sys.path.insert(0,'/home/claude/v4'); from spec import spec, CM
+import sys; sys.path.insert(0,'/path/to/watkins_work/v4'); from spec import spec, CM
 plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"font.size":7,"axes.linewidth":0.4})
-R=np.load('ex_8101403Z.npz'); O='/home/claude/ms/fig_x/'
+R=np.load('ex_8101403Z.npz'); O='/path/to/watkins_work/ms/fig_x/'
 def norm(A,lo=20,hi=99.7): l,h=np.percentile(A,[lo,hi]); return np.clip((A-l)/(h-l),0,1)
 def fixed(name,A,ext,yt,ytl,ylab,grid=None):
     fig=plt.figure(figsize=(2,0.9)); a=fig.add_axes([0.24,0.06,0.74,0.9])
@@ -18,7 +18,7 @@ A=R['ast_in'].T; fixed('m_in_ast.png',norm(A),[0,1024,0,128],[0,128],['0','8k'],
 VV=np.concatenate(list(R['vgg_in']),0); fixed('m_in_vgg.png',norm(VV.T),[0,VV.shape[0],0,64],[0,64],['0.1','7.5k'],'mel 64',grid=[96])
 fixed('m_in_eff.png',R['eff_img'][::-1],[0,800,0,300],[0,300],['0','20k'],'300 px')
 c=R['mf_c']; cz=(c-c.mean(0))/(c.std(0)+1e-9); fixed('m_in_mfcc.png',np.clip((cz.T+2.5)/5,0,1),[0,len(c),1,21],[1,20],['1','20'],'c1–c20')
-t,f,D,fs,dur=spec('/home/claude/audio_core/8101403Z.flac'); fixed('m_in_phys.png',D,[0,dur,0,fs/2000],[0,fs/2000],['0','7.45k'],'native')
+t,f,D,fs,dur=spec('/path/to/watkins_work/audio_core/8101403Z.flac'); fixed('m_in_phys.png',D,[0,dur,0,fs/2000],[0,fs/2000],['0','7.45k'],'native')
 # AST patch figure: true mel tick labels + patch annotation
 lo,hi=mel(20),mel(8000); hz=lambda b: inv(lo+(hi-lo)*b/128)
 fig,a=plt.subplots(figsize=(2.6,2.0)); a.imshow(norm(A[:,:300]),origin='lower',aspect='auto',cmap=CM,extent=[0,300,0,128],interpolation='nearest')

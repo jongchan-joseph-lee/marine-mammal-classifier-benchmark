@@ -26,4 +26,4 @@ from matplotlib.lines import Line2D
 b.legend([Line2D([],[],marker='o',color=K,ls=''),Line2D([],[],marker='s',color=K,ls=''),Line2D([],[],marker='o',mfc='white',mec=K,ls='')],['6 call types (chance 0.17)','3 signal types (chance 0.33)','open: not different from baseline'],fontsize=8.5,loc='upper center',bbox_to_anchor=(0.45,-0.16),ncol=3,frameon=False,columnspacing=0.8,handletextpad=0.3)
 b.set_title('6-class probe: 6 call types and collapsed 3 types',fontsize=10,loc='left')
 fig.text(0.02,-0.01,'W whistle · M moan · C click · PT pulse train · PC pulsed call · G growl   (rows = true, row %; orange = same signal type; title = 6-type BA)',fontsize=8.5,color='0.35')
-fig.savefig('/home/claude/ms/fig_x/fig_ct6sum.png',dpi=300,bbox_inches='tight'); print('ok')
+fig.savefig('/path/to/watkins_work/ms/fig_x/fig_ct6sum.png',dpi=300,bbox_inches='tight'); print('ok')

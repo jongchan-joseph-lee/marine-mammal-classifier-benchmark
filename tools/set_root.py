@@ -1,16 +1,16 @@
 """Rewrite the workspace root hard-coded in the scripts.
 
-The analysis was run in a workspace rooted at /home/claude. Run this once after cloning:
+Scripts refer to the workspace as /path/to/watkins_work/. Run this once after cloning:
 
     python tools/set_root.py ~/watkins_work
 
-Every '/home/claude/' prefix in .py/.js/.sh/.html files under this repo is replaced by the new root.
+Every '/path/to/watkins_work/' prefix in .py/.js/.sh/.html files under this repo is replaced by the new root.
 Run it again with another root to move again (it remembers the current root in tools/.root).
 """
 import sys, pathlib
 repo = pathlib.Path(__file__).resolve().parents[1]
 state = repo / 'tools' / '.root'
-old = state.read_text().strip() if state.exists() else '/home/claude/'
+old = state.read_text().strip() if state.exists() else '/path/to/watkins_work/'
 if len(sys.argv) != 2:
     sys.exit(f'usage: python tools/set_root.py NEW_ROOT   (current: {old})')
 new = str(pathlib.Path(sys.argv[1]).expanduser().resolve()).rstrip('/') + '/'

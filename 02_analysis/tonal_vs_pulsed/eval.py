@@ -6,9 +6,9 @@ from sklearn.preprocessing import StandardScaler, FunctionTransformer
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 F = pd.read_csv('tp_feats.csv', index_col=0)
-d = pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv', low_memory=False).set_index('cut_id')
+d = pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv', low_memory=False).set_index('cut_id')
 F = F.join(d[['task_type_single', 'fs_family', 'group3', 'fold_all', 'g_site', 'dur_s']])
-z = np.load('/home/claude/pkg_in/full_cohort/features/physv0.npz', allow_pickle=True)
+z = np.load('/path/to/watkins_work/pkg_in/full_cohort/features/physv0.npz', allow_pickle=True)
 P = pd.DataFrame(z['X'], index=z['cut_id'].astype(str), columns=list(z['names']))
 T = {'whistle': 'tonal', 'moan': 'tonal', 'pulsed_call': 'pulsed', 'growl': 'pulsed'}
 F['g'] = F.task_type_single.map(T)

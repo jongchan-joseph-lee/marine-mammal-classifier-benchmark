@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""adapt_real.py — Watkins_Claude_Input_Package 의 목록표를 build_maps.py 가 읽는 cuts.csv 로 옮긴다.
+"""adapt_real.py — Watkins_Input_Package 의 목록표를 build_maps.py 가 읽는 cuts.csv 로 옮긴다.
    컷은 cut_id 로만 잇는다(행 번호로 잇지 않는다). usage: python3 -I adapt_real.py <package_dir> <out_dir>"""
 import sys
 from pathlib import Path

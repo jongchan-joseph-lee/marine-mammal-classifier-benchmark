@@ -1,4 +1,4 @@
-import sys; sys.path.insert(0,'/home/claude/b4k'); sys.path.insert(0,'/home/claude/v4')
+import sys; sys.path.insert(0,'/path/to/watkins_work/b4k'); sys.path.insert(0,'/path/to/watkins_work/v4')
 from emb import *
 from spec import CM
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
@@ -6,7 +6,7 @@ plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"fo
 from transformers import ASTFeatureExtractor
 from vggish_reference import VGGishInputProcessor
 cid,fn='5702601X','5702601X.flac'; x,fs=read(cid,fn); x16=prepare(x,fs,False)
-OUT='/home/claude/ms/fig_deck/'; SZ=(2.0,0.95)
+OUT='/path/to/watkins_work/ms/fig_deck/'; SZ=(2.0,0.95)
 def show(A,ext,ylab,name,yt=None,ytl=None,grid=None,note=None):
     fig,a=plt.subplots(figsize=SZ); a.imshow(A,origin='lower',aspect='auto',cmap=CM,extent=ext,interpolation='nearest')
     a.set_yticks(yt or []); a.set_yticklabels(ytl or []); a.set_xticks([]); a.tick_params(length=1.5,pad=1,labelsize=6.5)

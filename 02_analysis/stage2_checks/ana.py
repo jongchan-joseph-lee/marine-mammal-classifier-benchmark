@@ -1,4 +1,4 @@
-import sys; sys.path.insert(0,'/home/claude/s1')
+import sys; sys.path.insert(0,'/path/to/watkins_work/s1')
 from common import *
 import json
 from sklearn.metrics import roc_auc_score

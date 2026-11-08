@@ -2,7 +2,7 @@ import json, numpy as np, pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold
-PKG='/home/claude/pkg_in/'; rng=np.random.default_rng(0)
+PKG='/path/to/watkins_work/pkg_in/'; rng=np.random.default_rng(0)
 m=pd.read_csv(PKG+'data/core_3539_metadata.csv',low_memory=False)
 FE=['meta','physv0','mfcc16k','vggish','effb3','ast_tile']
 X={f:np.asarray(np.load(PKG+f'work/features/{f}.npz')['X'],float) for f in FE}

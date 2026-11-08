@@ -34,5 +34,5 @@ for f in FE:
     a.set_yticks([2,1,0]); a.set_yticklabels([m[1] for m in mets],fontsize=9); a.set_xlim(0,1.15); a.set_xticks([0,0.25,0.5,0.75,1]); a.set_ylim(-0.6,2.6)
     a.set_xlabel('balanced accuracy, sources apart',fontsize=9); a.set_title('(c) Baseline vs other representations' if f=='meta' else f'(c) {NM[f]} vs baseline',fontsize=10.5,loc='left')
     a.text(0.0,-0.22,'grey dots: the other representations   ·   filled = 95% CI of difference excludes 0 (*)',transform=a.transAxes,fontsize=7.5,color='0.4')
-    fig.savefig(f'/home/claude/ms/fig_x/ct6_{f}.png',dpi=300,bbox_inches='tight'); plt.close(fig)
+    fig.savefig(f'/path/to/watkins_work/ms/fig_x/ct6_{f}.png',dpi=300,bbox_inches='tight'); plt.close(fig)
 print('ok')

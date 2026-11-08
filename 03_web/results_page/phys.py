@@ -1,9 +1,9 @@
 import numpy as np, pandas as pd, json, soundfile as sf, io, base64
 from scipy.signal import stft
 from PIL import Image
-z = np.load('/home/claude/pkg_in/work/features/physv0.npz', allow_pickle=True)
+z = np.load('/path/to/watkins_work/pkg_in/work/features/physv0.npz', allow_pickle=True)
 names = [str(n) for n in z['names']]; ids = z['cut_id'].astype(str); X = pd.DataFrame(z['X'].astype(float), index=ids, columns=names)
-d = pd.read_csv('/home/claude/pkg_in/data/bench_manifest.csv', low_memory=False); d['cut_id'] = d.cut_id.astype(str); D = d.set_index('cut_id')
+d = pd.read_csv('/path/to/watkins_work/pkg_in/data/bench_manifest.csv', low_memory=False); d['cut_id'] = d.cut_id.astype(str); D = d.set_index('cut_id')
 m = D.loc[ids]
 TYPES = ['whistle', 'moan', 'click', 'pulse_train', 'pulsed_call', 'growl']
 DECK = {'whistle': '5702601X', 'moan': '8800601U', 'click': '9420108A', 'pulse_train': '6002602W', 'pulsed_call': '9420108L', 'growl': '6700900B'}
@@ -23,7 +23,7 @@ single = m[m.task_type_single.isin(TYPES)]
 K = [k[0] for k in KEY]
 Z = X.loc[single.index, K]; Zs = (Z - Z.median()) / (Z.quantile(.75) - Z.quantile(.25) + 1e-9); Zs = Zs.fillna(0)
 def tile(cid, W=360, H=150, cap=10.0):
-    x, fs = sf.read(f'/home/claude/audio_core/{cid}.flac'); x = x[:, 0] if x.ndim > 1 else x; x = x[:int(cap * fs)]
+    x, fs = sf.read(f'/path/to/watkins_work/audio_core/{cid}.flac'); x = x[:, 0] if x.ndim > 1 else x; x = x[:int(cap * fs)]
     n = int(2 ** np.round(np.log2(max(fs * 0.012, 128)))); f, t, Zx = stft(x, fs, nperseg=n, noverlap=int(n * 0.75))
     P = np.abs(Zx) ** 2; L = 10 * np.log10(P + 1e-20); hi = np.percentile(L, 99.7); L = np.clip((L - (hi - 55)) / 55, 0, 1)
     img = Image.fromarray((L[::-1] * 255).astype(np.uint8)).resize((W, H), Image.BILINEAR)

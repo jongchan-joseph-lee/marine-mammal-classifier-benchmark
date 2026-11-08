@@ -1,7 +1,7 @@
 import json, numpy as np, matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 plt.rcParams.update({"font.family":"serif","font.serif":["Liberation Serif"],"font.size":10,"axes.spines.top":False,"axes.spines.right":False,"legend.frameon":False})
-K="#0B4EA2"; R=json.load(open('/home/claude/b4k/b4k_results.json'))
+K="#0B4EA2"; R=json.load(open('/path/to/watkins_work/b4k/b4k_results.json'))
 T=[('taxon','Taxon (3)'),('species','Species (10)'),('calltype','Call type (7)'),('signal','Signal type (3)')]
 P=[('mfcc16k','mfcc_b4k','MFCC'),('vggish','vggish_b4k','VGGish'),('ast_tile','ast_tile_b4k','AST')]
 fig,ax=plt.subplots(1,4,figsize=(12,3.1),sharey=True)
